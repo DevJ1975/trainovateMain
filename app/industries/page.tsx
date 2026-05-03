@@ -6,9 +6,29 @@ import { StockImage } from "@/components/ui/StockImage";
 import { industries } from "@/lib/industries";
 
 export const metadata: Metadata = {
-  title: "Industries — Training built for the work the world depends on",
+  title: "Industries We Serve | Safety Training & Workforce Learning Solutions",
   description:
-    "Trainovate Technologies serves manufacturing, warehousing & logistics, construction, aviation maintenance, energy & utilities, government & public sector, healthcare & emergency response, and corporate workforce training.",
+    "Trainovate supports manufacturing, construction, warehousing & logistics, aviation maintenance, energy & utilities, government, healthcare & emergency response, and corporate teams with AI-powered safety training, immersive VR/3D simulations, microlearning, and the Soteria FIELD SaaS LMS.",
+  alternates: { canonical: "/industries" },
+  openGraph: {
+    title: "Industries We Serve | Safety & Workforce Training Solutions",
+    description:
+      "Modern safety and workforce training systems for high-risk industries — from manufacturing and construction to government and healthcare.",
+    url: "/industries",
+    type: "website",
+  },
+  keywords: [
+    "manufacturing safety training",
+    "construction safety training",
+    "warehouse safety training",
+    "logistics training",
+    "aviation maintenance training",
+    "energy and utilities training",
+    "government workforce training",
+    "healthcare emergency response training",
+    "corporate workforce training",
+    "industrial safety training",
+  ],
 };
 
 export default function IndustriesPage() {

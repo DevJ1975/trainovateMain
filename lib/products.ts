@@ -71,10 +71,10 @@ export const products: Product[] = [
     slug: "field",
     index: "03",
     name: "FIELD",
-    full: "Soteria FIELD",
-    tagline: "The compliance app for the people doing the work.",
+    full: "Soteria FIELD SaaS",
+    tagline: "The compliance SaaS for the people doing the work.",
     description:
-      "A web app for inspections, audits, and corrective actions. Built for the person on the floor at 6am, not the consultant in the deck.",
+      "Soteria FIELD is the multi-tenant SaaS for inspections, audits, and corrective actions. Built for the person on the floor at 6am, not the consultant in the deck. xAPI-native, mobile-first, and configured to your operation in days — not months.",
     role: "Daily compliance instrument.",
     mark: MarkField,
     features: [

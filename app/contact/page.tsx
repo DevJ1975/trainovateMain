@@ -3,9 +3,17 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { ContactForm } from "@/components/contact/ContactForm";
 
 export const metadata: Metadata = {
-  title: "Contact — Tell us about your workforce",
+  title: "Contact Trainovate | Request a Workforce Training Demo",
   description:
-    "Reach Trainovate.ai about the Soteria platform, training programs, federal teaming, and partnerships.",
+    "Reach Trainovate to request a demo of the Soteria FIELD SaaS LMS, discuss AI-powered safety training, immersive VR/3D programs, microlearning, federal teaming, or custom LMS development.",
+  alternates: { canonical: "/contact" },
+  openGraph: {
+    title: "Contact Trainovate | Request a Demo",
+    description:
+      "Talk to Trainovate about the Soteria FIELD SaaS, AI-powered safety training, and modern workforce learning systems.",
+    url: "/contact",
+    type: "website",
+  },
 };
 
 export default function ContactPage() {

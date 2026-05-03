@@ -5,8 +5,16 @@ import { podcast, episodes } from "@/lib/podcast";
 import { Headphones, Mic, ExternalLink, Rss } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: `${podcast.name} — The Trainovate.ai podcast`,
+  title: `${podcast.name} Podcast | Trainovate — Strategy, Operations, Leadership, The Future of Work`,
   description: podcast.description,
+  alternates: { canonical: "/podcast" },
+  openGraph: {
+    title: `${podcast.name} Podcast — with Jamil Jones`,
+    description: podcast.description,
+    url: "/podcast",
+    type: "website",
+    images: [{ url: podcast.coverArt }],
+  },
 };
 
 const formatDate = (iso: string) =>

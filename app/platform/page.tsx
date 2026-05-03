@@ -5,9 +5,28 @@ import { products } from "@/lib/products";
 import { ArrowUpRight } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Platform — Soteria",
+  title: "Training Solutions | AI, VR, Microlearning & Custom LMS Development",
   description:
-    "Four products. One doctrine. Soteria Safeguard, FIELD, Learning, and Co-Pilot share a single xAPI evidence spine.",
+    "Explore Trainovate training solutions: AI-driven learning systems, immersive VR & 3D safety training, microlearning & daily reinforcement, safety & compliance programs, and Soteria FIELD SaaS — a custom LMS built for high-risk industries.",
+  alternates: { canonical: "/platform" },
+  openGraph: {
+    title: "Training Solutions | AI, VR, Microlearning & Custom LMS",
+    description:
+      "AI-driven learning systems, immersive VR/3D simulations, microlearning, and the Soteria FIELD SaaS LMS — built for high-risk industries.",
+    url: "/platform",
+    type: "website",
+  },
+  keywords: [
+    "AI-driven learning systems",
+    "VR safety training",
+    "3D training simulations",
+    "microlearning for safety compliance",
+    "custom LMS development",
+    "Soteria FIELD SaaS",
+    "AI-powered safety training",
+    "modern LMS for safety training",
+    "operational readiness training",
+  ],
 };
 
 export default function PlatformPage() {

@@ -12,9 +12,17 @@ const RadarBackdrop = dynamic(
 );
 
 export const metadata: Metadata = {
-  title: "Federal — SDVOSB capabilities",
+  title: "Federal | SDVOSB Workforce Training & Safety Platform",
   description:
-    "Trainovate.ai is an SDVOSB workforce-safety platform company. Soteria — our SaaS + training platform — serves DoD, VA, and federally regulated industry.",
+    "Trainovate is a Service-Disabled Veteran-Owned Small Business shipping the Soteria FIELD SaaS workforce-safety platform for DoD, VA, and federally regulated industry. NAICS 611430 primary. Section 508 native.",
+  alternates: { canonical: "/federal" },
+  openGraph: {
+    title: "Federal | SDVOSB Workforce Training & Safety Platform",
+    description:
+      "SDVOSB platform-first delivery for federal customers. Soteria FIELD SaaS — Section 508 native, audit-ready.",
+    url: "/federal",
+    type: "website",
+  },
 };
 
 const NAICS = [

@@ -12,9 +12,17 @@ const RadarBackdrop = dynamic(
 );
 
 export const metadata: Metadata = {
-  title: "About — Train for the real world. Not the classroom.",
+  title: "About Trainovate | Veteran-Founded Workforce Training Technology Company",
   description:
-    "Trainovate builds modern workforce training systems using AI, immersive learning, and real-world simulation — designed to improve safety, performance, and retention where it actually matters.",
+    "Learn how Trainovate builds modern workforce training systems using AI, immersive VR/3D learning, microlearning, and the Soteria FIELD SaaS LMS — for real-world safety, performance, and retention. Veteran-founded. SDVOSB.",
+  alternates: { canonical: "/about" },
+  openGraph: {
+    title: "About Trainovate | Veteran-Founded Workforce Training Technology Company",
+    description:
+      "AI-powered, immersive workforce training built for high-risk industries. Veteran-founded. SDVOSB. Headquartered in Las Vegas, NV.",
+    url: "/about",
+    type: "website",
+  },
 };
 
 const builds = [

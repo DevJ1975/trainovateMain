@@ -4,9 +4,10 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { insights } from "@/lib/insights";
 
 export const metadata: Metadata = {
-  title: "Insights — Field notes from Trainovate",
+  title: "Insights | Trainovate Workforce Training Blog",
   description:
-    "Doctrine, technical notes, and market commentary from the Trainovate team.",
+    "Field notes on AI-powered workforce training, VR safety training, microlearning, OSHA compliance, and the Soteria FIELD SaaS LMS — from the Trainovate team.",
+  alternates: { canonical: "/insights" },
 };
 
 const formatDate = (iso: string) =>
