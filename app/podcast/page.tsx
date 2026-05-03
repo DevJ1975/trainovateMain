@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { podcast, episodes } from "@/lib/podcast";
 import { Headphones, Mic, ExternalLink, Rss } from "lucide-react";
@@ -42,36 +43,42 @@ export default function PodcastPage() {
                 )
               )}
             </h1>
-            <p className="tnv-body mt-8 max-w-xl text-pretty">
+            <p className="font-display font-medium text-xl text-bone/85 mt-6 max-w-xl text-pretty">
+              with Jamil Jones
+            </p>
+            <p className="tnv-body mt-6 max-w-xl text-pretty">
               {podcast.description}
             </p>
-            <p className="mt-4 font-mono text-[11px] uppercase tracking-eyebrow text-flare">
-              <span className="border border-flare/40 px-2 py-1">
-                TODO Jay confirms — show name + URLs
-              </span>
-            </p>
+
+            {/* Show pillars */}
+            <ul className="mt-10 flex flex-wrap gap-2">
+              {podcast.pillars.map((p) => (
+                <li
+                  key={p}
+                  className="font-mono text-[11px] uppercase tracking-eyebrow text-bone/85 border border-bone/15 px-3 py-2"
+                >
+                  {p}
+                </li>
+              ))}
+            </ul>
           </div>
 
           <div className="lg:col-span-5">
-            {/* Cover-art placeholder */}
-            <div className="tnv-glass aspect-square rounded-2xl flex items-center justify-center relative overflow-hidden">
-              <div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "radial-gradient(ellipse 80% 60% at 30% 30%, rgba(0,70,230,0.32), transparent 60%), radial-gradient(ellipse 60% 70% at 80% 80%, rgba(255,107,26,0.25), transparent 55%)",
-                }}
-              />
-              <div className="relative text-center px-6">
-                <Mic className="text-flare mx-auto mb-6" size={48} />
-                <div className="font-display font-bold text-3xl md:text-4xl text-bone tracking-tight">
-                  {podcast.name}
-                </div>
-                <div className="mt-3 font-mono text-[10px] uppercase tracking-eyebrow text-fog">
-                  Trainovate.ai · cover art TBD
-                </div>
+            <div className="tnv-glass aspect-square rounded-2xl relative overflow-hidden p-2">
+              <div className="relative w-full h-full overflow-hidden rounded-xl bg-ink-soft">
+                <Image
+                  src={podcast.coverArt}
+                  alt={`${podcast.name} podcast cover art`}
+                  fill
+                  sizes="(min-width: 1024px) 40vw, 100vw"
+                  className="object-cover"
+                  priority
+                />
               </div>
             </div>
+            <p className="mt-3 font-mono text-[10px] uppercase tracking-eyebrow text-fog text-center">
+              Cover art · Operational Minds with Jamil Jones
+            </p>
           </div>
         </div>
       </section>

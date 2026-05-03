@@ -9,6 +9,9 @@ export const podcast = {
   tagline: "Conversations with the people who run dangerous, complex, and consequential work.",
   description:
     "Operator-to-operator interviews on EHS doctrine, training instrumentation, AI co-pilots, immersive learning, and the federal market for veteran-owned small business. Hosted by Jamil 'Jay' Jones.",
+  // Drop the cover-art JPG at public/img/podcast/operational-minds.jpg
+  coverArt: "/img/podcast/operational-minds.jpg",
+  pillars: ["Strategy", "Operations", "Leadership", "The Future of Work"],
   links: {
     apple: "https://podcasts.apple.com/", // TODO Jay confirms — Apple Podcasts URL
     spotify: "https://open.spotify.com/", // TODO Jay confirms — Spotify URL

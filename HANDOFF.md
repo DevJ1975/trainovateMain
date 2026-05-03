@@ -33,8 +33,8 @@ Intro". Confirm whether the canonical brand is "Trainovate.ai" or
 
 ## Podcast
 
-`lib/podcast.ts` — show name is **Operational Minds** (confirmed). Remaining placeholders:
-- [ ] Cover art (currently a generated placeholder tile)
+`lib/podcast.ts` — show name is **Operational Minds** (confirmed).
+- [ ] **Cover art** — drop your supplied JPG at `public/img/podcast/operational-minds.jpg`. The /podcast page already references that path via `next/image` (will render optimized AVIF/WebP at runtime). See `public/img/podcast/README.md` for size recommendations.
 - [ ] Episode roster — six placeholder episodes; replace with real titles, guests, dates, durations, summaries, and per-platform listen URLs
 - [ ] Subscribe URLs — Apple, Spotify, YouTube, Overcast, RSS
 
