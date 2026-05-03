@@ -5,16 +5,16 @@
  */
 
 export const podcast = {
-  name: "Field Signal", // TODO Jay confirms — actual show name
-  tagline: "Conversations from the floor of high-risk industries.",
+  name: "Operational Minds",
+  tagline: "Conversations with the people who run dangerous, complex, and consequential work.",
   description:
-    "Operator-to-operator interviews on EHS doctrine, training instrumentation, AI co-pilots, and the federal market for veteran-owned small business. Hosted by Jamil 'Jay' Jones.",
+    "Operator-to-operator interviews on EHS doctrine, training instrumentation, AI co-pilots, immersive learning, and the federal market for veteran-owned small business. Hosted by Jamil 'Jay' Jones.",
   links: {
-    apple: "https://podcasts.apple.com/", // TODO Jay confirms
-    spotify: "https://open.spotify.com/", // TODO Jay confirms
-    youtube: "https://www.youtube.com/", // TODO Jay confirms
-    overcast: "https://overcast.fm/", // TODO Jay confirms
-    rss: "https://feeds.example.com/field-signal.xml", // TODO Jay confirms
+    apple: "https://podcasts.apple.com/", // TODO Jay confirms — Apple Podcasts URL
+    spotify: "https://open.spotify.com/", // TODO Jay confirms — Spotify URL
+    youtube: "https://www.youtube.com/", // TODO Jay confirms — YouTube channel URL
+    overcast: "https://overcast.fm/", // TODO Jay confirms — Overcast URL
+    rss: "https://feeds.example.com/operational-minds.xml", // TODO Jay confirms — RSS feed
   },
 } as const;
 

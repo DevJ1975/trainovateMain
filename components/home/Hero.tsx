@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { ArrowRight } from "lucide-react";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { Download } from "lucide-react";
 
 export function Hero() {
   const [count, setCount] = useState(0);
@@ -26,24 +26,24 @@ export function Hero() {
     <section className="relative min-h-[100vh] flex flex-col justify-center tnv-section">
       <div className="tnv-container">
         <div className="animate-fade-up" style={{ animationDelay: "100ms" }}>
-          <Eyebrow index="TRAINOVATE" label="SDVOSB" />
+          <Eyebrow index="TRAINOVATE" label="WORKFORCE TRAINING · REIMAGINED" />
         </div>
 
         <h1
           className="tnv-h1 mt-8 max-w-[1100px] text-balance animate-fade-up"
           style={{ animationDelay: "240ms" }}
         >
-          The workforce safety{" "}
-          <span className="tnv-italic text-signal">platform.</span>
+          The training platform for{" "}
+          <span className="tnv-italic text-signal">high-risk, high-performance teams.</span>
         </h1>
 
         <p
           className="tnv-body mt-10 max-w-2xl text-pretty animate-fade-up"
           style={{ animationDelay: "420ms" }}
         >
-          Soteria is the SaaS + training platform Trainovate.ai builds for
-          high-risk industries. xAPI-native learning, EHS instrumentation, and
-          AI co-pilots — shipped, not pitched.
+          Trainovate combines AI, immersive 3D and VR, and field-grade
+          microlearning into one platform — so the people who do dangerous,
+          complex, and consequential work are ready when it counts.
         </p>
 
         <div
@@ -51,12 +51,14 @@ export function Hero() {
           style={{ animationDelay: "560ms" }}
         >
           <Link href="/contact" className="tnv-btn-signal">
-            Request a demo
+            Request a Demo <ArrowRight size={14} />
           </Link>
-          <a href="/pdf/capability-statement.pdf" className="tnv-btn-ghost">
-            <Download size={14} />
-            Capabilities (PDF)
-          </a>
+          <Link href="/contact" className="tnv-btn-signal" style={{ background: "var(--tnv-flare)", borderColor: "var(--tnv-flare)" }}>
+            Build Your Training System
+          </Link>
+          <Link href="/platform" className="tnv-btn-ghost">
+            Explore Solutions
+          </Link>
         </div>
       </div>
 
@@ -64,7 +66,7 @@ export function Hero() {
         <div className="font-mono text-[10px] uppercase tracking-eyebrow text-fog">
           Incidents prevented (sim)
         </div>
-        <div className="font-mono text-2xl text-signal mt-1 tabular-nums">
+        <div className="font-mono text-2xl text-cobalt-soft mt-1 tabular-nums">
           {count.toLocaleString()}
         </div>
       </div>
@@ -73,7 +75,7 @@ export function Hero() {
         <div className="font-mono text-[10px] uppercase tracking-eyebrow text-fog text-right">
           Scroll
         </div>
-        <div className="mt-2 w-px h-12 bg-gradient-to-b from-signal to-transparent ml-auto" />
+        <div className="mt-2 w-px h-12 bg-gradient-to-b from-cobalt to-transparent ml-auto" />
       </div>
     </section>
   );

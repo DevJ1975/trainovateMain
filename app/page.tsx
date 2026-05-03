@@ -1,11 +1,13 @@
 import dynamic from "next/dynamic";
 import { Hero } from "@/components/home/Hero";
-import { Doctrine } from "@/components/home/Doctrine";
-import { SoteriaStack } from "@/components/home/SoteriaStack";
-import { FieldGallery } from "@/components/home/FieldGallery";
-import { FederalPanel } from "@/components/home/FederalPanel";
-import { Trajectory } from "@/components/home/Trajectory";
-import { HomeContact } from "@/components/home/HomeContact";
+import { ProblemSolution } from "@/components/home/ProblemSolution";
+import { WhatIsTrainovate } from "@/components/home/WhatIsTrainovate";
+import { CoreCapabilities } from "@/components/home/CoreCapabilities";
+import { HowItWorks } from "@/components/home/HowItWorks";
+import { IndustriesSnapshot } from "@/components/home/IndustriesSnapshot";
+import { WhyTrainovate } from "@/components/home/WhyTrainovate";
+import { Mission } from "@/components/home/Mission";
+import { FinalCTA } from "@/components/home/FinalCTA";
 import { MarqueeStrip } from "@/components/ui/MarqueeStrip";
 
 const SceneRoot = dynamic(
@@ -18,13 +20,15 @@ export default function HomePage() {
     <>
       <SceneRoot />
       <Hero />
-      <Doctrine />
+      <ProblemSolution />
+      <WhatIsTrainovate />
       <MarqueeStrip />
-      <SoteriaStack />
-      <FieldGallery />
-      <FederalPanel />
-      <Trajectory />
-      <HomeContact />
+      <CoreCapabilities />
+      <HowItWorks />
+      <IndustriesSnapshot />
+      <WhyTrainovate />
+      <Mission />
+      <FinalCTA />
     </>
   );
 }

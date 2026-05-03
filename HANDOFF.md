@@ -33,9 +33,7 @@ Intro". Confirm whether the canonical brand is "Trainovate.ai" or
 
 ## Podcast
 
-`lib/podcast.ts` is fully placeholder data:
-- [ ] Show name (currently "Field Signal" — placeholder)
-- [ ] Show tagline & description
+`lib/podcast.ts` — show name is **Operational Minds** (confirmed). Remaining placeholders:
 - [ ] Cover art (currently a generated placeholder tile)
 - [ ] Episode roster — six placeholder episodes; replace with real titles, guests, dates, durations, summaries, and per-platform listen URLs
 - [ ] Subscribe URLs — Apple, Spotify, YouTube, Overcast, RSS
