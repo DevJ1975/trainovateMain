@@ -73,7 +73,7 @@ export default async function InsightPage({ params }: { params: Promise<Params> 
 
         <div className="mt-24 max-w-3xl border-t border-bone/8 pt-10 flex items-center justify-between gap-4">
           <div className="font-mono text-[11px] uppercase tracking-eyebrow text-fog">
-            — Trainovate Technologies
+            — Trainovate.ai
           </div>
           <Link href="/contact" className="tnv-btn-ghost">
             Talk to us

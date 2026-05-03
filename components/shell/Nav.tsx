@@ -48,7 +48,7 @@ export function Nav() {
           } ${scrolled ? "" : "pb-4"}`}
         >
           <Link href="/" className="flex items-center gap-2 group" aria-label="Trainovate home">
-            <Wordmark className="h-5 text-bone group-hover:text-signal transition-colors" />
+            <Wordmark className="text-xl text-bone group-hover:text-signal transition-colors" />
             <span className="hidden sm:inline-block font-mono text-[9px] uppercase tracking-eyebrow text-fog border border-fog/30 px-1.5 py-0.5">
               SDVOSB
             </span>

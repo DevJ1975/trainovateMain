@@ -6,7 +6,7 @@ import { StockImage } from "@/components/ui/StockImage";
 export const metadata: Metadata = {
   title: "About — Veteran-founded. Operator-built.",
   description:
-    "Trainovate Technologies was founded by Jamil 'Jay' Jones — veteran, EHS specialist, and software builder. We exist because the workforce that keeps the world running deserves training that meets them where they are.",
+    "Trainovate.ai was founded by Jamil 'Jay' Jones — veteran, EHS specialist, and software builder. We exist because the workforce that keeps the world running deserves training that meets them where they are.",
 };
 
 const credentials = [

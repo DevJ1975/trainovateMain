@@ -2,7 +2,8 @@ export function OrganizationJsonLd() {
   const data = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "Trainovate Technologies LLC",
+    name: "Trainovate.ai",
+    legalName: "Trainovate Technologies LLC",
     url: process.env.NEXT_PUBLIC_SITE_URL || "https://trainovate.tech",
     email: "info@trainovate.tech",
     foundingDate: "2024",

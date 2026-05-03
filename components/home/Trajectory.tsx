@@ -1,7 +1,7 @@
 import { Eyebrow } from "@/components/ui/Eyebrow";
 
 const milestones = [
-  { year: "2024", t: "Founded", b: "Trainovate Technologies launches in Las Vegas." },
+  { year: "2024", t: "Founded", b: "Trainovate.ai launches in Las Vegas." },
   { year: "2025", t: "Soteria FIELD", b: "Inspection + CAPA web app deployed in production." },
   { year: "2026", t: "Code Platoon · Safeguard SaaS", b: "Multi-tenant LOTO platform; Jay completes Code Platoon Juliet 2026." },
   { year: "2027", t: "Federal capture", b: "First federal contract pursuit cycle; JV active." },

@@ -8,7 +8,7 @@ import { SDVOSBSeal } from "@/components/marks/SDVOSBSeal";
 export const metadata: Metadata = {
   title: "Federal — SDVOSB capabilities",
   description:
-    "Trainovate Technologies is a Service-Disabled Veteran-Owned Small Business serving DoD, VA, and federally regulated industry. JV with Synergy Federal Group.",
+    "Trainovate.ai is a Service-Disabled Veteran-Owned Small Business serving DoD, VA, and federally regulated industry. JV with Synergy Federal Group.",
 };
 
 const NAICS = [

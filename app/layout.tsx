@@ -42,8 +42,8 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://trainovate.tech";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Trainovate Technologies — Workforce Transformation OS",
-    template: "%s · Trainovate",
+    default: "Trainovate.ai — Workforce Transformation OS",
+    template: "%s · Trainovate.ai",
   },
   description:
     "AI-powered learning, EHS instrumentation, and immersive content for the industries the world depends on. Veteran-owned. SDVOSB.",
@@ -58,19 +58,19 @@ export const metadata: Metadata = {
     "AI co-pilot",
     "federal training",
   ],
-  authors: [{ name: "Trainovate Technologies" }],
-  creator: "Trainovate Technologies",
+  authors: [{ name: "Trainovate.ai" }],
+  creator: "Trainovate.ai",
   openGraph: {
     type: "website",
-    siteName: "Trainovate Technologies",
-    title: "Trainovate Technologies — Workforce Transformation OS",
+    siteName: "Trainovate.ai",
+    title: "Trainovate.ai — Workforce Transformation OS",
     description:
       "AI-powered learning, EHS instrumentation, and immersive content for the industries the world depends on.",
     url: siteUrl,
   },
   twitter: {
     card: "summary_large_image",
-    title: "Trainovate Technologies",
+    title: "Trainovate.ai",
     description: "Workforce Transformation OS for high-risk industries.",
   },
   robots: { index: true, follow: true },

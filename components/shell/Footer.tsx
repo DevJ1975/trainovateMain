@@ -10,7 +10,7 @@ export function Footer() {
       <div className="tnv-container tnv-section py-20">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
           <div className="md:col-span-4">
-            <Wordmark className="h-6 text-bone" />
+            <Wordmark className="text-2xl text-bone" />
             <p className="mt-5 tnv-body text-sm max-w-xs">
               Workforce Transformation OS for high-risk industries. Veteran-founded.
               Federally credentialed. Built to ship.
