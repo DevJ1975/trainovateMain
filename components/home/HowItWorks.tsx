@@ -5,17 +5,17 @@ const steps = [
   {
     n: "01",
     t: "Design",
-    b: "We start where the work happens. A job-task analysis on the floor, the hangar, or the watch room — never in a conference room. Every program is shaped by the actual environment it will run in.",
+    b: "We analyze your operations, risks, and training gaps to build a system aligned with how your teams actually work.",
   },
   {
     n: "02",
     t: "Build",
-    b: "Our team produces the content, configures the platform, and integrates with your stack. AI workflows, immersive scenarios, microlearning sequences — assembled around the role, not the seat-time slot.",
+    b: "We develop your training using AI, immersive environments, microlearning, and structured learning pathways.",
   },
   {
     n: "03",
     t: "Deploy & Scale",
-    b: "Pilot site live in weeks. Workers trained, devices in hand, evidence flowing into the LRS. From there we roll across the portfolio and tune the program as the data comes in.",
+    b: "We launch across your organization and provide tools to track performance, reinforce learning, and scale over time.",
   },
 ];
 

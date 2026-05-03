@@ -15,16 +15,22 @@ export function Mission() {
           />
           <div className="relative max-w-4xl">
             <Eyebrow index="07" label="MISSION" />
-            <h2 className="font-display font-semibold tracking-tight mt-6 text-bone text-balance" style={{ fontSize: "clamp(36px, 5vw, 72px)", lineHeight: 1.04, letterSpacing: "-0.025em" }}>
-              Make the people who keep the world running{" "}
-              <span className="tnv-italic text-signal">ready, capable, and protected.</span>
+            <h2
+              className="font-display font-semibold tracking-tight mt-6 text-bone text-balance"
+              style={{
+                fontSize: "clamp(36px, 5vw, 72px)",
+                lineHeight: 1.04,
+                letterSpacing: "-0.025em",
+              }}
+            >
+              Modernizing training.{" "}
+              <span className="tnv-italic text-signal">Protecting people.</span>{" "}
+              Improving performance.
             </h2>
             <p className="tnv-body mt-8 text-pretty text-lg max-w-3xl">
-              Trainovate exists to end the era of training as theater. We
-              build for the workforce on the floor, the hangar, the wellpad,
-              and the watch room. We measure what matters, and we ship what
-              works — so the people who do dangerous, complex, and
-              consequential work go home at the end of the shift.
+              Trainovate exists to build training systems that work — helping
+              organizations reduce risk, strengthen their workforce, and
+              prepare people for the realities of their work.
             </p>
           </div>
         </div>

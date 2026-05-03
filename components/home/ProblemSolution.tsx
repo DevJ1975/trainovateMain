@@ -14,18 +14,16 @@ export function ProblemSolution() {
           {/* Problem */}
           <div className="bg-ink/40 p-10 md:p-12">
             <div className="font-mono text-[10px] uppercase tracking-eyebrow text-flare">
-              What fails
+              The problem
             </div>
             <h3 className="font-display font-semibold text-2xl text-bone mt-4 tracking-tight">
-              The deck. The roster. The quiz nobody studied for.
+              Most training is designed to be completed — not remembered.
             </h3>
             <p className="tnv-body mt-5 text-pretty">
-              Most workforce training is theater. A slide deck, a sign-in
-              sheet, a certificate that proves attendance but not competency.
-              The information is forgotten before the worker reaches the
-              floor, and the only thing that gets measured is who showed up.
-              When the actual moment arrives — a near-miss, a procedure under
-              pressure, an audit — the program does not show up.
+              Employees click through modules, pass quizzes, and move on
+              without retaining what they need when it counts. The result is
+              a workforce that&rsquo;s technically &ldquo;trained,&rdquo; but
+              not truly prepared.
             </p>
           </div>
 
@@ -44,15 +42,13 @@ export function ProblemSolution() {
                 What works
               </div>
               <h3 className="font-display font-semibold text-2xl text-bone mt-4 tracking-tight">
-                Training the workforce actually uses.
+                Trainovate changes that.
               </h3>
               <p className="tnv-body mt-5 text-pretty">
-                Trainovate replaces the deck with training built around the
-                task. Microlearning timed to the moment. Immersive 3D and VR
-                for procedures that have to be rehearsed. AI co-pilots that
-                surface what each learner needs next. Every interaction is
-                captured, so retention is not a hope and competency is not a
-                guess.
+                We build training systems that engage people, reinforce
+                knowledge over time, and prepare them to perform in
+                real-world environments — where safety, precision, and
+                decision-making matter.
               </p>
             </div>
           </div>

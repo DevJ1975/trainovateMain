@@ -53,11 +53,15 @@ export function Hero() {
           <Link href="/contact" className="tnv-btn-signal">
             Request a Demo <ArrowRight size={14} />
           </Link>
-          <Link href="/contact" className="tnv-btn-signal" style={{ background: "var(--tnv-flare)", borderColor: "var(--tnv-flare)" }}>
-            Build Your Training System
-          </Link>
           <Link href="/platform" className="tnv-btn-ghost">
             Explore Solutions
+          </Link>
+          <Link
+            href="/contact"
+            className="tnv-btn-signal"
+            style={{ background: "var(--tnv-flare)", borderColor: "var(--tnv-flare)" }}
+          >
+            Build Your Training System
           </Link>
         </div>
       </div>
