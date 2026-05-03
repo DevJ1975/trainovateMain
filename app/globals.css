@@ -67,9 +67,18 @@
     @apply font-mono text-[11px] uppercase tracking-eyebrow text-fog;
   }
   .tnv-h1 {
-    @apply font-serif tracking-tight;
+    @apply font-display tracking-tight;
     font-size: clamp(48px, 8vw, 120px);
-    line-height: 0.96;
+    line-height: 0.94;
+    letter-spacing: -0.035em;
+    font-weight: 600;
+  }
+  /* Italic emphasis inside h1 still uses the editorial serif for contrast */
+  .tnv-h1 .tnv-italic,
+  .tnv-h1 em,
+  .tnv-h1 i {
+    font-family: var(--font-instrument-serif), ui-serif, Georgia, serif;
+    font-weight: 400;
     letter-spacing: -0.02em;
   }
   .tnv-h2 {

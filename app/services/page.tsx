@@ -23,8 +23,8 @@ const services = [
   },
   {
     title: "Custom Training Development",
-    body: "Instructional design, video, motion graphics, and post-production through our in-house studio (Axiom Post).",
-    deliverables: ["xAPI / SCORM packages", "Cinema-grade video", "Motion graphics & VFX"],
+    body: "Instructional design and content production engineered for the field — delivered as xAPI-native, LMS-portable training packages.",
+    deliverables: ["xAPI / SCORM packages", "Job-task analysis", "Assessment & evidence design"],
   },
   {
     title: "HSE Travel Risk Management",

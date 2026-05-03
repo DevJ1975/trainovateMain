@@ -48,6 +48,7 @@ const config: Config = {
         sans: ["var(--font-inter-tight)", "ui-sans-serif", "system-ui", "sans-serif"],
         mono: ["var(--font-geist-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
         serif: ["var(--font-instrument-serif)", "ui-serif", "Georgia", "serif"],
+        display: ["var(--font-display)", "var(--font-inter-tight)", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       letterSpacing: {
         eyebrow: "0.18em",

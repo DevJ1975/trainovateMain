@@ -6,18 +6,16 @@ import { StockImage } from "@/components/ui/StockImage";
 export const metadata: Metadata = {
   title: "About — Veteran-founded. Operator-built.",
   description:
-    "Trainovate Technologies was founded by Jamil 'Jay' Jones — veteran, EHS specialist, software builder, and film editor. We exist because the workforce that keeps the world running deserves training that meets them where they are.",
+    "Trainovate Technologies was founded by Jamil 'Jay' Jones — veteran, EHS specialist, and software builder. We exist because the workforce that keeps the world running deserves training that meets them where they are.",
 };
 
 const credentials = [
   "U.S. Military Veteran",
   "MBA",
-  "JD Candidate · Entertainment Law",
   "Code Platoon · Juliet 2026",
   "OSHA-Authorized Trainer (in renewal)",
   "EHS Specialist",
   "Full-stack developer",
-  "Film editor / motion graphics / DP",
 ];
 
 const values = [
@@ -95,23 +93,23 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Team */}
+      {/* Operating posture */}
       <section className="tnv-container tnv-section mt-32">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
-            <Eyebrow index="02" label="TEAM" />
+            <Eyebrow index="02" label="POSTURE" />
             <h2 className="tnv-h2 mt-6 text-balance">
-              A roster of one.{" "}
-              <span className="tnv-italic text-signal">Hiring the rest.</span>
+              Founder-led.{" "}
+              <span className="tnv-italic text-signal">Operator-grade.</span>
             </h2>
             <p className="tnv-body mt-6 text-pretty">
-              Trainovate is currently a roster of one. We are hiring engineers,
-              instructional designers, and federal capture managers who want to
-              build a category-defining workforce platform. We do not invent
-              team members on the website.
+              Trainovate runs as a founder-led shop with a curated bench of
+              specialist partners brought in per engagement. We do not invent
+              team members on the website. Every deliverable is signed by the
+              person who built it.
             </p>
             <Link href="/contact" className="tnv-btn-ghost mt-8">
-              Reach out about a role
+              Start a conversation
             </Link>
           </div>
           <StockImage

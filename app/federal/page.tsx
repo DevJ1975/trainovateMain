@@ -146,11 +146,11 @@ export default function FederalPage() {
           {[
             {
               t: "Veteran-led leadership",
-              b: "Founded and operated by a veteran with field, MBA, and JD-track depth.",
+              b: "Founded and operated by a veteran with field operations and MBA depth.",
             },
             {
-              t: "EHS + AI + media in one shop",
-              b: "We run the program, build the platform, and produce the content. No subcontract chain.",
+              t: "EHS + AI + training in one shop",
+              b: "We run the program, build the platform, and produce the training. No subcontract chain.",
             },
             {
               t: "Soteria platform IP",

@@ -100,13 +100,13 @@ export const products: Product[] = [
     full: "Soteria Field Learning System",
     tagline: "Training that meets the worker mid-task.",
     description:
-      "iPadOS-first micro-learning. Built for crews who don't sit at a desk. Adaptive sequencing, xAPI evidence, and content built like a film, not a slideshow.",
+      "iPadOS-first micro-learning. Built for crews who don't sit at a desk. Adaptive sequencing, xAPI evidence, and content built around the task — not a slideshow.",
     role: "Knowledge-of-task delivery.",
     mark: MarkLearning,
     features: [
       { title: "Micro-modules", body: "3–7 minute units, sequenced around real tasks." },
       { title: "Adaptive paths", body: "Curriculum reshapes around assessed competency." },
-      { title: "Cinema-grade content", body: "Produced by Trainovate's in-house studio." },
+      { title: "Production-grade content", body: "Built around the actual task, not generic compliance fillers." },
       { title: "xAPI native", body: "Every interaction is a statement. Bring your own LRS." },
       { title: "SCORM bridge", body: "Plays nice with legacy LMS environments." },
       { title: "Multilingual", body: "Built for the workforce you actually have." },

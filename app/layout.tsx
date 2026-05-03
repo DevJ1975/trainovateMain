@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter_Tight, Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import { Inter_Tight, Instrument_Serif, JetBrains_Mono, Bricolage_Grotesque } from "next/font/google";
 import { SiteShell } from "@/components/shell/SiteShell";
 import { OrganizationJsonLd } from "@/components/shell/JsonLd";
 import "./globals.css";
@@ -17,6 +17,15 @@ const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-serif",
   weight: ["400"],
   style: ["normal", "italic"],
+});
+
+// Bricolage Grotesque drives the h1 display — modern humanist sans with a
+// stronger defense-tech presence than the prior serif.
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-display",
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 // Geist Mono isn't on Google Fonts in this Next version; JetBrains Mono is the
@@ -65,7 +74,6 @@ export const metadata: Metadata = {
     description: "Workforce Transformation OS for high-risk industries.",
   },
   robots: { index: true, follow: true },
-  icons: { icon: "/favicons/favicon.svg" },
 };
 
 export const viewport: Viewport = {
@@ -78,7 +86,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${interTight.variable} ${instrumentSerif.variable} ${geistMono.variable}`}
+      className={`${interTight.variable} ${instrumentSerif.variable} ${bricolage.variable} ${geistMono.variable}`}
       suppressHydrationWarning
     >
       <body className="text-bone">

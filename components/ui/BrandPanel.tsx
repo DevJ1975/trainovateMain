@@ -28,7 +28,7 @@ const slotMeta: Record<
   "federal.va": { kind: "lattice", eyebrow: "FEDERAL · VA", title: "Veteran services" },
 
   "about.founder": { kind: "portrait", eyebrow: "FOUNDER", title: "Jamil 'Jay' Jones" },
-  "about.team": { kind: "topology", eyebrow: "TEAM", title: "Hiring engineers" },
+  "about.team": { kind: "topology", eyebrow: "POSTURE", title: "Founder-led" },
 
   "platform.safeguard": { kind: "shield", eyebrow: "SOTERIA · 02", title: "Safeguard" },
   "platform.field": { kind: "racks", eyebrow: "SOTERIA · 03", title: "FIELD" },
