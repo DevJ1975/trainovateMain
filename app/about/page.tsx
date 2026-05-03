@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { StockImage } from "@/components/ui/StockImage";
 import { VimeoEmbed } from "@/components/ui/VimeoEmbed";
 import { SDVOSBSeal } from "@/components/marks/SDVOSBSeal";
-import { ArrowRight } from "lucide-react";
 
 const RadarBackdrop = dynamic(
   () => import("@/components/three/RadarBackdrop").then((m) => m.RadarBackdrop),
@@ -13,77 +12,70 @@ const RadarBackdrop = dynamic(
 );
 
 export const metadata: Metadata = {
-  title: "About — Modernizing the way the world trains its workforce",
+  title: "About — Train for the real world. Not the classroom.",
   description:
-    "Trainovate Technologies is a veteran-founded digital learning and workforce training company. AI, immersive 3D/VR, microlearning, and safety-focused instructional design — built for high-risk, high-responsibility work. SDVOSB. Las Vegas, NV.",
+    "Trainovate builds modern workforce training systems using AI, immersive learning, and real-world simulation — designed to improve safety, performance, and retention where it actually matters.",
 };
 
 const builds = [
   {
-    t: "AI-powered learning",
-    b: "Adaptive paths, voice-driven incident drafting, and an in-platform co-pilot that helps safety pros do the job of four people.",
+    t: "AI-Driven Learning Systems",
+    b: "Adaptive training that evolves with the learner and reinforces critical knowledge over time.",
   },
   {
-    t: "Immersive 3D & VR",
-    b: "Spatial training for procedures that have to be rehearsed before they are performed live.",
+    t: "Immersive VR & 3D Training",
+    b: "Realistic simulations that prepare teams for the environments they actually operate in.",
   },
   {
-    t: "Mobile-first delivery",
-    b: "Training shipped to the device the worker already carries — phone, tablet, kiosk, headset.",
+    t: "Microlearning & Daily Reinforcement",
+    b: "Short, focused training designed to build habits and improve retention.",
   },
   {
-    t: "Microlearning",
-    b: "3–7 minute units sequenced around the actual task, not around a 60-minute compliance slot.",
-  },
-  {
-    t: "Safety-focused ID",
-    b: "Instructional design grounded in OSHA, ANSI, ISO, and the realities of high-consequence environments.",
-  },
-  {
-    t: "Evidence layer",
-    b: "Every interaction is xAPI-instrumented. The auditor and the operator read the same record.",
+    t: "Custom Training Platforms (LMS)",
+    b: "Scalable systems tailored to your operations, workflows, and compliance requirements.",
   },
 ];
 
-const approach = [
+const principles = [
   {
-    n: "01",
-    t: "Start where the work happens",
-    b: "Every program begins with a job-task analysis on the floor, the hangar, or the watch room — not in a conference room.",
+    t: "Built for Real Work",
+    b: "Training is designed around actual job conditions — not theory.",
   },
   {
-    n: "02",
-    t: "Design for cognitive load",
-    b: "Match the modality to the moment. Microlearning before the task. Immersive 3D for spatial procedures. AR for in-context guidance.",
+    t: "Focused on Retention",
+    b: "If it&rsquo;s not remembered, it doesn&rsquo;t matter. We design for long-term recall.",
   },
   {
-    n: "03",
-    t: "Ship to the device they carry",
-    b: "Phone, tablet, kiosk, headset. Offline-first. Bilingual where the workforce demands it.",
+    t: "Engagement First",
+    b: "Interactive, immersive experiences outperform passive content.",
   },
   {
-    n: "04",
-    t: "Instrument every interaction",
-    b: "By site, by shift, by individual. Engagement is not optional, retention is not aspirational, and both are designed in.",
+    t: "Mobile and Accessible",
+    b: "Training should be available wherever work happens.",
+  },
+  {
+    t: "Scalable by Design",
+    b: "Systems built to grow with your organization.",
   },
 ];
 
-const credentials = [
-  "U.S. Military Veteran",
-  "MBA",
-  "Code Platoon · Juliet 2026",
-  "OSHA-Authorized Trainer (in renewal)",
-  "EHS Specialist",
-  "Full-stack developer",
-];
-
-const recognition = [
-  "SDVOSB · DVOSB",
-  "ISO 45001 aligned",
-  "Section 508",
-  "WCAG 2.1 AA",
-  "xAPI 1.0.3",
-  "OSHA Outreach (renewal)",
+const differentiators = [
+  {
+    t: "We build systems, not just content",
+    b: "Training is part of a larger operational ecosystem.",
+  },
+  {
+    t: "We focus on application, not completion",
+    b: "The goal is performance — not checking a box.",
+  },
+  {
+    t: "We design for your environment",
+    b: "Every solution is aligned with how your teams actually work.",
+  },
+  {
+    t: "We combine technology with instructional design",
+    b: "Tools alone don&rsquo;t solve the problem — execution does.",
+  },
 ];
 
 export default function AboutPage() {
@@ -92,24 +84,24 @@ export default function AboutPage() {
       <RadarBackdrop />
 
       <div className="pt-32 md:pt-40 pb-24">
-        {/* Hero */}
+        {/* 1. HERO */}
         <section className="tnv-container tnv-section">
           <Eyebrow label="ABOUT TRAINOVATE" />
           <h1 className="tnv-h1 mt-6 max-w-5xl text-balance">
-            Modernizing the way the world{" "}
-            <span className="tnv-italic text-signal">trains its workforce.</span>
+            Train for the real world.{" "}
+            <span className="tnv-italic text-signal">Not the classroom.</span>
           </h1>
-          <p className="tnv-body mt-8 max-w-2xl text-pretty">
-            Trainovate Technologies builds AI-powered, immersive, mobile-first
-            training for the industries that operate at the edge of risk and
-            responsibility.
+          <p className="tnv-body mt-8 max-w-2xl text-pretty text-lg">
+            Trainovate builds modern workforce training systems using AI,
+            immersive learning, and real-world simulation — designed to
+            improve safety, performance, and retention where it actually
+            matters.
           </p>
         </section>
 
         {/* Brand intro video */}
         <section className="tnv-container tnv-section mt-20">
-          <Eyebrow index="01" label="BRAND INTRO" />
-          <div className="mt-6 max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto">
             <div className="tnv-glass rounded-xl p-2">
               <VimeoEmbed
                 videoId="1166250257"
@@ -118,263 +110,262 @@ export default function AboutPage() {
                 className="rounded-lg"
               />
             </div>
-            <p className="mt-4 font-mono text-[10px] uppercase tracking-eyebrow text-fog text-center">
-              Brand intro · TODO Jay confirms — Trainovations vs. Trainovate.ai labelling
-            </p>
           </div>
         </section>
 
-        {/* Our mission */}
+        {/* 2. WHO WE ARE */}
         <section className="tnv-container tnv-section mt-32">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             <div className="lg:col-span-5">
-              <Eyebrow index="02" label="OUR MISSION" />
+              <Eyebrow index="01" label="WHO WE ARE" />
               <h2 className="tnv-h2 mt-6 max-w-md text-balance">
-                Make safety training{" "}
-                <span className="tnv-italic text-signal">measurable.</span>
+                Built by people who have{" "}
+                <span className="tnv-italic text-signal">done the work.</span>
               </h2>
             </div>
-            <div className="lg:col-span-7">
-              <p className="tnv-body text-pretty text-lg">
-                To bring modern training to the workforces the world depends on
-                — through technology that engages, evidence that compounds, and
-                design built around how people actually learn. We replace the
-                binder, the printed roster, and the photocopied quiz with a
-                real-time evidence stream a regulator and a CFO can both
-                verify.
+            <div className="lg:col-span-7 space-y-5 tnv-body text-pretty text-lg">
+              <p>
+                Trainovate is a veteran-founded workforce training company
+                focused on high-risk, high-responsibility industries.
+              </p>
+              <p>
+                We design and build training systems that go beyond
+                compliance — helping organizations develop capable, confident
+                teams who can perform in real-world conditions.
+              </p>
+              <p>
+                Our work sits at the intersection of technology, instructional
+                design, and operational reality.
               </p>
             </div>
           </div>
         </section>
 
-        {/* Who we are */}
+        {/* 3. WHY TRAINOVATE EXISTS */}
         <section className="tnv-container tnv-section mt-32">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-            <div className="lg:col-span-5">
-              <Eyebrow index="03" label="WHO WE ARE" />
-              <h2 className="tnv-h2 mt-6 max-w-md text-balance">
-                Veteran-founded.{" "}
-                <span className="tnv-italic text-signal">Operator-built.</span>
-              </h2>
-            </div>
-            <div className="lg:col-span-7">
-              <p className="tnv-body text-pretty text-lg">
-                Trainovate Technologies is a veteran-founded digital learning
-                and workforce training company. We combine AI, immersive media,
-                VR and 3D experiences, mobile-first microlearning, and
-                safety-focused instructional design into a single platform —
-                Soteria — that organizations use to train, certify, and
-                instrument their people. Headquartered in Las Vegas, Nevada.
-                Service-Disabled Veteran-Owned Small Business.
-              </p>
+          <Eyebrow index="02" label="WHY TRAINOVATE EXISTS" />
+          <h2 className="tnv-h2 mt-6 max-w-3xl text-balance">
+            Most training{" "}
+            <span className="tnv-italic text-signal">doesn&rsquo;t work.</span>
+          </h2>
 
-              <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-px bg-bone/8 border border-bone/8">
-                {[
-                  { l: "Founded", v: "2024" },
-                  { l: "HQ", v: "Las Vegas, NV" },
-                  { l: "Designation", v: "SDVOSB" },
-                  { l: "Stack", v: "SaaS · AI · 3D" },
-                ].map((s) => (
-                  <div key={s.l} className="bg-ink/40 p-5">
-                    <div className="font-mono text-[10px] uppercase tracking-eyebrow text-fog">
-                      {s.l}
-                    </div>
-                    <div className="font-display font-semibold text-xl text-bone mt-2 tracking-tight">
-                      {s.v}
-                    </div>
-                  </div>
-                ))}
+          <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-px bg-bone/8 border border-bone/8">
+            <div className="bg-ink/40 p-10">
+              <div className="font-mono text-[10px] uppercase tracking-eyebrow text-flare">
+                The problem
+              </div>
+              <p className="tnv-body mt-5 text-pretty">
+                It&rsquo;s static, forgettable, and disconnected from the
+                environments people actually work in. Employees complete
+                modules, check boxes, and move on — without retaining what
+                they need when it matters most.
+              </p>
+              <p className="tnv-body mt-4 text-pretty font-medium text-bone/90">
+                That gap creates real risk.
+              </p>
+            </div>
+            <div className="bg-ink/40 p-10 relative">
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background:
+                    "radial-gradient(ellipse 80% 60% at 30% 20%, rgba(0,70,230,0.10), transparent 60%)",
+                }}
+                aria-hidden="true"
+              />
+              <div className="relative">
+                <div className="font-mono text-[10px] uppercase tracking-eyebrow text-cobalt-soft">
+                  Why we exist
+                </div>
+                <p className="tnv-body mt-5 text-pretty">
+                  Trainovate exists to close that gap by building training
+                  that people engage with, remember, and apply on the job.
+                </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* What we build */}
+        {/* 4. WHAT WE BUILD */}
         <section className="tnv-container tnv-section mt-32">
-          <Eyebrow index="04" label="WHAT WE BUILD" />
+          <Eyebrow index="03" label="WHAT WE BUILD" />
           <h2 className="tnv-h2 mt-6 max-w-3xl text-balance">
-            One platform.{" "}
-            <span className="tnv-italic text-signal">Six capabilities.</span>
+            Modern training systems for{" "}
+            <span className="tnv-italic text-signal">real-world performance.</span>
           </h2>
-          <p className="tnv-body mt-6 max-w-2xl text-pretty">
-            Every product line we ship rolls up to Soteria, the Trainovate
-            workforce-safety platform. Below: the capabilities that make
-            modern training real.
-          </p>
 
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-bone/8 border border-bone/8">
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-px bg-bone/8 border border-bone/8">
             {builds.map((b, i) => (
-              <div key={b.t} className="bg-ink/40 p-7">
+              <div key={b.t} className="bg-ink/40 p-8">
                 <div className="font-mono text-[10px] uppercase tracking-eyebrow text-cobalt-soft">
                   {String(i + 1).padStart(2, "0")}
                 </div>
                 <h3 className="font-display font-semibold text-2xl text-bone mt-3 tracking-tight">
                   {b.t}
                 </h3>
-                <p className="tnv-body mt-3 text-sm text-pretty">{b.b}</p>
+                <p className="tnv-body mt-4 text-base text-pretty">{b.b}</p>
               </div>
             ))}
           </div>
+
+          <p className="tnv-body mt-10 max-w-2xl text-pretty">
+            Everything we build is designed to drive retention, behavior
+            change, and measurable improvement.
+          </p>
         </section>
 
-        {/* Why Trainovate exists */}
+        {/* 5. OUR APPROACH */}
         <section className="tnv-container tnv-section mt-32">
-          <div className="tnv-glass rounded-2xl p-10 md:p-16">
-            <Eyebrow index="05" label="WHY TRAINOVATE EXISTS" />
-            <h2 className="tnv-h2 mt-6 max-w-4xl text-balance">
-              Most workforce training is{" "}
-              <span className="tnv-italic text-signal">theater.</span>
-            </h2>
-            <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-10">
-              <p className="tnv-body text-pretty text-lg">
-                Slide decks, sign-in sheets, and certificates that prove
-                attendance but not competency. The industries that keep the
-                world running — manufacturing, energy, aviation, healthcare,
-                federal — deserve better.
-              </p>
-              <p className="tnv-body text-pretty text-lg">
-                Trainovate exists to close the gap between compliance
-                paperwork and real operational capability. We treat training
-                the way modern engineering teams treat deployments:
-                instrumented, versioned, observable, and reversible.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Our approach */}
-        <section className="tnv-container tnv-section mt-32">
-          <Eyebrow index="06" label="OUR APPROACH" />
+          <Eyebrow index="04" label="OUR APPROACH" />
           <h2 className="tnv-h2 mt-6 max-w-3xl text-balance">
-            We start where the{" "}
-            <span className="tnv-italic text-signal">work happens.</span>
+            We build training{" "}
+            <span className="tnv-italic text-signal">differently.</span>
           </h2>
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-bone/8 border border-bone/8">
-            {approach.map((s) => (
-              <div key={s.n} className="bg-ink/40 p-7">
+
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-px bg-bone/8 border border-bone/8">
+            {principles.map((p, i) => (
+              <div key={p.t} className="bg-ink/40 p-6">
                 <div className="font-mono text-[10px] uppercase tracking-eyebrow text-cobalt-soft">
-                  Step {s.n}
+                  {String(i + 1).padStart(2, "0")}
                 </div>
-                <div className="font-display font-semibold text-xl text-bone mt-3 tracking-tight">
-                  {s.t}
-                </div>
-                <p className="tnv-body mt-3 text-sm text-pretty">{s.b}</p>
+                <h3 className="font-display font-semibold text-lg text-bone mt-3 tracking-tight">
+                  {p.t}
+                </h3>
+                <p
+                  className="tnv-body mt-3 text-sm text-pretty"
+                  dangerouslySetInnerHTML={{ __html: p.b }}
+                />
               </div>
             ))}
           </div>
         </section>
 
-        {/* Veteran-founded */}
+        {/* 6. VETERAN-FOUNDED */}
         <section className="tnv-container tnv-section mt-32">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-            <div className="lg:col-span-5">
-              <div className="relative">
-                <StockImage
-                  stockKey="about.founder"
-                  className="aspect-[4/5] w-full"
-                  sizes="(min-width: 1024px) 40vw, 100vw"
-                />
-                <div className="absolute -bottom-4 -left-4 tnv-glass rounded-md px-4 py-3">
-                  <div className="font-mono text-[10px] uppercase tracking-eyebrow text-fog">
-                    Founder & CEO
-                  </div>
-                  <div className="font-serif text-xl text-bone">Jamil &quot;Jay&quot; Jones</div>
-                </div>
-              </div>
-            </div>
-            <div className="lg:col-span-7">
-              <Eyebrow index="07" label="VETERAN-FOUNDED" />
-              <h2 className="tnv-h2 mt-6 text-balance">
-                Mission-first.{" "}
-                <span className="tnv-italic text-signal">By construction.</span>
-              </h2>
-              <div className="mt-8 space-y-5 tnv-body text-pretty text-lg">
-                <p>
-                  Trainovate is veteran-founded and led. We bring a
-                  mission-first operating posture to everything we build —
-                  accountability to the people doing the work, fidelity to
-                  the standard, and an obligation to ship.
-                </p>
-                <p>
-                  As a Service-Disabled Veteran-Owned Small Business, we
-                  serve federal customers with the credentialing required
-                  and the platform IP to actually deliver. The same
-                  operator-grade craft is what every commercial customer
-                  gets too.
-                </p>
-              </div>
-
-              <div className="mt-10 flex items-center gap-5">
-                <SDVOSBSeal className="h-20 w-20 text-cobalt flex-shrink-0" />
-                <div>
-                  <div className="font-mono text-[10px] uppercase tracking-eyebrow text-cobalt-soft">
-                    Designation
-                  </div>
-                  <div className="font-display font-semibold text-2xl text-bone mt-1 tracking-tight">
-                    SDVOSB · DVOSB
-                  </div>
-                  <div className="font-mono text-[10px] uppercase tracking-eyebrow text-fog mt-1">
-                    Service-Disabled · Veteran-Owned · Small Business
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-10 grid grid-cols-2 gap-3 max-w-md">
-                {credentials.map((c) => (
-                  <div
-                    key={c}
-                    className="font-mono text-[10px] uppercase tracking-eyebrow text-bone/80 border border-bone/10 px-3 py-2"
-                  >
-                    {c}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Recognition band */}
-        <section className="tnv-container tnv-section mt-32">
-          <div className="border-y border-bone/8 py-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-            <div className="lg:col-span-4">
-              <Eyebrow index="08" label="STANDARDS WE BUILD TO" />
-            </div>
-            <div className="lg:col-span-8 flex flex-wrap gap-3">
-              {recognition.map((r) => (
-                <span
-                  key={r}
-                  className="font-mono text-[11px] uppercase tracking-eyebrow text-bone/85 border border-bone/15 px-3 py-2"
-                >
-                  {r}
-                </span>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* CTA */}
-        <section className="tnv-container tnv-section mt-24">
           <div className="tnv-glass rounded-2xl p-10 md:p-16">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-7">
-                <Eyebrow label="START" />
-                <h2 className="tnv-h2 mt-4 max-w-2xl text-balance">
-                  Ready to modernize your{" "}
-                  <span className="tnv-italic text-signal">training?</span>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+              <div className="lg:col-span-3 flex justify-center lg:justify-start">
+                <div className="relative">
+                  <div
+                    className="absolute -inset-8 pointer-events-none"
+                    style={{
+                      background:
+                        "radial-gradient(circle at center, rgba(255,107,26,0.18), transparent 60%)",
+                    }}
+                    aria-hidden="true"
+                  />
+                  <SDVOSBSeal className="relative h-32 w-32 text-cobalt" />
+                </div>
+              </div>
+              <div className="lg:col-span-9">
+                <Eyebrow index="05" label="VETERAN-FOUNDED" />
+                <h2 className="tnv-h2 mt-6 max-w-2xl text-balance">
+                  Discipline. Accountability.{" "}
+                  <span className="tnv-italic text-signal">Mission focus.</span>
                 </h2>
-                <p className="tnv-body mt-6 max-w-xl text-pretty">
-                  We work with organizations that have moved past the question
-                  of whether to upgrade — and are ready to ship.
+                <p className="tnv-body mt-6 max-w-2xl text-pretty text-lg">
+                  Trainovate is built on the principles of discipline,
+                  accountability, and mission focus.
                 </p>
+                <p className="tnv-body mt-4 max-w-2xl text-pretty text-lg">
+                  Our background shapes how we approach training: clear
+                  objectives, practical execution, and systems that perform
+                  under real-world pressure.
+                </p>
+
+                <div className="mt-8 inline-flex items-center gap-3 border border-cobalt/40 px-4 py-2">
+                  <span className="font-mono text-[11px] uppercase tracking-eyebrow text-cobalt-soft">
+                    SDVOSB · DVOSB
+                  </span>
+                  <span className="text-fog">·</span>
+                  <span className="font-mono text-[10px] uppercase tracking-eyebrow text-fog">
+                    Las Vegas, NV
+                  </span>
+                </div>
               </div>
-              <div className="lg:col-span-5 flex flex-wrap gap-3 lg:justify-end">
-                <Link href="/contact" className="tnv-btn-signal">
-                  Build Your Training Program <ArrowRight size={14} />
-                </Link>
-                <Link href="/contact" className="tnv-btn-ghost">
-                  Partner With Trainovate
-                </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* 7. WHAT MAKES US DIFFERENT */}
+        <section className="tnv-container tnv-section mt-32">
+          <Eyebrow index="06" label="WHAT MAKES US DIFFERENT" />
+          <h2 className="tnv-h2 mt-6 max-w-3xl text-balance">
+            We are not a content vendor.{" "}
+            <span className="tnv-italic text-signal">We are a systems company.</span>
+          </h2>
+
+          <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-10">
+            {differentiators.map((d, i) => (
+              <div key={d.t} className="border-l-2 border-cobalt pl-5">
+                <div className="font-mono text-[10px] uppercase tracking-eyebrow text-cobalt-soft">
+                  {String(i + 1).padStart(2, "0")}
+                </div>
+                <h3 className="font-display font-semibold text-2xl text-bone mt-2 tracking-tight">
+                  {d.t}
+                </h3>
+                <p
+                  className="tnv-body mt-3 text-base text-pretty"
+                  dangerouslySetInnerHTML={{ __html: d.b }}
+                />
               </div>
+            ))}
+          </div>
+        </section>
+
+        {/* 8. MISSION */}
+        <section className="tnv-container tnv-section mt-32">
+          <div className="tnv-glass rounded-2xl p-10 md:p-20 relative overflow-hidden">
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background:
+                  "radial-gradient(ellipse 80% 60% at 30% 20%, rgba(0,70,230,0.18), transparent 60%), radial-gradient(ellipse 60% 70% at 80% 80%, rgba(255,107,26,0.14), transparent 55%)",
+              }}
+              aria-hidden="true"
+            />
+            <div className="relative max-w-4xl">
+              <Eyebrow index="07" label="OUR MISSION" />
+              <p
+                className="font-display font-semibold tracking-tight mt-6 text-bone text-balance"
+                style={{
+                  fontSize: "clamp(28px, 4vw, 56px)",
+                  lineHeight: 1.1,
+                  letterSpacing: "-0.025em",
+                }}
+              >
+                To modernize workforce training by building systems that
+                improve safety,{" "}
+                <span className="tnv-italic text-signal">strengthen performance,</span>{" "}
+                and prepare people for the realities of their work.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* 9. CTA */}
+        <section className="tnv-container tnv-section mt-24">
+          <div className="border-t border-bone/8 pt-16">
+            <Eyebrow index="08" label="START" />
+            <h2 className="tnv-h1 mt-6 max-w-4xl text-balance" style={{ fontSize: "clamp(40px, 6vw, 88px)" }}>
+              Build training that{" "}
+              <span className="tnv-italic text-signal">actually works.</span>
+            </h2>
+            <p className="tnv-body mt-8 max-w-2xl text-pretty text-lg">
+              If your current training isn&rsquo;t delivering real-world
+              results, it&rsquo;s time to rethink the system.
+            </p>
+            <div className="mt-12 flex flex-wrap gap-3">
+              <Link href="/contact" className="tnv-btn-signal">
+                Request a Demo <ArrowRight size={14} />
+              </Link>
+              <Link
+                href="/contact"
+                className="tnv-btn-signal"
+                style={{ background: "var(--tnv-flare)", borderColor: "var(--tnv-flare)" }}
+              >
+                Build Your Training System
+              </Link>
             </div>
           </div>
         </section>
