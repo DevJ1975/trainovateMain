@@ -5,9 +5,11 @@ import { useEffect, useRef, useState } from "react";
 /**
  * Trainovate intro reveal — looping variant.
  *
- * Ported from the brand hub. Plays in ~8.5s and calls onDone() so the
- * parent can remount it for a continuous loop. Final phase fades back
- * to ink (not bone) so successive loops chain cleanly.
+ * Ported from the brand hub. ~9.2s per cycle: particles converge into a
+ * cobalt nucleus + flare halo, hold under the wordmark, then scatter
+ * back out as nucleus/halo fade. onDone() at the end of scatter lets the
+ * parent remount for a seamless loop — the new instance starts with
+ * scattered particles that mirror the previous instance's last frame.
  */
 
 const COBALT = 0x0046e6;
@@ -15,17 +17,17 @@ const FLARE  = 0xff6b1a;
 const INK    = 0x0a0a0a;
 
 const T = {
-  driftEnd:    400,
-  convStart:   400,
-  convEnd:    2000,
-  nucIn:      1600,
-  nucFull:    2400,
-  haloPeak:   2200,
-  wordmarkIn: 2000,
-  holdEnd:    7800,
-  dollyEnd:   8500,
+  driftEnd:     400,
+  convStart:    400,
+  convEnd:     2000,
+  nucIn:       1600,
+  nucFull:     2400,
+  haloPeak:    2200,
+  wordmarkIn:  2000,
+  holdEnd:     7800,
+  scatterEnd:  9200, // particles fly back out + nucleus/halo fade — seamless loop seam
 } as const;
-const DURATION = T.dollyEnd;
+const DURATION = T.scatterEnd;
 
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 const ease = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
@@ -138,19 +140,24 @@ export function Intro({ onDone }: { onDone: () => void }) {
       function frame() {
         const ms = performance.now() - t0;
 
+        // Converge in, then (after hold) scatter back out so the loop seam
+        // mirrors the next iteration's initial drift state.
         const conv = ease(clamp01((ms - T.convStart) / (T.convEnd - T.convStart)));
+        const scatter = ease(clamp01((ms - T.holdEnd) / (T.scatterEnd - T.holdEnd)));
         const arr = geom.attributes.position.array as Float32Array;
         for (let i = 0; i < N * 3; i++) {
           const drift = Math.sin(ms * 0.0008 + i) * 0.08;
-          arr[i] = lerp(start[i] + drift, target[i], conv);
+          const here = lerp(start[i] + drift, target[i], conv);
+          arr[i] = lerp(here, start[i] + drift, scatter);
         }
         geom.attributes.position.needsUpdate = true;
 
         particles.rotation.z = ms * 0.00018 * Math.PI;
 
         const nucT = clamp01((ms - T.nucIn) / (T.nucFull - T.nucIn));
-        nucleusMat.opacity = ease(nucT);
-        nucleus.scale.setScalar(lerp(0.2, 1, ease(nucT)));
+        const nucOut = ease(clamp01((ms - T.holdEnd) / (T.scatterEnd - T.holdEnd)));
+        nucleusMat.opacity = ease(nucT) * (1 - nucOut);
+        nucleus.scale.setScalar(lerp(0.2, 1, ease(nucT)) * (1 - nucOut * 0.6));
 
         let haloOpacity = 0;
         if (ms < T.nucIn) {
@@ -163,21 +170,15 @@ export function Intro({ onDone }: { onDone: () => void }) {
           const pulse = 0.08 * Math.sin((ms - T.haloPeak) * 0.0018);
           haloOpacity = baseline + pulse;
         } else {
-          haloOpacity = lerp(0.45, 0, ease(clamp01((ms - T.holdEnd) / (T.dollyEnd - T.holdEnd))));
+          haloOpacity = lerp(0.45, 0, ease(clamp01((ms - T.holdEnd) / (T.scatterEnd - T.holdEnd))));
         }
         haloMat.opacity = clamp01(haloOpacity) * 0.85;
         const haloScale = lerp(5, 14, ease(clamp01(ms / T.holdEnd)));
         halo.scale.set(haloScale, haloScale, 1);
 
-        if (!done && ms > T.wordmarkIn + 200 && phase !== 1) setPhase(1);
-
-        // Final dolly — fade scene back to ink (not bone) so the next
-        // loop iteration starts from the same dark field.
-        if (ms > T.holdEnd) {
-          const dt = clamp01((ms - T.holdEnd) / (T.dollyEnd - T.holdEnd));
-          camera.position.z = lerp(60, 30, ease(dt));
-          renderer.domElement.style.opacity = String(1 - ease(dt) * 0.85);
-        }
+        // Wordmark: fade in mid-reveal, fade back out during scatter.
+        if (!done && ms > T.wordmarkIn + 200 && ms < T.holdEnd && phase !== 1) setPhase(1);
+        if (!done && ms >= T.holdEnd && phase !== 0) setPhase(0);
 
         renderer.render(scene, camera);
 
