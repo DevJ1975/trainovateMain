@@ -3,22 +3,29 @@
 @tailwind utilities;
 
 :root {
-  /* Core */
-  --tnv-void: #05070A;
-  --tnv-carbon: #0B1015;
-  --tnv-steel: #1A2230;
-  --tnv-fog: #5C6B7E;
-  --tnv-bone: #E8ECF1;
-  --tnv-paper: #F4F6F9;
+  /* Core — Trainovate brand */
+  --tnv-ink: #0A0A0A;        /* primary background */
+  --tnv-ink-soft: #14171C;   /* card / surface */
+  --tnv-steel: #1F2530;      /* divider / tertiary */
+  --tnv-fog: #6B7280;        /* muted text */
+  --tnv-bone: #F4F1EA;       /* primary text on dark — warm */
+  --tnv-bone-soft: #C9C5BC;  /* secondary text */
 
-  /* Signal */
-  --tnv-signal: #00E5C7;
-  --tnv-signal-soft: #1FFFD8;
-  --tnv-amber: #FFB547;
-  --tnv-crimson: #FF4D5E;
+  /* Signal — cobalt + flare */
+  --tnv-cobalt: #0046E6;     /* primary accent */
+  --tnv-cobalt-soft: #1A5BFF;
+  --tnv-flare: #FF6B1A;      /* secondary accent / glow */
+  --tnv-flare-soft: #FF8A45;
+  --tnv-crimson: #B22234;
 
-  /* Federal */
-  --tnv-flag-blue: #0A2540;
+  /* Aliases retained for component code paths */
+  --tnv-void: var(--tnv-ink);
+  --tnv-carbon: var(--tnv-ink-soft);
+  --tnv-paper: var(--tnv-bone);
+  --tnv-signal: var(--tnv-cobalt);
+  --tnv-signal-soft: var(--tnv-cobalt-soft);
+  --tnv-amber: var(--tnv-flare);
+  --tnv-flag-blue: #001A66;
   --tnv-flag-red: #B22234;
 }
 
@@ -28,20 +35,22 @@
     -moz-osx-font-smoothing: grayscale;
   }
   html {
-    background: var(--tnv-void);
+    background: var(--tnv-ink);
     color: var(--tnv-bone);
     text-rendering: optimizeLegibility;
   }
   body {
-    @apply bg-void text-bone min-h-screen font-sans;
+    /* transparent so the persistent <Canvas> at z-0 shows through */
+    @apply text-bone min-h-screen font-sans;
+    background: transparent;
     font-feature-settings: "ss01", "cv11";
   }
   ::selection {
-    background: var(--tnv-signal);
-    color: var(--tnv-void);
+    background: var(--tnv-flare);
+    color: var(--tnv-ink);
   }
   :focus-visible {
-    outline: 2px solid var(--tnv-signal);
+    outline: 2px solid var(--tnv-cobalt);
     outline-offset: 2px;
     border-radius: 2px;
   }
@@ -105,7 +114,8 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(0, 229, 199, 0.08), transparent 60%);
+    background: linear-gradient(135deg, rgba(0, 70, 230, 0.18), transparent 55%),
+                linear-gradient(225deg, rgba(255, 107, 26, 0.10), transparent 60%);
     mix-blend-mode: screen;
     pointer-events: none;
     z-index: 1;
@@ -118,26 +128,26 @@
   }
 
   .tnv-glass {
-    background: linear-gradient(160deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0));
-    border: 1px solid rgba(232, 236, 241, 0.08);
-    backdrop-filter: blur(12px) saturate(140%);
-    -webkit-backdrop-filter: blur(12px) saturate(140%);
+    background: linear-gradient(160deg, rgba(244, 241, 234, 0.04), rgba(244, 241, 234, 0));
+    border: 1px solid rgba(244, 241, 234, 0.10);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
     transition: border-color 0.3s ease, transform 0.4s ease;
   }
   .tnv-glass:hover {
-    border-color: rgba(0, 229, 199, 0.4);
+    border-color: rgba(0, 70, 230, 0.5);
   }
 
   .tnv-btn-signal {
     @apply inline-flex items-center justify-center gap-2 font-mono text-[11px] uppercase tracking-eyebrow px-5 py-3 transition-all;
-    background: var(--tnv-signal);
-    color: var(--tnv-void);
-    border: 1px solid var(--tnv-signal);
+    background: var(--tnv-cobalt);
+    color: var(--tnv-bone);
+    border: 1px solid var(--tnv-cobalt);
   }
   .tnv-btn-signal:hover {
-    background: var(--tnv-signal-soft);
-    border-color: var(--tnv-signal-soft);
-    box-shadow: 0 0 28px -4px var(--tnv-signal);
+    background: var(--tnv-cobalt-soft);
+    border-color: var(--tnv-cobalt-soft);
+    box-shadow: 0 0 28px -4px var(--tnv-cobalt);
   }
 
   .tnv-btn-ghost {
@@ -168,8 +178,8 @@
   }
   .grid-noise {
     background-image:
-      linear-gradient(to right, rgba(232, 236, 241, 0.04) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(232, 236, 241, 0.04) 1px, transparent 1px);
+      linear-gradient(to right, rgba(244, 241, 234, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(244, 241, 234, 0.05) 1px, transparent 1px);
     background-size: 64px 64px;
   }
   .radial-vignette {

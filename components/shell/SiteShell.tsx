@@ -42,7 +42,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
     <>
       <ScrollProgress />
       <Nav />
-      <main id="main" className="relative">
+      <main id="main" className="relative z-10">
         {children}
       </main>
       <Footer />

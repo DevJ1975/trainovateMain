@@ -9,18 +9,36 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        void: "var(--tnv-void)",
-        carbon: "var(--tnv-carbon)",
+        // Trainovate brand
+        ink: {
+          DEFAULT: "var(--tnv-ink)",
+          soft: "var(--tnv-ink-soft)",
+        },
+        bone: {
+          DEFAULT: "var(--tnv-bone)",
+          soft: "var(--tnv-bone-soft)",
+        },
+        cobalt: {
+          DEFAULT: "var(--tnv-cobalt)",
+          soft: "var(--tnv-cobalt-soft)",
+          500: "var(--tnv-cobalt)",
+        },
+        flare: {
+          DEFAULT: "var(--tnv-flare)",
+          soft: "var(--tnv-flare-soft)",
+        },
         steel: "var(--tnv-steel)",
         fog: "var(--tnv-fog)",
-        bone: "var(--tnv-bone)",
         paper: "var(--tnv-paper)",
-        signal: {
-          DEFAULT: "var(--tnv-signal)",
-          soft: "var(--tnv-signal-soft)",
-        },
-        amber: "var(--tnv-amber)",
         crimson: "var(--tnv-crimson)",
+        // Aliases — kept so prior component code paths keep compiling
+        void: "var(--tnv-ink)",
+        carbon: "var(--tnv-ink-soft)",
+        signal: {
+          DEFAULT: "var(--tnv-cobalt)",
+          soft: "var(--tnv-cobalt-soft)",
+        },
+        amber: "var(--tnv-flare)",
         flag: {
           blue: "var(--tnv-flag-blue)",
           red: "var(--tnv-flag-red)",

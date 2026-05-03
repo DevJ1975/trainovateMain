@@ -53,9 +53,9 @@ export function SoteriaStack() {
                         })`,
                         opacity: isActive ? 1 : 0.45 - Math.abs(dist) * 0.08,
                         zIndex: products.length - Math.abs(dist),
-                        borderColor: isActive ? "rgba(0,229,199,0.5)" : undefined,
+                        borderColor: isActive ? "rgba(0,70,230,0.6)" : undefined,
                         boxShadow: isActive
-                          ? "0 30px 80px -20px rgba(0,229,199,0.3)"
+                          ? "0 30px 80px -20px rgba(0,70,230,0.45)"
                           : "none",
                       }}
                     >

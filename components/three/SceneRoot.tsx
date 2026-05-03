@@ -27,12 +27,16 @@ export function SceneRoot() {
 
   if (!mounted || reduce) {
     return (
-      <div className="fixed inset-0 -z-10 pointer-events-none" aria-hidden="true">
+      <div
+        className="fixed inset-0 pointer-events-none"
+        aria-hidden="true"
+        style={{ zIndex: 0 }}
+      >
         <div
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse at 50% 30%, rgba(0,229,199,0.18), transparent 55%), radial-gradient(ellipse at 50% 80%, rgba(10,37,64,0.5), transparent 60%)",
+              "radial-gradient(ellipse at 50% 28%, rgba(0,70,230,0.28), transparent 55%), radial-gradient(ellipse at 50% 75%, rgba(255,107,26,0.16), transparent 60%)",
           }}
         />
         <div className="absolute inset-0 grid-noise opacity-50" />
@@ -42,14 +46,15 @@ export function SceneRoot() {
 
   return (
     <div
-      className="fixed inset-0 -z-10 pointer-events-none"
+      className="fixed inset-0 pointer-events-none"
       aria-hidden="true"
+      style={{ zIndex: 0 }}
     >
       <Canvas
         gl={{ antialias: true, powerPreference: "high-performance", alpha: false }}
         dpr={[1, isMobile ? 1.5 : 2]}
         camera={{ position: [0, 0, 8], fov: 55 }}
-        style={{ background: "#05070A" }}
+        style={{ background: "#0A0A0A" }}
       >
         <Suspense fallback={null}>
           <ScrollScene mobile={isMobile} />

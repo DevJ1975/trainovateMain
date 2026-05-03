@@ -11,8 +11,16 @@ export function FederalPanel() {
       <div className="tnv-container">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-5 flex justify-center lg:justify-start">
-            <div className="text-center lg:text-left">
-              <SDVOSBSeal className="h-48 w-48 text-signal mx-auto lg:mx-0" />
+            <div className="text-center lg:text-left relative">
+              <div
+                className="absolute -inset-12 pointer-events-none"
+                style={{
+                  background:
+                    "radial-gradient(circle at center, rgba(255,107,26,0.18), transparent 60%)",
+                }}
+                aria-hidden="true"
+              />
+              <SDVOSBSeal className="relative h-48 w-48 text-cobalt mx-auto lg:mx-0" />
               <div className="mt-6 font-mono text-[10px] uppercase tracking-eyebrow text-fog">
                 Service-Disabled · Veteran-Owned · Small Business
               </div>

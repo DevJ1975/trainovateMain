@@ -17,8 +17,8 @@ export default async function OGImage() {
           justifyContent: "space-between",
           padding: "72px 80px",
           background:
-            "radial-gradient(circle at 70% 30%, #00E5C733, transparent 55%), #05070A",
-          color: "#E8ECF1",
+            "radial-gradient(circle at 30% 28%, #0046E655, transparent 55%), radial-gradient(circle at 78% 78%, #FF6B1A33, transparent 50%), #0A0A0A",
+          color: "#F4F1EA",
           fontFamily: "system-ui, sans-serif",
         }}
       >
@@ -29,7 +29,7 @@ export default async function OGImage() {
             alignItems: "center",
             fontSize: 18,
             letterSpacing: 4,
-            color: "#00E5C7",
+            color: "#0046E6",
             textTransform: "uppercase",
           }}
         >
@@ -50,7 +50,7 @@ export default async function OGImage() {
           >
             We engineer the doctrine of modern safety.
           </div>
-          <div style={{ marginTop: 40, fontSize: 22, color: "#5C6B7E", maxWidth: 760 }}>
+          <div style={{ marginTop: 40, fontSize: 22, color: "#6B7280", maxWidth: 760 }}>
             AI-powered learning, EHS instrumentation, and immersive content for
             the industries the world depends on.
           </div>
@@ -63,7 +63,7 @@ export default async function OGImage() {
             fontSize: 16,
             letterSpacing: 3,
             textTransform: "uppercase",
-            color: "#5C6B7E",
+            color: "#6B7280",
           }}
         >
           <span>Veteran-Owned · SDVOSB · DVOSB</span>
