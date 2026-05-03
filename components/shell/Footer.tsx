@@ -40,8 +40,10 @@ export function Footer() {
           <div className="md:col-span-2">
             <div className="tnv-eyebrow-fog mb-4">Company</div>
             <ul className="space-y-3 text-sm">
+              <FooterLink href="/industries">Industries</FooterLink>
               <FooterLink href="/federal">Federal</FooterLink>
               <FooterLink href="/about">About</FooterLink>
+              <FooterLink href="/podcast">Podcast</FooterLink>
               <FooterLink href="/insights">Insights</FooterLink>
               <FooterLink href="/contact">Contact</FooterLink>
             </ul>

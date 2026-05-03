@@ -37,11 +37,10 @@ export function FederalPanel() {
               Built for the <span className="tnv-italic text-signal">mission.</span>
             </h2>
             <p className="tnv-body mt-6 max-w-xl text-pretty">
-              Trainovate is a Service-Disabled Veteran-Owned Small Business.
-              We work where the standard is non-negotiable — DoD, VA, and
-              federally regulated industry. Our joint venture with Synergy
-              Federal Group extends our reach into SDVOSB and women-owned
-              set-aside vehicles.
+              Trainovate.ai is a Service-Disabled Veteran-Owned Small
+              Business. We work where the standard is non-negotiable — DoD,
+              VA, and federally regulated industry. Soteria is the platform;
+              the SDVOSB designation opens the door.
             </p>
 
             <div className="mt-10">

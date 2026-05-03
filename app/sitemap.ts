@@ -6,7 +6,16 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://trainovate.tech";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
-  const base = ["", "/platform", "/federal", "/about", "/insights", "/contact"].map(
+  const base = [
+    "",
+    "/platform",
+    "/industries",
+    "/federal",
+    "/about",
+    "/podcast",
+    "/insights",
+    "/contact",
+  ].map(
     (path) => ({
       url: `${siteUrl}${path}`,
       lastModified: now,

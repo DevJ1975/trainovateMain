@@ -8,8 +8,10 @@ import { Wordmark } from "@/components/marks/Wordmark";
 
 const links = [
   { href: "/platform", label: "Platform" },
+  { href: "/industries", label: "Industries" },
   { href: "/federal", label: "Federal" },
   { href: "/about", label: "About" },
+  { href: "/podcast", label: "Podcast" },
   { href: "/insights", label: "Insights" },
   { href: "/contact", label: "Contact" },
 ];
@@ -53,7 +55,7 @@ export function Nav() {
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-7" aria-label="Primary">
+          <nav className="hidden md:flex items-center gap-5 lg:gap-6" aria-label="Primary">
             {links.map((l) => {
               const active = pathname === l.href || pathname?.startsWith(l.href + "/");
               return (

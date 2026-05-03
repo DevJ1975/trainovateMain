@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter_Tight, Instrument_Serif, JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { Inter_Tight, Manrope, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { SiteShell } from "@/components/shell/SiteShell";
 import { OrganizationJsonLd } from "@/components/shell/JsonLd";
 import "./globals.css";
@@ -11,12 +11,13 @@ const interTight = Inter_Tight({
   weight: ["300", "400", "500", "600", "700"],
 });
 
-const instrumentSerif = Instrument_Serif({
+// Manrope drives the italic emphasis word inside h1/h2 — a cleaner, more
+// modern counterpoint than the prior editorial serif.
+const manrope = Manrope({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-instrument-serif",
-  weight: ["400"],
-  style: ["normal", "italic"],
+  variable: "--font-emphasis",
+  weight: ["400", "500", "600"],
 });
 
 // Space Grotesk drives h1/h2 display — geometric, technical, defense-tech.
@@ -85,7 +86,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${interTight.variable} ${instrumentSerif.variable} ${spaceGrotesk.variable} ${geistMono.variable}`}
+      className={`${interTight.variable} ${manrope.variable} ${spaceGrotesk.variable} ${geistMono.variable}`}
       suppressHydrationWarning
     >
       <body className="text-bone">

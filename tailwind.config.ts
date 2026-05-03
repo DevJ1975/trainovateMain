@@ -47,8 +47,11 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-inter-tight)", "ui-sans-serif", "system-ui", "sans-serif"],
         mono: ["var(--font-geist-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
-        serif: ["var(--font-instrument-serif)", "ui-serif", "Georgia", "serif"],
+        // serif token now points at Manrope — used for sub-headings and the
+        // italic emphasis word in h1/h2 (no more editorial serif on the site)
+        serif: ["var(--font-emphasis)", "ui-sans-serif", "system-ui", "sans-serif"],
         display: ["var(--font-display)", "var(--font-inter-tight)", "ui-sans-serif", "system-ui", "sans-serif"],
+        emphasis: ["var(--font-emphasis)", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       letterSpacing: {
         eyebrow: "0.18em",

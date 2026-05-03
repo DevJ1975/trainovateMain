@@ -80,16 +80,18 @@
     letter-spacing: -0.03em;
     font-weight: 500;
   }
-  /* Italic emphasis inside h1/h2 still uses the editorial serif for contrast */
+  /* Italic emphasis inside h1/h2 — sans Manrope italic, slightly lighter
+     weight, tighter tracking. Pairs against Space Grotesk display. */
   .tnv-h1 .tnv-italic,
   .tnv-h2 .tnv-italic,
   .tnv-h1 em,
   .tnv-h2 em,
   .tnv-h1 i,
   .tnv-h2 i {
-    font-family: var(--font-instrument-serif), ui-serif, Georgia, serif;
-    font-weight: 400;
-    letter-spacing: -0.02em;
+    font-family: var(--font-emphasis), ui-sans-serif, system-ui, sans-serif;
+    font-weight: 500;
+    font-style: italic;
+    letter-spacing: -0.03em;
   }
   .tnv-h3 {
     @apply font-serif tracking-tight;
