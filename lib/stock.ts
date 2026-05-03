@@ -45,20 +45,26 @@ export const stock = {
       alt: "Aviation maintenance technician in hangar",
       credit: { name: "Yu Kato", url: "https://unsplash.com/@yukato" },
     } satisfies StockImage,
-    cannabis: {
-      url: "https://images.unsplash.com/photo-1603909223429-69bb7101f420?auto=format&fit=crop&w=1600&q=80",
-      alt: "Clinical cannabis cultivation facility",
-      credit: { name: "Richard T", url: "https://unsplash.com/@noaa" },
+    construction: {
+      url: "",
+      alt: "Construction site with crew at work",
     } satisfies StockImage,
     energy: {
       url: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?auto=format&fit=crop&w=1600&q=80",
       alt: "Oil refinery at night with industrial lighting",
       credit: { name: "Patrick Hendry", url: "https://unsplash.com/@worldsbetweenlines" },
     } satisfies StockImage,
-    food: {
-      url: "https://images.unsplash.com/photo-1556909114-44e3e9399a2e?auto=format&fit=crop&w=1600&q=80",
-      alt: "Stainless steel food processing plant",
-      credit: { name: "Brooke Lark", url: "https://unsplash.com/@brookelark" },
+    government: {
+      url: "",
+      alt: "Government operations workspace",
+    } satisfies StockImage,
+    healthcare: {
+      url: "",
+      alt: "Healthcare and emergency-response operations",
+    } satisfies StockImage,
+    corporate: {
+      url: "",
+      alt: "Corporate workforce training environment",
     } satisfies StockImage,
   },
   services: {

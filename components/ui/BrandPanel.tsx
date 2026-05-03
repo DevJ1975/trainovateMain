@@ -5,12 +5,14 @@ type Treatment = "default" | "cool" | "warm";
 const slotEyebrow: Record<string, string> = {
   "hero.bg": "INGRESS",
 
-  "field.manufacturing": "VERTICAL · 01",
-  "field.warehouse": "VERTICAL · 02",
-  "field.aviation": "VERTICAL · 03",
-  "field.cannabis": "VERTICAL · 04",
-  "field.energy": "VERTICAL · 05",
-  "field.food": "VERTICAL · 06",
+  "field.manufacturing": "INDUSTRY · 01",
+  "field.warehouse": "INDUSTRY · 02",
+  "field.construction": "INDUSTRY · 03",
+  "field.aviation": "INDUSTRY · 04",
+  "field.energy": "INDUSTRY · 05",
+  "field.government": "INDUSTRY · 06",
+  "field.healthcare": "INDUSTRY · 07",
+  "field.corporate": "INDUSTRY · 08",
 
   "services.classroom": "SERVICE",
   "services.fieldwalk": "SERVICE",

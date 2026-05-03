@@ -2,12 +2,14 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { StockImage } from "@/components/ui/StockImage";
 
 const fields = [
-  { key: "field.manufacturing", vertical: "Manufacturing", stat: "700+ LOTO placards · multi-site CPG" },
-  { key: "field.warehouse", vertical: "Warehousing / Distribution", stat: "Inspection cycles instrumented end-to-end" },
-  { key: "field.aviation", vertical: "Aviation MRO", stat: "Tooling control + program governance" },
-  { key: "field.cannabis", vertical: "Cannabis Cultivation", stat: "GMP-aligned EHS programs" },
-  { key: "field.energy", vertical: "Oil & Gas · SIMOPS", stat: "High-consequence training in production" },
-  { key: "field.food", vertical: "Food Processing", stat: "USDA / SQF-aligned compliance flows" },
+  { key: "field.manufacturing", vertical: "Manufacturing", stat: "Multi-site LOTO standardized end-to-end" },
+  { key: "field.warehouse", vertical: "Warehousing & Logistics", stat: "Daily inspection cycles instrumented" },
+  { key: "field.construction", vertical: "Construction", stat: "Mobile-first OSHA 10/30 + toolbox talks" },
+  { key: "field.aviation", vertical: "Aviation Maintenance", stat: "Tooling control + procedural sign-offs" },
+  { key: "field.energy", vertical: "Energy & Utilities", stat: "SIMOPS training + AI incident drafts" },
+  { key: "field.government", vertical: "Government & Public Sector", stat: "SDVOSB · Section 508 native" },
+  { key: "field.healthcare", vertical: "Healthcare & EMS", stat: "Protocol micro-learning + 3D scenarios" },
+  { key: "field.corporate", vertical: "Corporate Workforce", stat: "Adaptive paths + L&D analytics" },
 ];
 
 export function FieldGallery() {
