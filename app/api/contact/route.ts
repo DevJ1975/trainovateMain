@@ -55,8 +55,8 @@ export async function POST(req: Request) {
   }
 
   const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.CONTACT_TO_EMAIL || "info@trainovate.tech";
-  const from = process.env.CONTACT_FROM_EMAIL || "no-reply@trainovate.tech";
+  const to = process.env.CONTACT_TO_EMAIL || "jamil@trainovations.com";
+  const from = process.env.CONTACT_FROM_EMAIL || "no-reply@trainovate.ai";
 
   if (!apiKey) {
     // No-op in dev without Resend configured.

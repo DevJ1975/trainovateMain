@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic";
 import { Hero } from "@/components/home/Hero";
 import { TrustValueStrip } from "@/components/home/TrustValueStrip";
+import { PhotoStrip } from "@/components/home/PhotoStrip";
 import { ProblemSolution } from "@/components/home/ProblemSolution";
 import { WhatIsTrainovate } from "@/components/home/WhatIsTrainovate";
 import { CoreCapabilities } from "@/components/home/CoreCapabilities";
@@ -21,6 +22,7 @@ export default function HomePage() {
       <SceneRoot />
       <Hero />
       <TrustValueStrip />
+      <PhotoStrip />
       <ProblemSolution />
       <WhatIsTrainovate />
       <CoreCapabilities />
