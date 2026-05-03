@@ -59,8 +59,10 @@ const config: Config = {
       },
       animation: {
         marquee: "marquee 40s linear infinite",
+        "marquee-fast": "marquee 28s linear infinite",
         "pulse-signal": "pulse-signal 2.4s ease-in-out infinite",
         "fade-up": "fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both",
+        blink: "blink 1.2s steps(2, start) infinite",
       },
       keyframes: {
         marquee: {
@@ -74,6 +76,10 @@ const config: Config = {
         "fade-up": {
           "0%": { opacity: "0", transform: "translateY(14px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        blink: {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.25" },
         },
       },
     },
