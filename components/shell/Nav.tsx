@@ -30,7 +30,7 @@ export function Nav() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-40 transition-all duration-500 ${
+      className={`fixed inset-x-0 top-7 z-40 transition-all duration-500 ${
         scrolled ? "py-3" : "py-6"
       }`}
     >

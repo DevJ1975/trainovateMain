@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { Nav } from "./Nav";
 import { Footer } from "./Footer";
 import { ScrollProgress } from "./ScrollProgress";
+import { DevBanner } from "./DevBanner";
 
 export function SiteShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -40,9 +41,10 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
+      <DevBanner />
       <ScrollProgress />
       <Nav />
-      <main id="main" className="relative z-10">
+      <main id="main" className="relative z-10 pt-7">
         {children}
       </main>
       <Footer />
