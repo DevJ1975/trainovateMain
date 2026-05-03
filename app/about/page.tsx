@@ -73,10 +73,11 @@ export default function AboutPage() {
                 actually learn.
               </p>
               <p>
-                Trainovate is the bet that the gap can be closed by one company
-                that does all three jobs at once — operates the program,
-                ships the platform, and produces the content. No subcontractor
-                chain, no broken handoffs, no theater.
+                Trainovate.ai is the bet that the gap closes when one company
+                ships a real product. Soteria is that product — a SaaS +
+                training platform built by people who have actually run the
+                program. No subcontractor chain, no broken handoffs, no
+                theater.
               </p>
             </div>
             <div className="mt-10 grid grid-cols-2 gap-3">

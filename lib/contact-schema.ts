@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 export const interests = [
-  "ehs-consulting",
   "soteria-platform",
+  "training-programs",
   "federal-teaming",
-  "training-development",
+  "partnership",
   "other",
 ] as const;
 

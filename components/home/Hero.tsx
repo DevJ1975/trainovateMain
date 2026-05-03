@@ -33,16 +33,17 @@ export function Hero() {
           className="tnv-h1 mt-8 max-w-[1100px] text-balance animate-fade-up"
           style={{ animationDelay: "240ms" }}
         >
-          We engineer the doctrine of{" "}
-          <span className="tnv-italic text-signal">modern safety.</span>
+          The workforce safety{" "}
+          <span className="tnv-italic text-signal">platform.</span>
         </h1>
 
         <p
           className="tnv-body mt-10 max-w-2xl text-pretty animate-fade-up"
           style={{ animationDelay: "420ms" }}
         >
-          AI-powered learning, EHS instrumentation, and immersive content for
-          the industries the world depends on.
+          Soteria is the SaaS + training platform Trainovate.ai builds for
+          high-risk industries. xAPI-native learning, EHS instrumentation, and
+          AI co-pilots — shipped, not pitched.
         </p>
 
         <div

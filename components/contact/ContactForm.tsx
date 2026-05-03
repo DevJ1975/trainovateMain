@@ -12,10 +12,10 @@ import {
 } from "@/lib/contact-schema";
 
 const interestLabels: Record<(typeof interests)[number], string> = {
-  "ehs-consulting": "EHS consulting",
   "soteria-platform": "Soteria platform",
+  "training-programs": "Training programs",
   "federal-teaming": "Federal teaming",
-  "training-development": "Training development",
+  partnership: "Partnership / OEM",
   other: "Other",
 };
 

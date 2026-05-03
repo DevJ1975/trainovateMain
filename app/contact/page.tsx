@@ -5,7 +5,7 @@ import { ContactForm } from "@/components/contact/ContactForm";
 export const metadata: Metadata = {
   title: "Contact — Tell us about your workforce",
   description:
-    "Reach Trainovate for EHS consulting, the Soteria platform, federal teaming, and training development.",
+    "Reach Trainovate.ai about the Soteria platform, training programs, federal teaming, and partnerships.",
 };
 
 export default function ContactPage() {

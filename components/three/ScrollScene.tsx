@@ -5,27 +5,36 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 
 /**
- * Trainovate brand-driven scroll scene.
+ * Trainovate.ai persistent scroll scene.
  *
- * Single persistent system with two layers:
- *   1) Bone-coloured particle field that morphs through 7 target shapes
- *      driven by global scroll progress (Globe → Constellation → Stack →
- *      Factory → Hex grid → Tunnel → Dispersed).
- *   2) A cobalt nucleus + flare halo at center — the same brand mark that
- *      ships in the original Intro, persistent through the experience and
- *      modulating intensity per act.
+ * Layered system:
+ *   1) Background — slow, deep field of small particles + a wireframe
+ *      icosahedron rotating at the very back. Carries the atmosphere.
+ *   2) Foreground — primary particle field (3,200 points) morphing through
+ *      7 target shapes driven by global scroll progress.
+ *   3) Mesh — line segments connecting nearby foreground particles when
+ *      they cluster, producing the "constellation web" effect during
+ *      Doctrine + Soteria stack acts.
+ *   4) Brand mark — cobalt nucleus + flare-orange halo at the centre,
+ *      modulated per act.
+ *   5) Mouse parallax — subtle camera offset based on cursor position
+ *      (disabled under prefers-reduced-motion).
  */
 
 const COBALT = new THREE.Color("#0046E6");
 const FLARE = new THREE.Color("#FF6B1A");
 const BONE = new THREE.Color("#F4F1EA");
 
-const N = 1800;
+const N = 3200;
+const N_BG = 1200;
+const MAX_LINKS = 320;
+const LINK_DIST = 0.65;
 
-function makeGlobe(out: Float32Array) {
-  const r = 2.6;
-  for (let i = 0; i < N; i++) {
-    const phi = Math.acos(1 - (2 * (i + 0.5)) / N);
+// ---------- Target shape generators ----------
+
+function makeGlobe(out: Float32Array, n: number, r = 2.6) {
+  for (let i = 0; i < n; i++) {
+    const phi = Math.acos(1 - (2 * (i + 0.5)) / n);
     const theta = Math.PI * (1 + Math.sqrt(5)) * i;
     out[i * 3 + 0] = r * Math.sin(phi) * Math.cos(theta);
     out[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
@@ -33,7 +42,7 @@ function makeGlobe(out: Float32Array) {
   }
 }
 
-function makeConstellation(out: Float32Array) {
+function makeConstellation(out: Float32Array, n: number) {
   const anchors = [
     [-3.4, 1.2, 0],
     [-1.4, -1.7, 0.3],
@@ -41,9 +50,9 @@ function makeConstellation(out: Float32Array) {
     [2.2, -0.6, 0.2],
     [3.6, 1.4, -0.3],
   ];
-  for (let i = 0; i < N; i++) {
+  for (let i = 0; i < n; i++) {
     const a = anchors[i % anchors.length];
-    const r = Math.pow(Math.random(), 1.4) * 0.9;
+    const r = Math.pow(Math.random(), 1.4) * 0.95;
     const t = Math.random() * Math.PI * 2;
     const p = Math.acos(2 * Math.random() - 1);
     out[i * 3 + 0] = a[0] + r * Math.sin(p) * Math.cos(t);
@@ -52,14 +61,14 @@ function makeConstellation(out: Float32Array) {
   }
 }
 
-function makeStack(out: Float32Array) {
+function makeStack(out: Float32Array, n: number) {
   const slabs = [
-    { y: 1.9, w: 4.0, d: 0.5, h: 0.55 },
-    { y: 0.65, w: 4.0, d: 0.5, h: 0.55 },
-    { y: -0.65, w: 4.0, d: 0.5, h: 0.55 },
-    { y: -1.9, w: 4.0, d: 0.5, h: 0.55 },
+    { y: 1.95, w: 4.0, d: 0.5, h: 0.6 },
+    { y: 0.65, w: 4.0, d: 0.5, h: 0.6 },
+    { y: -0.65, w: 4.0, d: 0.5, h: 0.6 },
+    { y: -1.95, w: 4.0, d: 0.5, h: 0.6 },
   ];
-  for (let i = 0; i < N; i++) {
+  for (let i = 0; i < n; i++) {
     const s = slabs[i % slabs.length];
     out[i * 3 + 0] = (Math.random() - 0.5) * s.w;
     out[i * 3 + 1] = s.y + (Math.random() - 0.5) * s.h;
@@ -67,12 +76,12 @@ function makeStack(out: Float32Array) {
   }
 }
 
-function makeFactory(out: Float32Array) {
-  for (let i = 0; i < N; i++) {
-    const x = (Math.random() - 0.5) * 10;
-    const sawtooth = Math.abs(((x + 5) % 1.5) - 0.75);
-    const groundY = -2.2;
-    const roofY = -0.4 - sawtooth * 1.0;
+function makeFactory(out: Float32Array, n: number) {
+  for (let i = 0; i < n; i++) {
+    const x = (Math.random() - 0.5) * 11;
+    const sawtooth = Math.abs(((x + 5.5) % 1.5) - 0.75);
+    const groundY = -2.3;
+    const roofY = -0.3 - sawtooth * 1.0;
     const y = groundY + Math.random() * (roofY - groundY);
     out[i * 3 + 0] = x;
     out[i * 3 + 1] = y;
@@ -80,39 +89,39 @@ function makeFactory(out: Float32Array) {
   }
 }
 
-function makeHexGrid(out: Float32Array) {
-  const cols = 36;
-  const rows = Math.ceil(N / cols);
-  const sx = 0.36;
-  const sy = 0.32;
-  for (let i = 0; i < N; i++) {
+function makeHexGrid(out: Float32Array, n: number) {
+  const cols = 44;
+  const rows = Math.ceil(n / cols);
+  const sx = 0.32;
+  const sy = 0.28;
+  for (let i = 0; i < n; i++) {
     const c = i % cols;
     const r = Math.floor(i / cols);
     const offset = r % 2 === 0 ? 0 : sx / 2;
     out[i * 3 + 0] = (c - cols / 2) * sx + offset;
     out[i * 3 + 1] = -1.7 + r * sy * 0.55 - rows * sy * 0.28;
-    out[i * 3 + 2] = -1.5 - (r / rows) * 4.5;
+    out[i * 3 + 2] = -1.5 - (r / rows) * 5;
   }
 }
 
-function makeTunnel(out: Float32Array) {
-  const ringSize = 50;
-  for (let i = 0; i < N; i++) {
+function makeTunnel(out: Float32Array, n: number) {
+  const ringSize = 60;
+  for (let i = 0; i < n; i++) {
     const ring = Math.floor(i / ringSize);
     const a = ((i % ringSize) / ringSize) * Math.PI * 2;
-    const r = 2.2 + Math.sin(ring * 0.3) * 0.18;
-    const z = -ring * 0.5 + 5;
+    const r = 2.3 + Math.sin(ring * 0.3) * 0.2;
+    const z = -ring * 0.4 + 5;
     out[i * 3 + 0] = Math.cos(a) * r;
     out[i * 3 + 1] = Math.sin(a) * r;
     out[i * 3 + 2] = z;
   }
 }
 
-function makeDispersed(out: Float32Array) {
-  for (let i = 0; i < N; i++) {
-    out[i * 3 + 0] = (Math.random() - 0.5) * 28;
-    out[i * 3 + 1] = (Math.random() - 0.5) * 16;
-    out[i * 3 + 2] = (Math.random() - 0.5) * 20 - 4;
+function makeDispersed(out: Float32Array, n: number) {
+  for (let i = 0; i < n; i++) {
+    out[i * 3 + 0] = (Math.random() - 0.5) * 30;
+    out[i * 3 + 1] = (Math.random() - 0.5) * 18;
+    out[i * 3 + 2] = (Math.random() - 0.5) * 22 - 4;
   }
 }
 
@@ -120,22 +129,32 @@ const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 
 export function ScrollScene({ mobile }: { mobile?: boolean }) {
+  const groupRef = useRef<THREE.Group>(null);
   const pointsRef = useRef<THREE.Points>(null);
   const matRef = useRef<THREE.PointsMaterial>(null);
+  const bgPointsRef = useRef<THREE.Points>(null);
+  const bgMatRef = useRef<THREE.PointsMaterial>(null);
+  const linesRef = useRef<THREE.LineSegments>(null);
+  const linesMatRef = useRef<THREE.LineBasicMaterial>(null);
+  const wireRef = useRef<THREE.Mesh>(null);
   const nucleusRef = useRef<THREE.Mesh>(null);
   const nucleusMatRef = useRef<THREE.MeshBasicMaterial>(null);
   const haloRef = useRef<THREE.Sprite>(null);
   const haloMatRef = useRef<THREE.SpriteMaterial>(null);
+
   const { gl } = useThree();
   const progress = useRef(0);
   const renderProgress = useRef(0);
+  const mouse = useRef({ x: 0, y: 0 });
+  const mouseLerped = useRef({ x: 0, y: 0 });
 
+  // Pre-generated targets for the foreground field
   const targets = useMemo(() => {
     const arr: Float32Array[] = [];
     [makeGlobe, makeConstellation, makeStack, makeFactory, makeHexGrid, makeTunnel, makeDispersed].forEach(
       (fn) => {
         const t = new Float32Array(N * 3);
-        fn(t);
+        fn(t, N);
         arr.push(t);
       }
     );
@@ -154,7 +173,32 @@ export function ScrollScene({ mobile }: { mobile?: boolean }) {
     return g;
   }, [positions]);
 
-  // Halo sprite — soft flare-orange radial gradient on a CanvasTexture
+  // Background field — large dispersed cloud
+  const bgGeometry = useMemo(() => {
+    const arr = new Float32Array(N_BG * 3);
+    for (let i = 0; i < N_BG; i++) {
+      const r = 6 + Math.random() * 10;
+      const t = Math.random() * Math.PI * 2;
+      const p = Math.acos(2 * Math.random() - 1);
+      arr[i * 3 + 0] = r * Math.sin(p) * Math.cos(t);
+      arr[i * 3 + 1] = r * Math.sin(p) * Math.sin(t);
+      arr[i * 3 + 2] = -4 - Math.random() * 14;
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(arr, 3));
+    return g;
+  }, []);
+
+  // Line segments buffer for nearest-neighbour links
+  const linesGeometry = useMemo(() => {
+    const positions = new Float32Array(MAX_LINKS * 2 * 3);
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    g.setDrawRange(0, 0);
+    return g;
+  }, []);
+
+  // Halo sprite — soft flare-orange radial gradient
   const haloTex = useMemo(() => {
     const c = document.createElement("canvas");
     c.width = c.height = 256;
@@ -168,6 +212,7 @@ export function ScrollScene({ mobile }: { mobile?: boolean }) {
     return new THREE.CanvasTexture(c);
   }, []);
 
+  // Scroll subscription
   useEffect(() => {
     const update = () => {
       const h = document.documentElement;
@@ -191,12 +236,28 @@ export function ScrollScene({ mobile }: { mobile?: boolean }) {
     };
   }, []);
 
+  // Mouse parallax
+  useEffect(() => {
+    if (mobile) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+    const onMove = (e: MouseEvent) => {
+      mouse.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.current.y = (e.clientY / window.innerHeight) * 2 - 1;
+    };
+    window.addEventListener("mousemove", onMove, { passive: true });
+    return () => window.removeEventListener("mousemove", onMove);
+  }, [mobile]);
+
   useFrame((state) => {
     renderProgress.current = lerp(renderProgress.current, progress.current, 0.06);
     const p = renderProgress.current;
     const t = state.clock.elapsedTime;
 
-    // Morph particles between targets
+    mouseLerped.current.x = lerp(mouseLerped.current.x, mouse.current.x, 0.04);
+    mouseLerped.current.y = lerp(mouseLerped.current.y, mouse.current.y, 0.04);
+
+    // ---- Foreground field morph ----
     const segCount = targets.length - 1;
     const seg = p * segCount;
     const i0 = Math.min(segCount - 1, Math.floor(seg));
@@ -208,9 +269,9 @@ export function ScrollScene({ mobile }: { mobile?: boolean }) {
     const arr = geometry.attributes.position.array as Float32Array;
     for (let i = 0; i < N; i++) {
       const ix = i * 3;
-      const drift = Math.sin(t * 0.4 + i * 0.13) * 0.018;
+      const drift = Math.sin(t * 0.4 + i * 0.13) * 0.02;
       arr[ix + 0] = lerp(a[ix + 0], b[ix + 0], localT) + drift;
-      arr[ix + 1] = lerp(a[ix + 1], b[ix + 1], localT) + Math.cos(t * 0.5 + i * 0.07) * 0.014;
+      arr[ix + 1] = lerp(a[ix + 1], b[ix + 1], localT) + Math.cos(t * 0.5 + i * 0.07) * 0.016;
       arr[ix + 2] = lerp(a[ix + 2], b[ix + 2], localT) + drift * 0.7;
     }
     geometry.attributes.position.needsUpdate = true;
@@ -220,8 +281,67 @@ export function ScrollScene({ mobile }: { mobile?: boolean }) {
       pointsRef.current.rotation.x = Math.sin(t * 0.15) * 0.05;
     }
 
-    // Particle color: bone in hero, drift toward cobalt by federal act,
-    // brighten near tunnel, fade out at contact
+    // ---- Connection lines (constellation web) ----
+    // Active during Doctrine (0.10–0.30) and Stack (0.30–0.55) acts
+    const linkActivity =
+      Math.max(
+        clamp01((p - 0.08) * 6) * (1 - clamp01((p - 0.55) * 5)),
+        clamp01((p - 0.78) * 5) * (1 - clamp01((p - 0.92) * 12))
+      );
+    if (linesRef.current && linesMatRef.current && linkActivity > 0.05) {
+      const linePos = linesGeometry.attributes.position.array as Float32Array;
+      let linkCount = 0;
+      const stride = 12; // sample every Nth particle for perf
+      for (let i = 0; i < N && linkCount < MAX_LINKS; i += stride) {
+        const ax = arr[i * 3 + 0];
+        const ay = arr[i * 3 + 1];
+        const az = arr[i * 3 + 2];
+        for (let j = i + stride; j < Math.min(i + stride * 8, N) && linkCount < MAX_LINKS; j += stride) {
+          const bx = arr[j * 3 + 0];
+          const by = arr[j * 3 + 1];
+          const bz = arr[j * 3 + 2];
+          const dx = ax - bx;
+          const dy = ay - by;
+          const dz = az - bz;
+          const d2 = dx * dx + dy * dy + dz * dz;
+          if (d2 < LINK_DIST * LINK_DIST) {
+            const k = linkCount * 6;
+            linePos[k + 0] = ax;
+            linePos[k + 1] = ay;
+            linePos[k + 2] = az;
+            linePos[k + 3] = bx;
+            linePos[k + 4] = by;
+            linePos[k + 5] = bz;
+            linkCount++;
+          }
+        }
+      }
+      linesGeometry.setDrawRange(0, linkCount * 2);
+      linesGeometry.attributes.position.needsUpdate = true;
+      linesMatRef.current.opacity = 0.22 * linkActivity;
+      linesRef.current.visible = true;
+      linesRef.current.rotation.copy(pointsRef.current!.rotation);
+    } else if (linesRef.current) {
+      linesRef.current.visible = false;
+    }
+
+    // ---- Background field ----
+    if (bgPointsRef.current && bgMatRef.current) {
+      bgPointsRef.current.rotation.y = -t * 0.015;
+      bgPointsRef.current.rotation.x = Math.sin(t * 0.07) * 0.04;
+      bgMatRef.current.opacity = 0.5 * (1 - clamp01((p - 0.93) * 14));
+    }
+
+    // ---- Wireframe icosahedron behind everything ----
+    if (wireRef.current) {
+      wireRef.current.rotation.x = t * 0.05;
+      wireRef.current.rotation.y = t * 0.08 + p * 1.6;
+      const wireScale = lerp(1.6, 0.9, p);
+      wireRef.current.scale.setScalar(wireScale);
+      wireRef.current.position.z = lerp(-3, -1.5, p);
+    }
+
+    // ---- Foreground colour ----
     if (matRef.current) {
       const fed = clamp01((p - 0.55) * 4);
       const col = BONE.clone().lerp(COBALT, fed * 0.55);
@@ -231,47 +351,82 @@ export function ScrollScene({ mobile }: { mobile?: boolean }) {
       matRef.current.opacity = 0.85 * (1 - clamp01((p - 0.93) * 14));
     }
 
-    // Nucleus: cobalt sphere — strongest in hero, subtle through middle, accent near tunnel
+    // ---- Nucleus + halo ----
     if (nucleusRef.current && nucleusMatRef.current) {
-      const heroIntensity = 1 - clamp01(p * 5);          // strong 0–0.2
+      const heroIntensity = 1 - clamp01(p * 5);
       const tunnelIntensity = clamp01((p - 0.78) * 6) * (1 - clamp01((p - 0.93) * 14));
       const intensity = Math.max(heroIntensity, tunnelIntensity * 0.85, 0.08);
       nucleusMatRef.current.opacity = intensity * 0.9;
-      const scale = lerp(0.4, 1.2, intensity);
-      nucleusRef.current.scale.setScalar(scale);
+      const baseScale = lerp(0.4, 1.25, intensity);
+      const breathing = 1 + Math.sin(t * 1.4) * 0.04;
+      nucleusRef.current.scale.setScalar(baseScale * breathing);
       nucleusRef.current.position.x = Math.sin(t * 0.3) * 0.08;
     }
 
-    // Halo: flare orange — pulses through whole experience, peaks in hero
     if (haloRef.current && haloMatRef.current) {
       const heroBoost = 1 - clamp01(p * 3.5);
       const pulse = 0.12 * Math.sin(t * 1.2);
       const baseline = 0.35 + heroBoost * 0.55;
       haloMatRef.current.opacity = clamp01(baseline + pulse) * (1 - clamp01((p - 0.93) * 14));
-      const haloScale = lerp(7, 11, heroBoost) + Math.sin(t * 0.6) * 0.3;
+      const haloScale = lerp(7, 11.5, heroBoost) + Math.sin(t * 0.6) * 0.3;
       haloRef.current.scale.set(haloScale, haloScale, 1);
     }
 
-    // Camera per act
+    // ---- Camera ----
     const camZ = (() => {
       if (p < 0.18) return 7.6;
       if (p < 0.4) return 6.8;
-      if (p < 0.6) return 6.4;
+      if (p < 0.6) return 6.2;
       if (p < 0.78) return 7.2;
-      if (p < 0.92) return 5.0;
-      return 9.0;
+      if (p < 0.92) return 4.8;
+      return 9.5;
     })();
     state.camera.position.z = lerp(state.camera.position.z, camZ, 0.04);
-    state.camera.position.x = Math.sin(t * 0.1) * 0.12;
+    // Combine drift + parallax
+    state.camera.position.x = lerp(
+      state.camera.position.x,
+      Math.sin(t * 0.1) * 0.12 + mouseLerped.current.x * 0.35,
+      0.06
+    );
+    state.camera.position.y = lerp(
+      state.camera.position.y,
+      Math.cos(t * 0.08) * 0.06 - mouseLerped.current.y * 0.2,
+      0.06
+    );
     state.camera.lookAt(0, 0, 0);
 
     gl.setClearColor("#0A0A0A", 1);
   });
 
   return (
-    <>
-      {/* Halo — flare orange behind everything */}
-      <sprite ref={haloRef} scale={[10, 10, 1]}>
+    <group ref={groupRef}>
+      {/* Far background — wireframe icosahedron */}
+      <mesh ref={wireRef} position={[0, 0, -3]}>
+        <icosahedronGeometry args={[3.4, 1]} />
+        <meshBasicMaterial
+          color={COBALT}
+          wireframe
+          transparent
+          opacity={0.13}
+        />
+      </mesh>
+
+      {/* Background particle cloud */}
+      <points ref={bgPointsRef} geometry={bgGeometry}>
+        <pointsMaterial
+          ref={bgMatRef}
+          size={mobile ? 0.018 : 0.014}
+          color={BONE}
+          transparent
+          opacity={0.45}
+          sizeAttenuation
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </points>
+
+      {/* Halo — flare orange */}
+      <sprite ref={haloRef} scale={[10, 10, 1]} position={[0, 0, -0.4]}>
         <spriteMaterial
           ref={haloMatRef}
           map={haloTex}
@@ -294,7 +449,7 @@ export function ScrollScene({ mobile }: { mobile?: boolean }) {
         />
       </mesh>
 
-      {/* Particle field */}
+      {/* Foreground particles */}
       <points ref={pointsRef} geometry={geometry}>
         <pointsMaterial
           ref={matRef}
@@ -308,7 +463,19 @@ export function ScrollScene({ mobile }: { mobile?: boolean }) {
         />
       </points>
 
+      {/* Constellation web */}
+      <lineSegments ref={linesRef} geometry={linesGeometry} frustumCulled={false}>
+        <lineBasicMaterial
+          ref={linesMatRef}
+          color={COBALT}
+          transparent
+          opacity={0}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </lineSegments>
+
       <ambientLight intensity={0.4} />
-    </>
+    </group>
   );
 }

@@ -48,11 +48,11 @@ export default async function OGImage() {
               fontWeight: 400,
             }}
           >
-            We engineer the doctrine of modern safety.
+            The workforce safety platform.
           </div>
           <div style={{ marginTop: 40, fontSize: 22, color: "#6B7280", maxWidth: 760 }}>
-            AI-powered learning, EHS instrumentation, and immersive content for
-            the industries the world depends on.
+            Soteria — the SaaS + training platform for high-risk industries.
+            xAPI-native learning, EHS instrumentation, AI co-pilots.
           </div>
         </div>
 

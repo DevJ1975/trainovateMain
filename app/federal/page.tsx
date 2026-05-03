@@ -8,7 +8,7 @@ import { SDVOSBSeal } from "@/components/marks/SDVOSBSeal";
 export const metadata: Metadata = {
   title: "Federal — SDVOSB capabilities",
   description:
-    "Trainovate.ai is a Service-Disabled Veteran-Owned Small Business serving DoD, VA, and federally regulated industry. JV with Synergy Federal Group.",
+    "Trainovate.ai is an SDVOSB workforce-safety platform company. Soteria — our SaaS + training platform — serves DoD, VA, and federally regulated industry. JV with Synergy Federal Group.",
 };
 
 const NAICS = [
@@ -149,8 +149,8 @@ export default function FederalPage() {
               b: "Founded and operated by a veteran with field operations and MBA depth.",
             },
             {
-              t: "EHS + AI + training in one shop",
-              b: "We run the program, build the platform, and produce the training. No subcontract chain.",
+              t: "Platform-first delivery",
+              b: "We ship a product, not a deck. Soteria SaaS + training shipped as one stack.",
             },
             {
               t: "Soteria platform IP",

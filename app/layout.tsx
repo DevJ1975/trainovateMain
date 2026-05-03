@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter_Tight, Instrument_Serif, JetBrains_Mono, Bricolage_Grotesque } from "next/font/google";
+import { Inter_Tight, Instrument_Serif, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import { SiteShell } from "@/components/shell/SiteShell";
 import { OrganizationJsonLd } from "@/components/shell/JsonLd";
 import "./globals.css";
@@ -19,13 +19,12 @@ const instrumentSerif = Instrument_Serif({
   style: ["normal", "italic"],
 });
 
-// Bricolage Grotesque drives the h1 display — modern humanist sans with a
-// stronger defense-tech presence than the prior serif.
-const bricolage = Bricolage_Grotesque({
+// Space Grotesk drives h1/h2 display — geometric, technical, defense-tech.
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-display",
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
 });
 
 // Geist Mono isn't on Google Fonts in this Next version; JetBrains Mono is the
@@ -42,11 +41,11 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://trainovate.tech";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Trainovate.ai — Workforce Transformation OS",
+    default: "Trainovate.ai — The workforce safety platform",
     template: "%s · Trainovate.ai",
   },
   description:
-    "AI-powered learning, EHS instrumentation, and immersive content for the industries the world depends on. Veteran-owned. SDVOSB.",
+    "Soteria — the SaaS + training platform for high-risk industries. xAPI-native learning, EHS instrumentation, and AI co-pilots. Veteran-owned. SDVOSB.",
   keywords: [
     "EHS training",
     "OSHA",
@@ -63,15 +62,15 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Trainovate.ai",
-    title: "Trainovate.ai — Workforce Transformation OS",
+    title: "Trainovate.ai — The workforce safety platform",
     description:
-      "AI-powered learning, EHS instrumentation, and immersive content for the industries the world depends on.",
+      "The SaaS + training platform for high-risk industries.",
     url: siteUrl,
   },
   twitter: {
     card: "summary_large_image",
     title: "Trainovate.ai",
-    description: "Workforce Transformation OS for high-risk industries.",
+    description: "The SaaS + training platform for high-risk industries.",
   },
   robots: { index: true, follow: true },
 };
@@ -86,7 +85,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${interTight.variable} ${instrumentSerif.variable} ${bricolage.variable} ${geistMono.variable}`}
+      className={`${interTight.variable} ${instrumentSerif.variable} ${spaceGrotesk.variable} ${geistMono.variable}`}
       suppressHydrationWarning
     >
       <body className="text-bone">
