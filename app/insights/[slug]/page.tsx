@@ -19,7 +19,21 @@ export async function generateMetadata({
   const { slug } = await params;
   const p = getInsight(slug);
   if (!p) return {};
-  return { title: p.title, description: p.excerpt };
+  return {
+    title: p.title,
+    description: p.excerpt,
+    alternates: { canonical: `/insights/${p.slug}` },
+    openGraph: {
+      title: p.title,
+      description: p.excerpt,
+      url: `/insights/${p.slug}`,
+      type: "article",
+      publishedTime: p.date,
+      authors: ["Trainovate Technologies"],
+      tags: [p.topic],
+    },
+    robots: p.draft ? { index: false, follow: true } : { index: true, follow: true },
+  };
 }
 
 const formatDate = (iso: string) =>
@@ -29,13 +43,43 @@ const formatDate = (iso: string) =>
     year: "numeric",
   });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://trainovate.ai";
+
 export default async function InsightPage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
   const p = getInsight(slug);
   if (!p) notFound();
 
+  const wordCount = p.body.join(" ").split(/\s+/).length;
+  const blogPostingJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: p.title,
+    description: p.excerpt,
+    datePublished: p.date,
+    dateModified: p.date,
+    author: {
+      "@type": "Organization",
+      name: "Trainovate Technologies",
+      url: siteUrl,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Trainovate Technologies",
+      logo: { "@type": "ImageObject", url: `${siteUrl}/icon.svg` },
+    },
+    mainEntityOfPage: { "@type": "WebPage", "@id": `${siteUrl}/insights/${p.slug}` },
+    wordCount,
+    articleSection: p.topic,
+    image: `${siteUrl}/opengraph-image`,
+  };
+
   return (
     <article className="pt-32 md:pt-40 pb-24">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogPostingJsonLd) }}
+      />
       <div className="tnv-container tnv-section">
         <Link
           href="/insights"

@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next";
 import { products } from "@/lib/products";
+import { industries } from "@/lib/industries";
 import { insights } from "@/lib/insights";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://trainovate.tech";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://trainovate.ai";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
@@ -15,20 +16,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/podcast",
     "/insights",
     "/contact",
-  ].map(
-    (path) => ({
-      url: `${siteUrl}${path}`,
-      lastModified: now,
-      changeFrequency: "weekly" as const,
-      priority: path === "" ? 1 : 0.7,
-    })
-  );
+  ].map((path) => ({
+    url: `${siteUrl}${path}`,
+    lastModified: now,
+    changeFrequency: "weekly" as const,
+    priority: path === "" ? 1 : 0.7,
+  }));
 
   const productPages = products.map((p) => ({
     url: `${siteUrl}/platform/${p.slug}`,
     lastModified: now,
     changeFrequency: "monthly" as const,
     priority: 0.8,
+  }));
+
+  const industryPages = industries.map((i) => ({
+    url: `${siteUrl}/industries/${i.slug}`,
+    lastModified: now,
+    changeFrequency: "monthly" as const,
+    priority: 0.85, // long-tail SEO money pages
   }));
 
   const insightPages = insights.map((p) => ({
@@ -38,5 +44,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.5,
   }));
 
-  return [...base, ...productPages, ...insightPages];
+  return [...base, ...productPages, ...industryPages, ...insightPages];
 }

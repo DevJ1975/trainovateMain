@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Check } from "lucide-react";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { StockImage } from "@/components/ui/StockImage";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { products, getProduct } from "@/lib/products";
 
 type Params = { slug: string };
@@ -36,6 +37,17 @@ export default async function ProductPage({ params }: { params: Promise<Params> 
 
   return (
     <div className="pt-32 md:pt-40 pb-24">
+      {/* Breadcrumbs */}
+      <div className="tnv-container tnv-section mb-8">
+        <Breadcrumbs
+          items={[
+            { name: "Home", href: "/" },
+            { name: "Solutions", href: "/platform" },
+            { name: p.full, href: `/platform/${p.slug}` },
+          ]}
+        />
+      </div>
+
       {/* Hero */}
       <section className="tnv-container tnv-section">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-end">

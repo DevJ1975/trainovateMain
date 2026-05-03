@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { StockImage } from "@/components/ui/StockImage";
 import { industries } from "@/lib/industries";
+import { FaqSection, FaqJsonLd, type FaqItem } from "@/components/ui/FaqSection";
 
 export const metadata: Metadata = {
   title: "Industries We Serve | Safety Training & Workforce Learning Solutions",
@@ -130,6 +131,13 @@ export default function IndustriesPage() {
                   </div>
                 </div>
               </div>
+
+              <Link
+                href={`/industries/${v.slug}`}
+                className="mt-8 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-eyebrow text-cobalt-soft hover:text-bone border-b border-cobalt/40 hover:border-bone pb-1"
+              >
+                Deep dive — {v.shortName} <ArrowRight size={14} />
+              </Link>
             </div>
           </article>
         ))}
@@ -226,6 +234,19 @@ export default function IndustriesPage() {
         </div>
       </section>
 
+      <FaqSection
+        index="11"
+        eyebrow="FAQ"
+        heading={
+          <>
+            Industry questions,{" "}
+            <span className="tnv-italic text-signal">answered.</span>
+          </>
+        }
+        items={industriesFaq}
+      />
+      <FaqJsonLd items={industriesFaq} />
+
       {/* Final CTA */}
       <section className="tnv-container tnv-section mt-32">
         <div className="tnv-glass rounded-2xl p-10 md:p-16">
@@ -255,3 +276,34 @@ export default function IndustriesPage() {
     </div>
   );
 }
+
+const industriesFaq: FaqItem[] = [
+  {
+    q: "What industries does Trainovate serve?",
+    a: "Trainovate serves manufacturing, construction, warehousing & logistics, aviation maintenance, energy & utilities, government & public sector, healthcare & emergency response, and corporate workforce training. We focus on high-risk, high-responsibility environments where the cost of a missed step is real.",
+  },
+  {
+    q: "Do you build custom safety training for manufacturing?",
+    a: "Yes. We standardize lockout/tagout, machine guarding, and PPE training across multi-site manufacturing operations, instrumented through Soteria FIELD SaaS so every plant reads off the same dashboard. OSHA 29 CFR 1910.147, ANSI Z244.1, ISO 45001, and Cal/OSHA 3314 aligned.",
+  },
+  {
+    q: "Can Trainovate support construction OSHA 10/30 training?",
+    a: "Yes. Our mobile-first construction training covers OSHA 10/30 outreach content, toolbox talks, and task-specific safety briefings — delivered on the device the crew already carries, in the language the workforce actually speaks, with evidence captured in real time.",
+  },
+  {
+    q: "What does immersive VR safety training look like in practice?",
+    a: "VR and 3D simulations are used for spatial procedures, high-acuity skills, and high-consequence tasks — confined space entries, energized work, emergency response, equipment operation. The worker rehearses the procedure in a safe environment until it becomes muscle memory, then performs it live.",
+  },
+  {
+    q: "How does Trainovate support federal and government customers?",
+    a: "Trainovate is a Service-Disabled Veteran-Owned Small Business (SDVOSB / DVOSB) registered on SAM.gov. Section 508 accessibility is built in by default. We support DoD, VA, and civilian agency requirements through Soteria FIELD SaaS — NAICS 611430 primary plus engineering, IT, and educational support secondaries.",
+  },
+  {
+    q: "Can Soteria handle rotating crews and high-turnover workforces?",
+    a: "Yes. Multi-tenant SaaS with role-based access, SSO, and per-site governance. Microlearning sequences are designed for short-attention-span starts of shift; competency tracking persists across rotations so a new crew member doesn't restart the curriculum.",
+  },
+  {
+    q: "Do you offer training programs for healthcare and emergency response?",
+    a: "Yes. Protocol microlearning, immersive 3D scenarios for high-acuity skills, and competency tracking across rotating shifts. Aligned with TJC standards, OSHA 1910.1030 bloodborne pathogens, NIMS / ICS, and HIPAA where applicable.",
+  },
+];

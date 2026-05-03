@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter_Tight, Manrope, JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { SiteShell } from "@/components/shell/SiteShell";
 import { OrganizationJsonLd } from "@/components/shell/JsonLd";
 import "./globals.css";
@@ -123,6 +125,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
         <SiteShell>{children}</SiteShell>
         <OrganizationJsonLd />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

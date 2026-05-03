@@ -11,6 +11,7 @@ type Props = {
   height?: number;
   treatment?: "default" | "cool" | "warm";
   label?: string;
+  alt?: string;
 };
 
 /**
@@ -26,6 +27,7 @@ export function StockImage({
   className = "",
   treatment = "default",
   label,
+  alt,
 }: Props) {
   return (
     <BrandPanel
@@ -33,6 +35,7 @@ export function StockImage({
       className={className}
       treatment={treatment}
       label={label}
+      alt={alt}
     />
   );
 }

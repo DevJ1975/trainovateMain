@@ -115,6 +115,8 @@ export default function AboutPage() {
                 videoId="1166250257"
                 hash="5718878337"
                 title="Trainovate Technologies — Brand intro"
+                description="Trainovate Technologies brand introduction — modern, AI-powered, immersive workforce training systems for high-risk industries. Veteran-founded. SDVOSB."
+                uploadDate="2026-04-01"
                 className="rounded-lg"
               />
             </div>

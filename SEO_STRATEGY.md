@@ -254,28 +254,28 @@ Cadence rules:
 ## 11. Priority Action Plan
 
 ### Week 1 (immediate)
-1. Install `@vercel/analytics` + `@vercel/speed-insights`, mount in root layout
-2. Verify domain in Google Search Console + Bing Webmaster, submit sitemap
-3. Replace BrandPanel generic alt text with per-slot descriptive alt
-4. Build branded 404 page
+1. Install `@vercel/analytics` + `@vercel/speed-insights`, mount in root layout — **[shipped]**
+2. Verify domain in Google Search Console + Bing Webmaster, submit sitemap — **needs Jay**
+3. Replace BrandPanel generic alt text with per-slot descriptive alt — **[shipped]**
+4. Build branded 404 page — **[shipped]** (`app/not-found.tsx`)
 
 ### Week 2
-5. Add FAQ schema + visible FAQ section to /platform and /industries
-6. Add Breadcrumb schema to /platform/[slug] and /industries
-7. Update /platform H1 + add Data & Performance Insights card
-8. Add VideoObject schema for the Vimeo embed on /about
+5. Add FAQ schema + visible FAQ section to /platform and /industries — **[shipped]** (7 Q&A on /platform, 7 Q&A on /industries, both with FAQPage JSON-LD)
+6. Add Breadcrumb schema to /platform/[slug] and /industries — **[shipped]** (Breadcrumbs component on /platform/[slug] and /industries/[slug])
+7. Update /platform H1 + add Data & Performance Insights card — **[shipped]**
+8. Add VideoObject schema for the Vimeo embed on /about — **[shipped]** (VimeoEmbed now emits VideoObject when given description + uploadDate)
 
 ### Weeks 3–4
-9. Build /industries/[slug] dynamic pages (8 deep-dives — long-tail SEO money pages)
-10. Publish first 4 blog articles (Month 1 cluster)
-11. Add BlogPosting schema to /insights/[slug]
+9. Build /industries/[slug] dynamic pages (8 deep-dives — long-tail SEO money pages) — **[shipped]** (manufacturing, warehousing-logistics, construction, aviation-maintenance, energy-utilities, government-public-sector, healthcare-emergency-response, corporate-workforce-training — each with per-vertical Service JSON-LD, breadcrumbs, hero, capabilities, frameworks, signal stat, challenges, programs, outcomes, CTA + next-industry cross-link)
+10. Publish first 4 blog articles (Month 1 cluster) — **TODO** (content writing — needs Jay or content writer)
+11. Add BlogPosting schema to /insights/[slug] — **[shipped]**
 
 ### Month 2–3
-12. Continue blog cadence (one per week)
-13. Internal-link audit — every blog article links to at least one money page
-14. PodcastSeries / PodcastEpisode schema once Operational Minds is live
+12. Continue blog cadence (one per week) — **TODO**
+13. Internal-link audit — every blog article links to at least one money page — **TODO** post-publishing
+14. PodcastSeries / PodcastEpisode schema once Operational Minds is live — **TODO** post-launch
 15. Backlink outreach — veteran business directories (NaVOBA, Vetbiz),
-    SDVOSB lists, training-tech directories (Capterra, G2, eLearning Industry)
+    SDVOSB lists, training-tech directories (Capterra, G2, eLearning Industry) — **TODO**
 
 ---
 

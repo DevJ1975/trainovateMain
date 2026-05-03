@@ -2,31 +2,90 @@ import { OrbitMark } from "@/components/marks/OrbitMark";
 
 type Treatment = "default" | "cool" | "warm";
 
-const slotEyebrow: Record<string, string> = {
-  "hero.bg": "INGRESS",
+type SlotMeta = { eyebrow: string; alt: string };
 
-  "field.manufacturing": "INDUSTRY · 01",
-  "field.warehouse": "INDUSTRY · 02",
-  "field.construction": "INDUSTRY · 03",
-  "field.aviation": "INDUSTRY · 04",
-  "field.energy": "INDUSTRY · 05",
-  "field.government": "INDUSTRY · 06",
-  "field.healthcare": "INDUSTRY · 07",
-  "field.corporate": "INDUSTRY · 08",
+const slotMeta: Record<string, SlotMeta> = {
+  "hero.bg": {
+    eyebrow: "INGRESS",
+    alt: "Trainovate hero environment — cobalt and flare brand backdrop",
+  },
 
-  "services.classroom": "SERVICE",
-  "services.fieldwalk": "SERVICE",
+  "field.manufacturing": {
+    eyebrow: "INDUSTRY · 01",
+    alt: "Manufacturing safety training environment — multi-site plant operations",
+  },
+  "field.warehouse": {
+    eyebrow: "INDUSTRY · 02",
+    alt: "Warehousing and logistics training environment — daily inspection workflow",
+  },
+  "field.construction": {
+    eyebrow: "INDUSTRY · 03",
+    alt: "Construction site training environment — mobile-first OSHA 10/30 delivery",
+  },
+  "field.aviation": {
+    eyebrow: "INDUSTRY · 04",
+    alt: "Aviation maintenance training environment — FAR Part 145 procedural sign-offs",
+  },
+  "field.energy": {
+    eyebrow: "INDUSTRY · 05",
+    alt: "Energy and utilities training environment — SIMOPS and process safety",
+  },
+  "field.government": {
+    eyebrow: "INDUSTRY · 06",
+    alt: "Government and public sector training environment — Section 508 native delivery",
+  },
+  "field.healthcare": {
+    eyebrow: "INDUSTRY · 07",
+    alt: "Healthcare and emergency response training environment — protocol microlearning",
+  },
+  "field.corporate": {
+    eyebrow: "INDUSTRY · 08",
+    alt: "Corporate workforce training environment — adaptive learning paths",
+  },
 
-  "federal.dod": "FEDERAL · DOD",
-  "federal.va": "FEDERAL · VA",
+  "services.classroom": {
+    eyebrow: "DELIVERY",
+    alt: "Trainovate workforce training delivery environment",
+  },
+  "services.fieldwalk": {
+    eyebrow: "DELIVERY",
+    alt: "On-site field walk for safety program assessment",
+  },
 
-  "about.founder": "FOUNDER",
-  "about.team": "POSTURE",
+  "federal.dod": {
+    eyebrow: "FEDERAL · DOD",
+    alt: "Federal mission-space training operations — SDVOSB delivery",
+  },
+  "federal.va": {
+    eyebrow: "FEDERAL · VA",
+    alt: "Department of Veterans Affairs workforce training context",
+  },
 
-  "platform.safeguard": "SOTERIA · 02",
-  "platform.field": "SOTERIA · 03",
-  "platform.learning": "SOTERIA · 04",
-  "platform.copilot": "SOTERIA · 05",
+  "about.founder": {
+    eyebrow: "FOUNDER",
+    alt: "Jamil Jones, Founder of Trainovate Technologies",
+  },
+  "about.team": {
+    eyebrow: "POSTURE",
+    alt: "Trainovate operating posture — founder-led, operator-grade",
+  },
+
+  "platform.safeguard": {
+    eyebrow: "SOTERIA · 02",
+    alt: "Soteria Safeguard — multi-tenant SaaS for energy-control / LOTO programs",
+  },
+  "platform.field": {
+    eyebrow: "SOTERIA · 03",
+    alt: "Soteria FIELD SaaS — custom LMS for inspections, audits, and corrective actions",
+  },
+  "platform.learning": {
+    eyebrow: "SOTERIA · 04",
+    alt: "Soteria Learning — adaptive microlearning and immersive VR/3D safety training",
+  },
+  "platform.copilot": {
+    eyebrow: "SOTERIA · 05",
+    alt: "Soteria AI Co-Pilot — incident drafting and analyst-in-the-loop intelligence",
+  },
 };
 
 /**
@@ -40,13 +99,17 @@ export function BrandPanel({
   className = "",
   treatment = "default",
   label,
+  alt,
 }: {
   slot: string;
   className?: string;
   treatment?: Treatment;
   label?: string;
+  alt?: string;
 }) {
-  const eyebrow = label ?? slotEyebrow[slot] ?? "PANEL";
+  const meta = slotMeta[slot] ?? { eyebrow: "PANEL", alt: "Trainovate brand panel" };
+  const eyebrow = label ?? meta.eyebrow;
+  const altText = alt ?? meta.alt;
 
   const cobaltStrength =
     treatment === "warm" ? 0.18 : treatment === "cool" ? 0.45 : 0.32;
@@ -57,7 +120,7 @@ export function BrandPanel({
     <div
       className={`relative overflow-hidden bg-ink ${className}`}
       role="img"
-      aria-label={`${eyebrow} — Trainovate.ai`}
+      aria-label={altText}
     >
       {/* Base gradient field */}
       <div
