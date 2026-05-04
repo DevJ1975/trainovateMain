@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { RegisterSW } from "@/components/RegisterSW";
 import { SubmissionForm } from "./SubmissionForm";
 
 export const metadata = {
@@ -8,6 +9,7 @@ export const metadata = {
 export default function ReportPage() {
   return (
     <main className="min-h-screen bg-ink text-bone">
+      <RegisterSW />
       <div className="mx-auto max-w-xl px-5 py-10 sm:py-16">
         <Link href="/" className="font-mono text-[10px] uppercase tracking-[0.24em] text-bone/55 hover:text-bone">
           ← Trainovate.ai
