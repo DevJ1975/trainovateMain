@@ -94,7 +94,8 @@ ergonomic, chemical, PPE, vehicle, etc.) and are configurable per org.
 ## 8. Rollout phases
 
 - **Phase 0 — Spike (1 wk).** Submission API + minimal form, manual triage in
-  admin. Internal dogfood at one pilot site.
+  admin. Internal dogfood at one pilot site. **✅ Shipped on this branch — see
+  §11.**
 - **Phase 1 — MVP (3–4 wks).** Full submission flow (incl. offline + photo),
   dashboard list + filters, corrective actions, audit log, anonymity, role-based
   access.
@@ -113,7 +114,50 @@ ergonomic, chemical, PPE, vehicle, etc.) and are configurable per org.
 - **Training tie-in**: % of pattern-triggered recommendations that convert to a
   completed lesson by the affected team.
 
-## 10. Open questions
+## 10. Phase 0 — what shipped
+
+A working vertical slice exists at:
+
+- `/report` — public submission form (anonymous toggle, hazard category,
+  severity-potential, free-text description, when-it-happened).
+- `/report/thanks/[reference]` — confirmation page; anonymous reporters
+  receive a one-time receipt code.
+- `/safety/near-misses` — triage queue with status filters and counts.
+- `/safety/near-misses/[id]` — detail view with status transitions,
+  contributing factors, corrective actions (add + mark done), and an
+  append-only activity log.
+
+Code layout:
+
+- `lib/near-miss/types.ts` — domain types + curated hazard categories,
+  severity levels, statuses, contributing-factor types.
+- `lib/near-miss/store.ts` — process-local in-memory store with audit-log
+  invariants. `globalThis`-pinned so HMR and route handlers share state.
+- `lib/near-miss/format.ts` — badge classes and relative-time helper.
+- `app/report/*` — submission UI + server action.
+- `app/safety/*` — triage layout, list, detail, and triage server actions.
+
+Verified by `next build` (typecheck passes; routes generate).
+
+### Stubbed in Phase 0, real in Phase 1
+
+- **Persistence** — in-memory; lost on restart. Replace with Postgres + a
+  thin repository over the same `lib/near-miss/store` interface.
+- **Auth & roles** — every visitor can both report and triage. Wire up SSO,
+  scope reads/writes by org + site role, and lock the `/safety/*` surface.
+- **Anonymity guarantees** — receipt code is generated but not yet usable to
+  look up status. Add a `/report/status/[code]` lookup that doesn't require
+  auth.
+- **Photo / video attachments** — schema is ready (planned `Attachment`
+  table), upload UX is not. Add S3 (or equivalent) + face/plate auto-blur.
+- **Offline submit** — needs PWA manifest + service worker queue.
+- **Notifications** — no email/SMS/Slack on triage events yet.
+- **Training-engine tie-in** — pattern detection (§7) lands with insights in
+  Phase 2.
+- **Validation** — server actions throw on bad input but errors don't
+  surface in the UI gracefully. Add proper field-level error rendering.
+
+## 11. Open questions
 
 - Anonymity policy: org-configurable, or platform-mandated minimum?
 - Geo capture: opt-in per submission, or per org policy? Privacy implications

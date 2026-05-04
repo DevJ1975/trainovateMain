@@ -7,6 +7,5 @@
   body {
     @apply font-sans text-bone bg-ink antialiased;
     margin: 0;
-    overflow: hidden;
   }
 }
