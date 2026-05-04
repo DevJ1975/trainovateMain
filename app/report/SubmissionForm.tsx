@@ -133,6 +133,26 @@ export function SubmissionForm() {
         />
       </Field>
 
+      <Field
+        id="photos"
+        label="Photos (optional)"
+        hint="Up to 5 photos, 10MB each. JPG, PNG, WEBP, or GIF."
+        error={errs.photos}
+      >
+        <input
+          id="photos"
+          name="photos"
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          multiple
+          className={
+            "block w-full text-sm text-bone/85 " +
+            "file:mr-3 file:rounded-md file:border-0 file:bg-cobalt/15 file:px-3 file:py-1.5 " +
+            "file:text-sm file:text-cobalt hover:file:bg-cobalt/25"
+          }
+        />
+      </Field>
+
       <SubmitButton />
     </form>
   );

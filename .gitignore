@@ -14,3 +14,6 @@ near-miss.db
 near-miss.db-journal
 near-miss.db-wal
 near-miss.db-shm
+
+# Local attachment storage (Phase 1 dev; production uses S3 or similar)
+uploads/

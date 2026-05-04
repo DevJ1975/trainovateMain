@@ -50,6 +50,18 @@ export interface ContributingFactor {
   note: string;
 }
 
+export type AttachmentKind = "photo";
+
+export interface Attachment {
+  id: string;
+  reportId: string;
+  kind: AttachmentKind;
+  storageKey: string;
+  contentType: string;
+  sizeBytes: number;
+  createdAt: string;
+}
+
 export interface CorrectiveAction {
   id: string;
   description: string;

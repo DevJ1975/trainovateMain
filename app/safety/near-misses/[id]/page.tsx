@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getReport } from "@/lib/near-miss/store";
+import { getReport, listAttachments } from "@/lib/near-miss/store";
 import {
   CONTRIBUTING_FACTOR_TYPES,
   hazardLabel,
@@ -29,6 +29,7 @@ export default function ReportDetailPage({
   const report = getReport(params.id);
   if (!report) notFound();
 
+  const photos = listAttachments(report.id);
   const occurred = new Date(report.occurredAt);
   const reported = new Date(report.reportedAt);
 
@@ -87,6 +88,29 @@ export default function ReportDetailPage({
             {report.description}
           </p>
         </Section>
+
+        {photos.length > 0 && (
+          <Section title={`Photos (${photos.length})`}>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {photos.map((p) => (
+                <a
+                  key={p.id}
+                  href={`/api/attachments/${p.id}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block overflow-hidden rounded-md border border-bone/10 bg-ink/40"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`/api/attachments/${p.id}`}
+                    alt="Reported photo"
+                    className="aspect-square w-full object-cover"
+                  />
+                </a>
+              ))}
+            </div>
+          </Section>
+        )}
 
         <Section title="Contributing factors">
           {report.contributingFactors.length === 0 ? (

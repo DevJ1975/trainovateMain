@@ -2,7 +2,13 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { createReport } from "@/lib/near-miss/store";
+import { addAttachment, createReport } from "@/lib/near-miss/store";
+import {
+  ALLOWED_PHOTO_TYPES,
+  MAX_FILE_BYTES,
+  MAX_FILES_PER_REPORT,
+  writeUpload,
+} from "@/lib/near-miss/storage";
 import {
   HAZARD_CATEGORIES,
   HazardCategoryId,
@@ -25,7 +31,8 @@ type FieldKey =
   | "locationText"
   | "hazardCategory"
   | "severityPotential"
-  | "description";
+  | "description"
+  | "photos";
 
 export type SubmitReportState = {
   fieldErrors?: Partial<Record<FieldKey, string>>;
@@ -78,6 +85,24 @@ export async function submitReport(
     occurredAt = new Date().toISOString();
   }
 
+  const rawFiles = formData.getAll("photos");
+  const photos: File[] = rawFiles
+    .filter((f): f is File => f instanceof File && f.size > 0);
+
+  if (photos.length > MAX_FILES_PER_REPORT) {
+    fieldErrors.photos = `Up to ${MAX_FILES_PER_REPORT} photos`;
+  }
+  for (const f of photos) {
+    if (!ALLOWED_PHOTO_TYPES.has(f.type)) {
+      fieldErrors.photos = "Only JPG, PNG, WEBP, or GIF";
+      break;
+    }
+    if (f.size > MAX_FILE_BYTES) {
+      fieldErrors.photos = `Each photo must be under ${Math.round(MAX_FILE_BYTES / 1024 / 1024)}MB`;
+      break;
+    }
+  }
+
   if (Object.keys(fieldErrors).length > 0) return { fieldErrors };
 
   const report = createReport({
@@ -90,6 +115,17 @@ export async function submitReport(
     description,
     severityPotential: severityPotential as Severity,
   });
+
+  for (const f of photos) {
+    const buf = Buffer.from(await f.arrayBuffer());
+    const stored = await writeUpload(buf, f.type);
+    addAttachment(report.id, {
+      kind: "photo",
+      storageKey: stored.storageKey,
+      contentType: stored.contentType,
+      sizeBytes: stored.sizeBytes,
+    });
+  }
 
   revalidatePath("/safety/near-misses");
   redirect(`/report/thanks/${report.reference}`);

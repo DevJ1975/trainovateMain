@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { ensureMigrated, getDb, getSqlite } from "./db/client";
 import {
+  attachments,
   contributingFactors,
   correctiveActions,
   meta,
@@ -9,6 +10,8 @@ import {
   reportEvents,
 } from "./db/schema";
 import {
+  Attachment,
+  AttachmentKind,
   ContributingFactor,
   ContributingFactorType,
   CorrectiveAction,
@@ -432,6 +435,69 @@ export function completeCorrectiveAction(
   });
   tx();
   return getReport(reportId);
+}
+
+export interface AddAttachmentInput {
+  kind: AttachmentKind;
+  storageKey: string;
+  contentType: string;
+  sizeBytes: number;
+}
+
+export function addAttachment(
+  reportId: string,
+  input: AddAttachmentInput,
+): Attachment {
+  ensureMigrated();
+  const row = {
+    id: randomUUID(),
+    reportId,
+    kind: input.kind,
+    storageKey: input.storageKey,
+    contentType: input.contentType,
+    sizeBytes: input.sizeBytes,
+    createdAt: nowIso(),
+  };
+  getDb().insert(attachments).values(row).run();
+  return row;
+}
+
+export function listAttachments(reportId: string): Attachment[] {
+  ensureMigrated();
+  const rows = getDb()
+    .select()
+    .from(attachments)
+    .where(eq(attachments.reportId, reportId))
+    .orderBy(asc(attachments.createdAt))
+    .all();
+  return rows.map((r) => ({
+    id: r.id,
+    reportId: r.reportId,
+    kind: r.kind as AttachmentKind,
+    storageKey: r.storageKey,
+    contentType: r.contentType,
+    sizeBytes: r.sizeBytes,
+    createdAt: r.createdAt,
+  }));
+}
+
+export function getAttachment(id: string): Attachment | undefined {
+  ensureMigrated();
+  const row = getDb()
+    .select()
+    .from(attachments)
+    .where(eq(attachments.id, id))
+    .get();
+  if (!row) return undefined;
+  return {
+    id: row.id,
+    reportId: row.reportId,
+    kind: row.kind as AttachmentKind,
+    storageKey: row.storageKey,
+    contentType: row.contentType,
+    sizeBytes: row.sizeBytes,
+    createdAt: row.createdAt,
+  };
 }
 
 /**

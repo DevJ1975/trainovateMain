@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getReportByReceiptCode } from "@/lib/near-miss/store";
+import { getReportByReceiptCode, listAttachments } from "@/lib/near-miss/store";
 import {
   hazardLabel,
   severityLabel,
@@ -18,8 +18,11 @@ export default function ReporterStatusPage({
 }: {
   params: { code: string };
 }) {
-  const report = getReportByReceiptCode(decodeURIComponent(params.code));
+  const code = decodeURIComponent(params.code);
+  const report = getReportByReceiptCode(code);
   if (!report) notFound();
+
+  const photos = listAttachments(report.id);
 
   // Anonymity guard: hide internal triage notes (contributing factors are
   // safety-team working assumptions and may name people).
@@ -73,6 +76,32 @@ export default function ReporterStatusPage({
             {report.description}
           </p>
         </section>
+
+        {photos.length > 0 && (
+          <section className="mt-8">
+            <h2 className="mb-3 text-xs uppercase tracking-[0.18em] text-bone/55">
+              Photos you uploaded
+            </h2>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {photos.map((p) => (
+                <a
+                  key={p.id}
+                  href={`/api/attachments/${p.id}?code=${encodeURIComponent(code)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block overflow-hidden rounded-md border border-bone/10 bg-ink/40"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`/api/attachments/${p.id}?code=${encodeURIComponent(code)}`}
+                    alt="Photo you uploaded"
+                    className="aspect-square w-full object-cover"
+                  />
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
 
         <section className="mt-8">
           <h2 className="mb-3 text-xs uppercase tracking-[0.18em] text-bone/55">

@@ -74,6 +74,22 @@ export const reportEvents = sqliteTable(
   }),
 );
 
+export const attachments = sqliteTable(
+  "attachments",
+  {
+    id: text("id").primaryKey(),
+    reportId: text("report_id")
+      .notNull()
+      .references(() => nearMissReports.id, { onDelete: "cascade" }),
+    kind: text("kind").notNull(),
+    storageKey: text("storage_key").notNull(),
+    contentType: text("content_type").notNull(),
+    sizeBytes: integer("size_bytes").notNull(),
+    createdAt: text("created_at").notNull(),
+  },
+  (t) => ({ byReport: index("idx_att_report").on(t.reportId) }),
+);
+
 export const meta = sqliteTable("near_miss_meta", {
   key: text("key").primaryKey(),
   value: integer("value").notNull(),
