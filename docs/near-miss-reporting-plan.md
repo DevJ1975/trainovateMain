@@ -97,10 +97,10 @@ ergonomic, chemical, PPE, vehicle, etc.) and are configurable per org.
   admin. Internal dogfood at one pilot site. **✅ Shipped on this branch — see
   §11.**
 - **Phase 1 — MVP (3–4 wks).** Full submission flow (incl. offline + photo),
-  dashboard list + filters, corrective actions, audit log, anonymity, role-based
-  access. **🟡 Persistence + anonymous status lookup shipped on this branch —
-  see §10. Auth/SSO, attachments, offline PWA, and notifications still
-  outstanding.**
+  dashboard list + filters, corrective actions, audit log, anonymity,
+  role-based access. **✅ Almost everything shipped on this branch — see §10.
+  Outstanding: real SSO, real notification channels, full offline-submit
+  queue replay.**
 - **Phase 2 — Insights (3 wks).** Heatmap, trend detection, training-engine
   hook, notification routing, exports.
 - **Phase 3 — Depth (ongoing).** Light RCA templates, repeat-pattern alerts,
@@ -144,43 +144,73 @@ Verified by `next build` (typecheck passes; routes generate).
 ### Phase 1 progress — what shipped on this branch
 
 - **Persistence (✅).** Drizzle ORM + SQLite via `better-sqlite3`. Schema
-  in `lib/near-miss/db/schema.ts`, generated migration in `drizzle/`.
+  in `lib/near-miss/db/schema.ts`, generated migrations in `drizzle/`.
   Repository (`lib/near-miss/store.ts`) preserves the same exported function
-  signatures the route handlers were already using. Auto-migrates on first DB
-  access; demo seed runs once when the table is empty.
+  signatures. Auto-migrates on first DB access; demo seed runs once when the
+  table is empty. Reference counter is persisted to a `near_miss_meta` row.
 - **Anonymous status lookup (✅).** `/report/status` paste-code form +
   `/report/status/[code]` read-only view. Hides triage-internal contributing
-  factors. Receipt code is shown once on the thanks page with a deep link.
-- **Reference counter (✅).** Persisted to a `near_miss_meta` row instead
-  of in-process; survives restarts.
+  factors so the safety team's working notes don't leak. Receipt code is
+  shown once on the thanks page with a deep link.
+- **Field-level validation errors (✅).** Submission and login forms use
+  `useFormState` and render per-field messages inline. Server actions
+  return `{fieldErrors}` instead of throwing. A safety-route error boundary
+  (`app/safety/error.tsx`) catches anything that still throws.
+- **Auth gate on /safety/\* (🟡).** Cookie-session middleware bounces
+  unauthenticated traffic at the edge; safety layout re-validates the HMAC
+  signature in the Node runtime so tampered cookies redirect to login.
+  `lib/auth/users.ts` is a hardcoded dev list — any non-empty password
+  works for the seeded emails. Real SSO is the production swap. Triage
+  actions now resolve `actorName()` from the session, so the audit log
+  shows who actually did what.
+- **Photo attachments (✅).** `attachments` table with FK + cascade delete.
+  Submission form takes up to 5 images at 10MB each. Stored in `./uploads/`
+  via `lib/near-miss/storage.ts`. `GET /api/attachments/[id]` streams bytes
+  with two auth paths: authenticated safety users, or anonymous reporters
+  passing `?code=` matching the report's receipt code. Triage detail and
+  receipt-code pages render thumbnails.
+- **PWA (🟡).** `/manifest.webmanifest` makes the site installable on iOS
+  and Chromium. Service worker at `/sw.js` pre-caches the report shell and
+  serves it network-first with offline fallback. Client component shows an
+  "offline" banner when `navigator.onLine` flips. **Not yet:** offline
+  submit queue replay (queue in IndexedDB, replay on reconnect) — fragile
+  to ship without device testing.
+- **Notification dispatcher (🟡).** `lib/near-miss/notifications.ts`
+  defines a pluggable `NotificationChannel` interface and dispatches
+  `report_created` (high/critical only), `status_changed`, and
+  `action_assigned` events. Default `consoleChannel` logs to stdout — real
+  Slack/email/SMS adapters plug in via `registerChannel()`. Per-channel
+  rate limits, quiet hours, and org-level opt-outs go in `shouldHandle()`.
 
-Stack notes:
+### Stack and ops notes
 
 - SQLite is fine for local dev. **Production swap:** change the dialect in
   `drizzle.config.ts` and the driver in `lib/near-miss/db/client.ts` to
   `drizzle-orm/postgres-js` (or `drizzle-orm/node-postgres`). Schema and
   migrations are dialect-portable for the columns we use.
-- `next-miss.db` is gitignored. Set `NEAR_MISS_DB_PATH` to override the
-  location.
-- Run `npm run db:generate` after schema edits; commit the new SQL files
-  in `drizzle/`.
+- `near-miss.db` and `uploads/` are gitignored. Set `NEAR_MISS_DB_PATH` and
+  `NEAR_MISS_UPLOAD_DIR` to override locations.
+- Run `npm run db:generate` after schema edits; commit the new SQL in
+  `drizzle/`.
+- Set `SESSION_SECRET` in production — the dev fallback is hardcoded and
+  only safe for local use.
+- Icons are SVG; ship rasterized PNG (192/512) before launch for full
+  Android Chrome install support.
 
 ### Still outstanding for Phase 1
 
-- **Auth & roles** — every visitor can both report and triage. Wire up SSO
-  (NextAuth or similar), scope reads/writes by org + site role, lock
-  `/safety/*` behind a session.
-- **Photo / video attachments** — `Attachment` table + S3 (or equivalent),
-  face/plate auto-blur, upload UX with progress + retry.
-- **Offline submit** — PWA manifest + service worker queue + IndexedDB
-  buffer.
-- **Notifications** — email/SMS/Slack on triage events; per-user routing
-  preferences.
-- **Field-level validation errors** — server actions still `throw`; convert
-  to `useActionState` returning `{fieldErrors}` so the form can render per-
-  field messages without reloads.
-- **Training-engine tie-in** — pattern detection (§7) lands with insights
-  in Phase 2.
+- **Real SSO** — replace the hardcoded user list with NextAuth/Auth.js
+  backed by a customer IdP (Okta, Azure AD, Google Workspace). Store users
+  + sessions in DB, not a hardcoded array.
+- **Offline submit queue** — IndexedDB-backed draft queue with replay on
+  reconnect via Background Sync where supported, falling back to in-page
+  drain on tab open. Needs device testing to validate.
+- **Notification channels** — Slack webhook, SES email, Twilio SMS
+  adapters. Per-org routing tables and quiet-hours config.
+- **Attachment hardening** — face/plate auto-blur, virus scanning, signed
+  URLs from S3 instead of streaming bytes through the app server.
+- **Training-engine tie-in** — pattern detection (§7) lands with Phase 2
+  insights.
 
 ## 11. Open questions
 

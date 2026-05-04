@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { ensureMigrated, getDb, getSqlite } from "./db/client";
+import { dispatch } from "./notifications";
 import {
   attachments,
   contributingFactors,
@@ -94,6 +95,10 @@ function transitionStatus(
     from: currentStatus,
     to,
   });
+  const fresh = getReport(reportId);
+  if (fresh) {
+    dispatch({ kind: "status_changed", report: fresh, from: currentStatus, to });
+  }
   return to;
 }
 
@@ -242,7 +247,9 @@ export function createReport(input: CreateReportInput): NearMissReport {
   });
   tx();
 
-  return mustGetReport(id);
+  const report = mustGetReport(id);
+  dispatch({ kind: "report_created", report });
+  return report;
 }
 
 export function listReports(): NearMissReportSummary[] {
@@ -407,7 +414,14 @@ export function addCorrectiveAction(
     }
   });
   tx();
-  return mustGetReport(id);
+  const fresh = mustGetReport(id);
+  dispatch({
+    kind: "action_assigned",
+    report: fresh,
+    ownerName: input.ownerName,
+    description: input.description,
+  });
+  return fresh;
 }
 
 export function completeCorrectiveAction(
