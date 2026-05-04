@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getCurrentUser } from "@/lib/auth/session";
 import {
   addContributingFactor,
   addCorrectiveAction,
@@ -16,7 +17,12 @@ import {
 
 const FACTOR_TYPES = new Set(CONTRIBUTING_FACTOR_TYPES.map((t) => t.id));
 const STATUSES = new Set<string>(REPORT_STATUSES);
-const DEFAULT_ACTOR = "Safety lead";
+
+function actorName(): string {
+  const u = getCurrentUser();
+  if (!u) throw new Error("Not authenticated");
+  return u.name;
+}
 
 const MAX_NOTE = 1_000;
 const MAX_ACTION_DESCRIPTION = 1_000;
@@ -35,7 +41,7 @@ function refreshFor(id: string) {
 export async function changeStatus(id: string, formData: FormData) {
   const status = getString(formData, "status");
   if (!STATUSES.has(status)) throw new Error("Invalid status");
-  setStatus(id, status as ReportStatus, DEFAULT_ACTOR);
+  setStatus(id, status as ReportStatus, actorName());
   refreshFor(id);
 }
 
@@ -48,7 +54,7 @@ export async function addFactor(id: string, formData: FormData) {
   if (note.length < 3 || note.length > MAX_NOTE) {
     throw new Error(`Note must be 3-${MAX_NOTE} characters`);
   }
-  addContributingFactor(id, type as ContributingFactorType, note, DEFAULT_ACTOR);
+  addContributingFactor(id, type as ContributingFactorType, note, actorName());
   refreshFor(id);
 }
 
@@ -69,13 +75,13 @@ export async function addAction(id: string, formData: FormData) {
     dueAt = new Date(t).toISOString();
   }
 
-  addCorrectiveAction(id, { description, ownerName, dueAt }, DEFAULT_ACTOR);
+  addCorrectiveAction(id, { description, ownerName, dueAt }, actorName());
   refreshFor(id);
 }
 
 export async function completeAction(id: string, formData: FormData) {
   const actionId = getString(formData, "actionId");
   if (!actionId) throw new Error("actionId required");
-  completeCorrectiveAction(id, actionId, DEFAULT_ACTOR);
+  completeCorrectiveAction(id, actionId, actorName());
   refreshFor(id);
 }
