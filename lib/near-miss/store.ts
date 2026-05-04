@@ -54,6 +54,17 @@ function appendEvent(
   report.updatedAt = event.at;
 }
 
+function transitionStatus(
+  report: NearMissReport,
+  to: ReportStatus,
+  actorName: string,
+) {
+  if (report.status === to) return;
+  const from = report.status;
+  report.status = to;
+  appendEvent(report, "status_changed", actorName, { from, to });
+}
+
 export interface CreateReportInput {
   orgId?: string;
   siteId: string;
@@ -124,10 +135,7 @@ export function setStatus(
 ): NearMissReport | undefined {
   const report = store.reports.get(id);
   if (!report) return undefined;
-  if (report.status === status) return report;
-  const previous = report.status;
-  report.status = status;
-  appendEvent(report, "status_changed", actorName, { from: previous, to: status });
+  transitionStatus(report, status, actorName);
   return report;
 }
 
@@ -173,11 +181,7 @@ export function addCorrectiveAction(
     description: action.description,
   });
   if (report.status === "new" || report.status === "triaged") {
-    report.status = "actioned";
-    appendEvent(report, "status_changed", actorName, {
-      from: "triaged",
-      to: "actioned",
-    });
+    transitionStatus(report, "actioned", actorName);
   }
   return report;
 }
