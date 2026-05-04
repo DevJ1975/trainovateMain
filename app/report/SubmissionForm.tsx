@@ -1,34 +1,40 @@
 "use client";
 
 import { useState } from "react";
+import { useFormState, useFormStatus } from "react-dom";
 import {
   HAZARD_CATEGORIES,
   SEVERITY_LEVELS,
 } from "@/lib/near-miss/types";
-import { submitReport } from "./actions";
+import { submitReport, SubmitReportState } from "./actions";
 
 const inputBase =
-  "w-full rounded-md border border-bone/15 bg-ink/40 px-3 py-2 text-bone " +
-  "placeholder:text-bone/30 focus:border-cobalt focus:outline-none focus:ring-1 focus:ring-cobalt";
+  "w-full rounded-md border bg-ink/40 px-3 py-2 text-bone " +
+  "placeholder:text-bone/30 focus:outline-none focus:ring-1";
+
+const inputOk = "border-bone/15 focus:border-cobalt focus:ring-cobalt";
+const inputErr = "border-flare/60 focus:border-flare focus:ring-flare";
 
 const labelBase = "block text-xs uppercase tracking-[0.18em] text-bone/60";
 
+const initialState: SubmitReportState = {};
+
 export function SubmissionForm() {
+  const [state, formAction] = useFormState(submitReport, initialState);
   const [anonymous, setAnonymous] = useState(false);
-  const [pending, setPending] = useState(false);
+  const errs = state.fieldErrors ?? {};
 
   return (
-    <form
-      action={async (fd) => {
-        setPending(true);
-        try {
-          await submitReport(fd);
-        } finally {
-          setPending(false);
-        }
-      }}
-      className="flex flex-col gap-5"
-    >
+    <form action={formAction} className="flex flex-col gap-5" noValidate>
+      {state.formError && (
+        <div
+          role="alert"
+          className="rounded-md border border-flare/50 bg-flare/10 px-3 py-2 text-sm text-flare"
+        >
+          {state.formError}
+        </div>
+      )}
+
       <label className="flex items-center gap-3 rounded-md border border-bone/10 bg-ink/30 px-3 py-2">
         <input
           type="checkbox"
@@ -46,88 +52,137 @@ export function SubmissionForm() {
       </label>
 
       {!anonymous && (
-        <div>
-          <label htmlFor="reporterName" className={labelBase}>Your name</label>
-          <input id="reporterName" name="reporterName" type="text" className={inputBase + " mt-1"} placeholder="Optional" />
-        </div>
+        <Field id="reporterName" label="Your name" error={errs.reporterName}>
+          <input
+            id="reporterName"
+            name="reporterName"
+            type="text"
+            className={fieldClass(inputBase, errs.reporterName)}
+            placeholder="Optional"
+          />
+        </Field>
       )}
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <div>
-          <label htmlFor="siteId" className={labelBase}>Site</label>
-          <select id="siteId" name="siteId" defaultValue="plant-1" className={inputBase + " mt-1"}>
+        <Field id="siteId" label="Site">
+          <select id="siteId" name="siteId" defaultValue="plant-1" className={fieldClass(inputBase)}>
             <option value="plant-1">Plant 1</option>
             <option value="plant-2">Plant 2</option>
             <option value="warehouse-a">Warehouse A</option>
           </select>
-        </div>
+        </Field>
 
-        <div>
-          <label htmlFor="occurredAt" className={labelBase}>When it happened</label>
+        <Field id="occurredAt" label="When it happened" error={errs.occurredAt}>
           <input
             id="occurredAt"
             name="occurredAt"
             type="datetime-local"
             defaultValue={defaultLocalNow()}
-            className={inputBase + " mt-1"}
+            className={fieldClass(inputBase, errs.occurredAt)}
           />
-        </div>
+        </Field>
       </div>
 
-      <div>
-        <label htmlFor="locationText" className={labelBase}>Location</label>
+      <Field id="locationText" label="Location" error={errs.locationText}>
         <input
           id="locationText"
           name="locationText"
           type="text"
-          required
-          minLength={2}
-          className={inputBase + " mt-1"}
+          className={fieldClass(inputBase, errs.locationText)}
           placeholder="e.g. Loading bay 3, near pallet stack"
         />
-      </div>
+      </Field>
 
-      <div>
-        <label htmlFor="hazardCategory" className={labelBase}>Hazard category</label>
-        <select id="hazardCategory" name="hazardCategory" required className={inputBase + " mt-1"}>
+      <Field id="hazardCategory" label="Hazard category" error={errs.hazardCategory}>
+        <select
+          id="hazardCategory"
+          name="hazardCategory"
+          className={fieldClass(inputBase, errs.hazardCategory)}
+        >
           {HAZARD_CATEGORIES.map((c) => (
             <option key={c.id} value={c.id}>{c.label}</option>
           ))}
         </select>
-      </div>
+      </Field>
 
-      <div>
-        <label htmlFor="severityPotential" className={labelBase}>Severity potential</label>
-        <select id="severityPotential" name="severityPotential" required defaultValue="medium" className={inputBase + " mt-1"}>
+      <Field
+        id="severityPotential"
+        label="Severity potential"
+        hint="What was the worst plausible outcome?"
+        error={errs.severityPotential}
+      >
+        <select
+          id="severityPotential"
+          name="severityPotential"
+          defaultValue="medium"
+          className={fieldClass(inputBase, errs.severityPotential)}
+        >
           {SEVERITY_LEVELS.map((s) => (
             <option key={s.id} value={s.id}>{s.label}</option>
           ))}
         </select>
-        <p className="mt-1 text-xs text-bone/45">What was the worst plausible outcome?</p>
-      </div>
+      </Field>
 
-      <div>
-        <label htmlFor="description" className={labelBase}>What happened</label>
+      <Field id="description" label="What happened" error={errs.description}>
         <textarea
           id="description"
           name="description"
-          required
-          minLength={10}
           rows={5}
-          className={inputBase + " mt-1 resize-y"}
+          className={fieldClass(inputBase, errs.description) + " resize-y"}
           placeholder="Describe the sequence of events. Stick to facts."
         />
-      </div>
+      </Field>
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="mt-2 inline-flex items-center justify-center rounded-md bg-cobalt px-5 py-3 text-sm font-medium tracking-wide text-bone transition hover:bg-cobalt/90 disabled:opacity-60"
-      >
-        {pending ? "Submitting…" : "Submit report"}
-      </button>
+      <SubmitButton />
     </form>
   );
+}
+
+function Field({
+  id,
+  label,
+  error,
+  hint,
+  children,
+}: {
+  id: string;
+  label: string;
+  error?: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <label htmlFor={id} className={labelBase}>
+        {label}
+      </label>
+      <div className="mt-1">{children}</div>
+      {error ? (
+        <p role="alert" className="mt-1 text-xs text-flare">
+          {error}
+        </p>
+      ) : hint ? (
+        <p className="mt-1 text-xs text-bone/45">{hint}</p>
+      ) : null}
+    </div>
+  );
+}
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="mt-2 inline-flex items-center justify-center rounded-md bg-cobalt px-5 py-3 text-sm font-medium tracking-wide text-bone transition hover:bg-cobalt/90 disabled:opacity-60"
+    >
+      {pending ? "Submitting…" : "Submit report"}
+    </button>
+  );
+}
+
+function fieldClass(base: string, error?: string): string {
+  return base + " " + (error ? inputErr : inputOk);
 }
 
 function defaultLocalNow() {

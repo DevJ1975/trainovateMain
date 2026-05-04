@@ -19,14 +19,33 @@ const MIN_LOCATION = 2;
 const MAX_LOCATION = 200;
 const MAX_REPORTER_NAME = 120;
 
+type FieldKey =
+  | "reporterName"
+  | "occurredAt"
+  | "locationText"
+  | "hazardCategory"
+  | "severityPotential"
+  | "description";
+
+export type SubmitReportState = {
+  fieldErrors?: Partial<Record<FieldKey, string>>;
+  formError?: string;
+};
+
 function getString(fd: FormData, key: string): string {
   const v = fd.get(key);
   return typeof v === "string" ? v.trim() : "";
 }
 
-export async function submitReport(formData: FormData) {
+export async function submitReport(
+  _prev: SubmitReportState,
+  formData: FormData,
+): Promise<SubmitReportState> {
+  const fieldErrors: SubmitReportState["fieldErrors"] = {};
+
   const anonymous = formData.get("anonymous") === "on";
-  const reporterName = getString(formData, "reporterName").slice(0, MAX_REPORTER_NAME) || null;
+  const reporterName =
+    getString(formData, "reporterName").slice(0, MAX_REPORTER_NAME) || null;
   const siteId = getString(formData, "siteId") || "plant-1";
   const locationText = getString(formData, "locationText");
   const description = getString(formData, "description");
@@ -35,21 +54,31 @@ export async function submitReport(formData: FormData) {
   const occurredAtRaw = getString(formData, "occurredAt");
 
   if (!HAZARD_IDS.has(hazardCategory as HazardCategoryId)) {
-    throw new Error("Invalid hazard category");
+    fieldErrors.hazardCategory = "Pick a category";
   }
   if (!SEVERITY_IDS.has(severityPotential as Severity)) {
-    throw new Error("Invalid severity");
+    fieldErrors.severityPotential = "Pick a severity";
   }
-  if (locationText.length < MIN_LOCATION || locationText.length > MAX_LOCATION) {
-    throw new Error(`Location must be ${MIN_LOCATION}-${MAX_LOCATION} characters`);
+  if (locationText.length < MIN_LOCATION) {
+    fieldErrors.locationText = `At least ${MIN_LOCATION} characters`;
+  } else if (locationText.length > MAX_LOCATION) {
+    fieldErrors.locationText = `At most ${MAX_LOCATION} characters`;
   }
-  if (description.length < MIN_DESCRIPTION || description.length > MAX_DESCRIPTION) {
-    throw new Error(
-      `Description must be ${MIN_DESCRIPTION}-${MAX_DESCRIPTION} characters`,
-    );
+  if (description.length < MIN_DESCRIPTION) {
+    fieldErrors.description = `At least ${MIN_DESCRIPTION} characters — describe what happened`;
+  } else if (description.length > MAX_DESCRIPTION) {
+    fieldErrors.description = `At most ${MAX_DESCRIPTION} characters`;
   }
 
-  const occurredAt = parseOccurredAt(occurredAtRaw);
+  let occurredAt: string;
+  try {
+    occurredAt = parseOccurredAt(occurredAtRaw);
+  } catch (err) {
+    fieldErrors.occurredAt = (err as Error).message;
+    occurredAt = new Date().toISOString();
+  }
+
+  if (Object.keys(fieldErrors).length > 0) return { fieldErrors };
 
   const report = createReport({
     siteId,
@@ -70,8 +99,7 @@ function parseOccurredAt(raw: string): string {
   const now = Date.now();
   if (!raw) return new Date(now).toISOString();
   const t = new Date(raw).getTime();
-  if (!Number.isFinite(t)) throw new Error("Invalid occurred-at date");
-  // Allow up to 5 minutes of clock skew; reject anything else in the future.
-  if (t > now + 5 * 60_000) throw new Error("Occurred-at can't be in the future");
+  if (!Number.isFinite(t)) throw new Error("Invalid date");
+  if (t > now + 5 * 60_000) throw new Error("Can't be in the future");
   return new Date(t).toISOString();
 }
