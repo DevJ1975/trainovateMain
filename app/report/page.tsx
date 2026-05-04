@@ -25,6 +25,13 @@ export default function ReportPage() {
         <div className="mt-10">
           <SubmissionForm />
         </div>
+
+        <p className="mt-10 text-xs text-bone/45">
+          Already filed an anonymous report?{" "}
+          <Link href="/report/status" className="text-cobalt hover:underline">
+            Check its status with your receipt code.
+          </Link>
+        </p>
       </div>
     </main>
   );

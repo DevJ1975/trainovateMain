@@ -39,12 +39,26 @@ export default function ThanksPage({
               Save this code. It&apos;s the only way to check status without revealing
               your identity. We don&apos;t store who you are.
             </p>
+            <p className="mt-2 text-xs text-bone/60">
+              Check status anytime at{" "}
+              <Link
+                href={`/report/status/${report.receiptCode}`}
+                className="text-cobalt hover:underline"
+              >
+                /report/status
+              </Link>
+              .
+            </p>
           </div>
         )}
 
-        <div className="mt-10 flex gap-4 text-sm">
+        <div className="mt-10 flex flex-wrap gap-4 text-sm">
           <Link href="/report" className="text-cobalt hover:underline">
             File another
+          </Link>
+          <span className="text-bone/30">·</span>
+          <Link href="/report/status" className="text-bone/70 hover:text-bone">
+            Check status
           </Link>
           <span className="text-bone/30">·</span>
           <Link href="/" className="text-bone/60 hover:text-bone">

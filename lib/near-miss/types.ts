@@ -99,6 +99,19 @@ export interface NearMissReport {
   updatedAt: string;
 }
 
+export type NearMissReportSummary = Pick<
+  NearMissReport,
+  | "id"
+  | "reference"
+  | "status"
+  | "hazardCategory"
+  | "locationText"
+  | "anonymous"
+  | "reporterName"
+  | "reportedAt"
+  | "severityPotential"
+>;
+
 export function hazardLabel(id: HazardCategoryId): string {
   return HAZARD_CATEGORIES.find((c) => c.id === id)?.label ?? id;
 }

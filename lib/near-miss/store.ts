@@ -1,10 +1,20 @@
 import { randomUUID } from "node:crypto";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { ensureMigrated, getDb, getSqlite } from "./db/client";
+import {
+  contributingFactors,
+  correctiveActions,
+  meta,
+  nearMissReports,
+  reportEvents,
+} from "./db/schema";
 import {
   ContributingFactor,
   ContributingFactorType,
   CorrectiveAction,
   HazardCategoryId,
   NearMissReport,
+  NearMissReportSummary,
   ReportEvent,
   ReportEventKind,
   ReportStatus,
@@ -12,37 +22,33 @@ import {
 } from "./types";
 
 /**
- * Phase 0 in-memory store. Process-local; cleared on restart. Real persistence
- * (Postgres + S3 for attachments) lands in Phase 1.
+ * Drizzle + SQLite repository. Same exports as the Phase 0 in-memory store —
+ * call sites in app/ are unchanged. Swap the dialect and connection in
+ * lib/near-miss/db/client.ts to move to Postgres in production.
  */
-
-type Store = {
-  reports: Map<string, NearMissReport>;
-  counter: number;
-};
-
-const globalForStore = globalThis as unknown as { __nearMissStore?: Store };
-
-const store: Store =
-  globalForStore.__nearMissStore ??
-  (globalForStore.__nearMissStore = { reports: new Map(), counter: 0 });
 
 function nowIso() {
   return new Date().toISOString();
 }
 
-function nextReference() {
-  store.counter += 1;
+function nextReference(): string {
+  const sqlite = getSqlite();
+  const row = sqlite
+    .prepare(
+      "UPDATE near_miss_meta SET value = value + 1 WHERE key = 'ref_counter' RETURNING value",
+    )
+    .get() as { value: number } | undefined;
+  if (!row) throw new Error("ref_counter row missing");
   const yy = new Date().getFullYear().toString().slice(-2);
-  return `NM-${yy}-${store.counter.toString().padStart(4, "0")}`;
+  return `NM-${yy}-${row.value.toString().padStart(4, "0")}`;
 }
 
 function appendEvent(
-  report: NearMissReport,
+  reportId: string,
   kind: ReportEventKind,
   actorName: string,
   payload?: Record<string, unknown>,
-) {
+): ReportEvent {
   const event: ReportEvent = {
     id: randomUUID(),
     kind,
@@ -50,19 +56,134 @@ function appendEvent(
     at: nowIso(),
     payload,
   };
-  report.events.push(event);
-  report.updatedAt = event.at;
+  getDb()
+    .insert(reportEvents)
+    .values({
+      id: event.id,
+      reportId,
+      kind: event.kind,
+      actorName: event.actorName,
+      at: event.at,
+      payload: payload ? JSON.stringify(payload) : null,
+    })
+    .run();
+  getDb()
+    .update(nearMissReports)
+    .set({ updatedAt: event.at })
+    .where(eq(nearMissReports.id, reportId))
+    .run();
+  return event;
 }
 
 function transitionStatus(
-  report: NearMissReport,
+  reportId: string,
+  currentStatus: ReportStatus,
   to: ReportStatus,
   actorName: string,
-) {
-  if (report.status === to) return;
-  const from = report.status;
-  report.status = to;
-  appendEvent(report, "status_changed", actorName, { from, to });
+): ReportStatus {
+  if (currentStatus === to) return currentStatus;
+  getDb()
+    .update(nearMissReports)
+    .set({ status: to })
+    .where(eq(nearMissReports.id, reportId))
+    .run();
+  appendEvent(reportId, "status_changed", actorName, {
+    from: currentStatus,
+    to,
+  });
+  return to;
+}
+
+type ReportRow = typeof nearMissReports.$inferSelect;
+type FactorRow = typeof contributingFactors.$inferSelect;
+type ActionRow = typeof correctiveActions.$inferSelect;
+type EventRow = typeof reportEvents.$inferSelect;
+
+function rowToFactor(row: FactorRow): ContributingFactor {
+  return {
+    id: row.id,
+    type: row.type as ContributingFactorType,
+    note: row.note,
+  };
+}
+
+function rowToAction(row: ActionRow): CorrectiveAction {
+  return {
+    id: row.id,
+    description: row.description,
+    ownerName: row.ownerName,
+    dueAt: row.dueAt,
+    status: row.status as CorrectiveAction["status"],
+    completedAt: row.completedAt,
+    createdAt: row.createdAt,
+  };
+}
+
+function rowToEvent(row: EventRow): ReportEvent {
+  return {
+    id: row.id,
+    kind: row.kind as ReportEventKind,
+    actorName: row.actorName,
+    at: row.at,
+    payload: row.payload ? (JSON.parse(row.payload) as Record<string, unknown>) : undefined,
+  };
+}
+
+function assemble(row: ReportRow): NearMissReport {
+  const db = getDb();
+  const factors = db
+    .select()
+    .from(contributingFactors)
+    .where(eq(contributingFactors.reportId, row.id))
+    .all();
+  const actions = db
+    .select()
+    .from(correctiveActions)
+    .where(eq(correctiveActions.reportId, row.id))
+    .orderBy(asc(correctiveActions.createdAt))
+    .all();
+  const events = db
+    .select()
+    .from(reportEvents)
+    .where(eq(reportEvents.reportId, row.id))
+    .orderBy(asc(reportEvents.at))
+    .all();
+
+  return {
+    id: row.id,
+    reference: row.reference,
+    orgId: row.orgId,
+    siteId: row.siteId,
+    reporterName: row.reporterName,
+    receiptCode: row.receiptCode,
+    anonymous: row.anonymous,
+    occurredAt: row.occurredAt,
+    reportedAt: row.reportedAt,
+    locationText: row.locationText,
+    hazardCategory: row.hazardCategory as HazardCategoryId,
+    description: row.description,
+    severityPotential: row.severityPotential as Severity,
+    status: row.status as ReportStatus,
+    contributingFactors: factors.map(rowToFactor),
+    correctiveActions: actions.map(rowToAction),
+    events: events.map(rowToEvent),
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
+}
+
+function rowToSummary(row: ReportRow): NearMissReportSummary {
+  return {
+    id: row.id,
+    reference: row.reference,
+    status: row.status as ReportStatus,
+    hazardCategory: row.hazardCategory as HazardCategoryId,
+    locationText: row.locationText,
+    anonymous: row.anonymous,
+    reporterName: row.reporterName,
+    reportedAt: row.reportedAt,
+    severityPotential: row.severityPotential as Severity,
+  };
 }
 
 export interface CreateReportInput {
@@ -78,54 +199,119 @@ export interface CreateReportInput {
 }
 
 export function createReport(input: CreateReportInput): NearMissReport {
+  ensureMigrated();
+  const sqlite = getSqlite();
+
   const id = randomUUID();
   const now = nowIso();
   const reporterName = input.anonymous ? null : input.reporterName;
-  const report: NearMissReport = {
-    id,
-    reference: nextReference(),
-    orgId: input.orgId ?? "demo-org",
-    siteId: input.siteId,
-    reporterName,
-    receiptCode: input.anonymous ? randomUUID().slice(0, 8).toUpperCase() : null,
-    anonymous: input.anonymous,
-    occurredAt: input.occurredAt,
-    reportedAt: now,
-    locationText: input.locationText,
-    hazardCategory: input.hazardCategory,
-    description: input.description,
-    severityPotential: input.severityPotential,
-    status: "new",
-    contributingFactors: [],
-    correctiveActions: [],
-    events: [],
-    createdAt: now,
-    updatedAt: now,
-  };
-  appendEvent(report, "created", reporterName ?? "Anonymous reporter", {
-    severityPotential: input.severityPotential,
+  const receiptCode = input.anonymous
+    ? randomUUID().slice(0, 8).toUpperCase()
+    : null;
+
+  const tx = sqlite.transaction(() => {
+    const reference = nextReference();
+    getDb()
+      .insert(nearMissReports)
+      .values({
+        id,
+        reference,
+        orgId: input.orgId ?? "demo-org",
+        siteId: input.siteId,
+        reporterName,
+        receiptCode,
+        anonymous: input.anonymous,
+        occurredAt: input.occurredAt,
+        reportedAt: now,
+        locationText: input.locationText,
+        hazardCategory: input.hazardCategory,
+        description: input.description,
+        severityPotential: input.severityPotential,
+        status: "new",
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run();
+    appendEvent(id, "created", reporterName ?? "Anonymous reporter", {
+      severityPotential: input.severityPotential,
+    });
+    return reference;
   });
-  store.reports.set(id, report);
-  return report;
+  tx();
+
+  return mustGetReport(id);
 }
 
-export function listReports(): NearMissReport[] {
-  return [...store.reports.values()].sort((a, b) =>
-    b.createdAt.localeCompare(a.createdAt),
-  );
+export function listReports(): NearMissReportSummary[] {
+  ensureMigrated();
+  const rows = getDb()
+    .select()
+    .from(nearMissReports)
+    .orderBy(desc(nearMissReports.createdAt))
+    .all();
+  return rows.map(rowToSummary);
+}
+
+export function statusCounts(): Record<ReportStatus, number> {
+  ensureMigrated();
+  const rows = getDb()
+    .select({
+      status: nearMissReports.status,
+      count: sql<number>`count(*)`,
+    })
+    .from(nearMissReports)
+    .groupBy(nearMissReports.status)
+    .all();
+  const out: Record<string, number> = {};
+  for (const r of rows) out[r.status] = Number(r.count);
+  return out as Record<ReportStatus, number>;
 }
 
 export function getReport(id: string): NearMissReport | undefined {
-  return store.reports.get(id);
+  ensureMigrated();
+  const row = getDb()
+    .select()
+    .from(nearMissReports)
+    .where(eq(nearMissReports.id, id))
+    .get();
+  return row ? assemble(row) : undefined;
+}
+
+function mustGetReport(id: string): NearMissReport {
+  const r = getReport(id);
+  if (!r) throw new Error(`Report ${id} not found`);
+  return r;
 }
 
 export function getReportByReference(
   reference: string,
 ): NearMissReport | undefined {
-  for (const r of store.reports.values()) {
-    if (r.reference === reference) return r;
-  }
-  return undefined;
+  ensureMigrated();
+  const row = getDb()
+    .select()
+    .from(nearMissReports)
+    .where(eq(nearMissReports.reference, reference))
+    .get();
+  return row ? assemble(row) : undefined;
+}
+
+export function getReportByReceiptCode(
+  code: string,
+): NearMissReport | undefined {
+  ensureMigrated();
+  const normalized = code.trim().toUpperCase();
+  if (!normalized) return undefined;
+  const row = getDb()
+    .select()
+    .from(nearMissReports)
+    .where(
+      and(
+        eq(nearMissReports.receiptCode, normalized),
+        eq(nearMissReports.anonymous, true),
+      ),
+    )
+    .get();
+  return row ? assemble(row) : undefined;
 }
 
 export function setStatus(
@@ -133,10 +319,15 @@ export function setStatus(
   status: ReportStatus,
   actorName: string,
 ): NearMissReport | undefined {
-  const report = store.reports.get(id);
-  if (!report) return undefined;
-  transitionStatus(report, status, actorName);
-  return report;
+  ensureMigrated();
+  const row = getDb()
+    .select()
+    .from(nearMissReports)
+    .where(eq(nearMissReports.id, id))
+    .get();
+  if (!row) return undefined;
+  transitionStatus(id, row.status as ReportStatus, status, actorName);
+  return mustGetReport(id);
 }
 
 export function addContributingFactor(
@@ -145,12 +336,25 @@ export function addContributingFactor(
   note: string,
   actorName: string,
 ): NearMissReport | undefined {
-  const report = store.reports.get(id);
-  if (!report) return undefined;
-  const factor: ContributingFactor = { id: randomUUID(), type, note };
-  report.contributingFactors.push(factor);
-  appendEvent(report, "factor_added", actorName, { type, note });
-  return report;
+  ensureMigrated();
+  const sqlite = getSqlite();
+  const row = getDb()
+    .select()
+    .from(nearMissReports)
+    .where(eq(nearMissReports.id, id))
+    .get();
+  if (!row) return undefined;
+
+  const factorId = randomUUID();
+  const tx = sqlite.transaction(() => {
+    getDb()
+      .insert(contributingFactors)
+      .values({ id: factorId, reportId: id, type, note })
+      .run();
+    appendEvent(id, "factor_added", actorName, { type, note });
+  });
+  tx();
+  return mustGetReport(id);
 }
 
 export interface AddCorrectiveActionInput {
@@ -164,26 +368,43 @@ export function addCorrectiveAction(
   input: AddCorrectiveActionInput,
   actorName: string,
 ): NearMissReport | undefined {
-  const report = store.reports.get(id);
-  if (!report) return undefined;
-  const action: CorrectiveAction = {
-    id: randomUUID(),
-    description: input.description,
-    ownerName: input.ownerName,
-    dueAt: input.dueAt,
-    status: "open",
-    completedAt: null,
-    createdAt: nowIso(),
-  };
-  report.correctiveActions.push(action);
-  appendEvent(report, "action_added", actorName, {
-    actionId: action.id,
-    description: action.description,
+  ensureMigrated();
+  const sqlite = getSqlite();
+  const row = getDb()
+    .select()
+    .from(nearMissReports)
+    .where(eq(nearMissReports.id, id))
+    .get();
+  if (!row) return undefined;
+
+  const actionId = randomUUID();
+  const createdAt = nowIso();
+  const currentStatus = row.status as ReportStatus;
+
+  const tx = sqlite.transaction(() => {
+    getDb()
+      .insert(correctiveActions)
+      .values({
+        id: actionId,
+        reportId: id,
+        description: input.description,
+        ownerName: input.ownerName,
+        dueAt: input.dueAt,
+        status: "open",
+        completedAt: null,
+        createdAt,
+      })
+      .run();
+    appendEvent(id, "action_added", actorName, {
+      actionId,
+      description: input.description,
+    });
+    if (currentStatus === "new" || currentStatus === "triaged") {
+      transitionStatus(id, currentStatus, "actioned", actorName);
+    }
   });
-  if (report.status === "new" || report.status === "triaged") {
-    transitionStatus(report, "actioned", actorName);
-  }
-  return report;
+  tx();
+  return mustGetReport(id);
 }
 
 export function completeCorrectiveAction(
@@ -191,18 +412,40 @@ export function completeCorrectiveAction(
   actionId: string,
   actorName: string,
 ): NearMissReport | undefined {
-  const report = store.reports.get(reportId);
-  if (!report) return undefined;
-  const action = report.correctiveActions.find((a) => a.id === actionId);
-  if (!action || action.status === "done") return report;
-  action.status = "done";
-  action.completedAt = nowIso();
-  appendEvent(report, "action_completed", actorName, { actionId });
-  return report;
+  ensureMigrated();
+  const action = getDb()
+    .select()
+    .from(correctiveActions)
+    .where(eq(correctiveActions.id, actionId))
+    .get();
+  if (!action || action.reportId !== reportId) return undefined;
+  if (action.status === "done") return getReport(reportId);
+
+  const sqlite = getSqlite();
+  const tx = sqlite.transaction(() => {
+    getDb()
+      .update(correctiveActions)
+      .set({ status: "done", completedAt: nowIso() })
+      .where(eq(correctiveActions.id, actionId))
+      .run();
+    appendEvent(reportId, "action_completed", actorName, { actionId });
+  });
+  tx();
+  return getReport(reportId);
 }
 
+/**
+ * Idempotent demo seed. No-op if any reports exist. Real production use never
+ * calls this — it's a dev convenience for the empty-DB case.
+ */
 export function seedDemoData() {
-  if (store.reports.size > 0) return;
+  ensureMigrated();
+  const existing = getDb()
+    .select({ count: sql<number>`count(*)` })
+    .from(nearMissReports)
+    .get();
+  if (existing && Number(existing.count) > 0) return;
+
   const r1 = createReport({
     siteId: "plant-1",
     reporterName: "Sam Okafor",
@@ -234,3 +477,6 @@ export function seedDemoData() {
     severityPotential: "critical",
   });
 }
+
+// Re-export the meta table for tests/scripts that may need it.
+export { meta as _metaTable };

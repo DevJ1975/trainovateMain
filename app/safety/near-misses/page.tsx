@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { listReports, seedDemoData } from "@/lib/near-miss/store";
+import { listReports, seedDemoData, statusCounts } from "@/lib/near-miss/store";
 import {
   hazardLabel,
   REPORT_STATUSES,
@@ -32,11 +32,7 @@ export default function NearMissListPage({
   const filter = (searchParams?.status as ReportStatus | "all") ?? "all";
   const filtered =
     filter === "all" ? all : all.filter((r) => r.status === filter);
-
-  const counts = REPORT_STATUSES.reduce<Record<string, number>>((acc, s) => {
-    acc[s] = all.filter((r) => r.status === s).length;
-    return acc;
-  }, {});
+  const counts = statusCounts();
 
   return (
     <div>

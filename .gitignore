@@ -8,3 +8,9 @@ dist/
 *.log
 .vercel
 next-env.d.ts.bak
+
+# Local SQLite (Phase 1 dev DB; production uses Postgres via DATABASE_URL)
+near-miss.db
+near-miss.db-journal
+near-miss.db-wal
+near-miss.db-shm

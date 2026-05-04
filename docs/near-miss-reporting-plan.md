@@ -98,7 +98,9 @@ ergonomic, chemical, PPE, vehicle, etc.) and are configurable per org.
   §11.**
 - **Phase 1 — MVP (3–4 wks).** Full submission flow (incl. offline + photo),
   dashboard list + filters, corrective actions, audit log, anonymity, role-based
-  access.
+  access. **🟡 Persistence + anonymous status lookup shipped on this branch —
+  see §10. Auth/SSO, attachments, offline PWA, and notifications still
+  outstanding.**
 - **Phase 2 — Insights (3 wks).** Heatmap, trend detection, training-engine
   hook, notification routing, exports.
 - **Phase 3 — Depth (ongoing).** Light RCA templates, repeat-pattern alerts,
@@ -139,23 +141,46 @@ Code layout:
 
 Verified by `next build` (typecheck passes; routes generate).
 
-### Stubbed in Phase 0, real in Phase 1
+### Phase 1 progress — what shipped on this branch
 
-- **Persistence** — in-memory; lost on restart. Replace with Postgres + a
-  thin repository over the same `lib/near-miss/store` interface.
-- **Auth & roles** — every visitor can both report and triage. Wire up SSO,
-  scope reads/writes by org + site role, and lock the `/safety/*` surface.
-- **Anonymity guarantees** — receipt code is generated but not yet usable to
-  look up status. Add a `/report/status/[code]` lookup that doesn't require
-  auth.
-- **Photo / video attachments** — schema is ready (planned `Attachment`
-  table), upload UX is not. Add S3 (or equivalent) + face/plate auto-blur.
-- **Offline submit** — needs PWA manifest + service worker queue.
-- **Notifications** — no email/SMS/Slack on triage events yet.
-- **Training-engine tie-in** — pattern detection (§7) lands with insights in
-  Phase 2.
-- **Validation** — server actions throw on bad input but errors don't
-  surface in the UI gracefully. Add proper field-level error rendering.
+- **Persistence (✅).** Drizzle ORM + SQLite via `better-sqlite3`. Schema
+  in `lib/near-miss/db/schema.ts`, generated migration in `drizzle/`.
+  Repository (`lib/near-miss/store.ts`) preserves the same exported function
+  signatures the route handlers were already using. Auto-migrates on first DB
+  access; demo seed runs once when the table is empty.
+- **Anonymous status lookup (✅).** `/report/status` paste-code form +
+  `/report/status/[code]` read-only view. Hides triage-internal contributing
+  factors. Receipt code is shown once on the thanks page with a deep link.
+- **Reference counter (✅).** Persisted to a `near_miss_meta` row instead
+  of in-process; survives restarts.
+
+Stack notes:
+
+- SQLite is fine for local dev. **Production swap:** change the dialect in
+  `drizzle.config.ts` and the driver in `lib/near-miss/db/client.ts` to
+  `drizzle-orm/postgres-js` (or `drizzle-orm/node-postgres`). Schema and
+  migrations are dialect-portable for the columns we use.
+- `next-miss.db` is gitignored. Set `NEAR_MISS_DB_PATH` to override the
+  location.
+- Run `npm run db:generate` after schema edits; commit the new SQL files
+  in `drizzle/`.
+
+### Still outstanding for Phase 1
+
+- **Auth & roles** — every visitor can both report and triage. Wire up SSO
+  (NextAuth or similar), scope reads/writes by org + site role, lock
+  `/safety/*` behind a session.
+- **Photo / video attachments** — `Attachment` table + S3 (or equivalent),
+  face/plate auto-blur, upload UX with progress + retry.
+- **Offline submit** — PWA manifest + service worker queue + IndexedDB
+  buffer.
+- **Notifications** — email/SMS/Slack on triage events; per-user routing
+  preferences.
+- **Field-level validation errors** — server actions still `throw`; convert
+  to `useActionState` returning `{fieldErrors}` so the form can render per-
+  field messages without reloads.
+- **Training-engine tie-in** — pattern detection (§7) lands with insights
+  in Phase 2.
 
 ## 11. Open questions
 
