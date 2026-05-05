@@ -9,7 +9,7 @@ export function Footer() {
     <footer className="relative border-t border-bone/8 bg-carbon/40 mt-32">
       <div className="tnv-container tnv-section py-20">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
-          <div className="md:col-span-4">
+          <div className="md:col-span-3">
             <Wordmark className="text-2xl text-bone" />
             <p className="mt-5 tnv-body text-sm max-w-xs">
               Workforce Transformation OS for high-risk industries. Veteran-founded.
@@ -49,7 +49,16 @@ export function Footer() {
             </ul>
           </div>
 
-          <div className="md:col-span-4">
+          <div className="md:col-span-2">
+            <div className="tnv-eyebrow-fog mb-4">Safety</div>
+            <ul className="space-y-3 text-sm">
+              <FooterLink href="/report">Report a near miss</FooterLink>
+              <FooterLink href="/report/status">Check report status</FooterLink>
+              <FooterLink href="/safety/near-misses">Triage queue</FooterLink>
+            </ul>
+          </div>
+
+          <div className="md:col-span-3">
             <div className="tnv-eyebrow-fog mb-4">Federal</div>
             <dl className="space-y-3 text-sm">
               <Row label="NAICS Primary" value="611430" />

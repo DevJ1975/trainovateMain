@@ -73,6 +73,9 @@ export function Nav() {
           </nav>
 
           <div className="flex items-center gap-3">
+            <Link href="/report" className="hidden md:inline-flex tnv-btn-ghost">
+              Report a near miss
+            </Link>
             <Link href="/contact" className="hidden md:inline-flex tnv-btn-signal">
               Request demo
             </Link>
@@ -100,9 +103,14 @@ export function Nav() {
                 {l.label}
               </Link>
             ))}
-            <Link href="/contact" className="tnv-btn-signal mt-2 w-fit">
-              Request demo
-            </Link>
+            <div className="mt-2 flex flex-col gap-2">
+              <Link href="/report" className="tnv-btn-ghost w-fit">
+                Report a near miss
+              </Link>
+              <Link href="/contact" className="tnv-btn-signal w-fit">
+                Request demo
+              </Link>
+            </div>
           </nav>
         </div>
       )}
