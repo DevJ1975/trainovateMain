@@ -87,6 +87,20 @@ describe("slackChannel.shouldHandle", () => {
       }),
     ).toBe(false);
   });
+
+  it("always escalates action_overdue regardless of report severity", () => {
+    expect(
+      ch.shouldHandle({
+        kind: "action_overdue",
+        report: { ...baseReport, severityPotential: "low" },
+        actionId: "a1",
+        ownerName: "Marcus Webb",
+        description: "x",
+        dueAt: "2026-05-04T00:00:00Z",
+        hoursOverdue: 36,
+      }),
+    ).toBe(true);
+  });
 });
 
 describe("formatPayload", () => {
@@ -131,6 +145,28 @@ describe("formatPayload", () => {
   it("omits the link button when no baseUrl provided", () => {
     const p = formatPayload({ kind: "report_created", report: baseReport });
     expect(JSON.stringify(p)).not.toContain("actions");
+  });
+
+  it("formats action_overdue with rotating-light header and danger button", () => {
+    const p = formatPayload(
+      {
+        kind: "action_overdue",
+        report: baseReport,
+        actionId: "a1",
+        ownerName: "Marcus Webb",
+        description: "Replace forklift hydraulic line",
+        dueAt: "2026-05-03T00:00:00Z",
+        hoursOverdue: 60,
+      },
+      "https://app.example.com",
+    );
+    const text = JSON.stringify(p);
+    expect(text).toContain("rotating_light");
+    expect(text).toContain("Marcus Webb");
+    expect(text).toContain("hydraulic line");
+    expect(text).toContain('"style":"danger"');
+    // 60h ≈ 3d in the human format.
+    expect(text).toMatch(/3d overdue/);
   });
 
   it("formats status_changed compactly with old → new", () => {

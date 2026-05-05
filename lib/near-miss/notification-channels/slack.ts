@@ -63,6 +63,10 @@ export function slackChannel(opts: SlackChannelOptions): NotificationChannel {
           // Owner-specific pings belong on email/SMS, not in a shared
           // channel. Keep Slack focused on team-visible signals.
           return false;
+        case "action_overdue":
+          // Always escalate — by the time the cooldown's letting it
+          // through, the action is properly stale.
+          return true;
       }
     },
     async send(event) {
@@ -163,6 +167,58 @@ export function formatPayload(
                 `_Status:_ \`${event.from}\` → \`${event.to}\``,
             },
           },
+        ],
+      };
+    }
+    case "action_overdue": {
+      const r = event.report;
+      const link = baseUrl
+        ? `${baseUrl.replace(/\/$/, "")}/safety/near-misses/${r.id}`
+        : null;
+      const hours = Math.round(event.hoursOverdue);
+      const overdueText =
+        hours < 24 ? `${hours}h overdue` : `${Math.round(hours / 24)}d overdue`;
+      return {
+        text: `OVERDUE ${overdueText}: ${r.reference} — ${truncate(event.description, 80)}`,
+        blocks: [
+          {
+            type: "header",
+            text: {
+              type: "plain_text",
+              text: `:rotating_light: Corrective action overdue (${overdueText})`,
+            },
+          },
+          {
+            type: "section",
+            fields: [
+              { type: "mrkdwn", text: `*Report*\n\`${r.reference}\`` },
+              { type: "mrkdwn", text: `*Owner*\n${event.ownerName}` },
+              { type: "mrkdwn", text: `*Hazard*\n${hazardLabel(r.hazardCategory)}` },
+              {
+                type: "mrkdwn",
+                text: `*Was due*\n${new Date(event.dueAt).toLocaleDateString()}`,
+              },
+            ],
+          },
+          {
+            type: "section",
+            text: { type: "mrkdwn", text: `*Action*\n${truncate(event.description, 600)}` },
+          },
+          ...(link
+            ? [
+                {
+                  type: "actions",
+                  elements: [
+                    {
+                      type: "button",
+                      text: { type: "plain_text", text: "Open report" },
+                      url: link,
+                      style: "danger",
+                    },
+                  ],
+                },
+              ]
+            : []),
         ],
       };
     }

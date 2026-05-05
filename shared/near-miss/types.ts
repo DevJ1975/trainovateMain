@@ -53,6 +53,7 @@ export type ReportEventKind =
   | "factor_added"
   | "action_added"
   | "action_completed"
+  | "action_overdue"
   | "commented";
 
 export interface ReportEvent {

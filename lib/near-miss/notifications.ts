@@ -21,6 +21,15 @@ export type NotificationEvent =
       report: NearMissReport;
       ownerName: string;
       description: string;
+    }
+  | {
+      kind: "action_overdue";
+      report: NearMissReport;
+      actionId: string;
+      ownerName: string;
+      description: string;
+      dueAt: string;
+      hoursOverdue: number;
     };
 
 export interface NotificationChannel {
@@ -79,6 +88,11 @@ export const consoleChannel: NotificationChannel = {
       case "action_assigned":
         console.log(
           `[notify] ${event.report.reference}: action assigned to ${event.ownerName} — "${event.description}"`,
+        );
+        return;
+      case "action_overdue":
+        console.log(
+          `[notify] ${event.report.reference}: OVERDUE ${Math.round(event.hoursOverdue)}h — "${event.description}" (owner ${event.ownerName})`,
         );
         return;
     }

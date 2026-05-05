@@ -15,6 +15,13 @@
       "when": 1777938702033,
       "tag": "0001_stale_micromacro",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1777956927401,
+      "tag": "0002_jazzy_pestilence",
+      "breakpoints": true
     }
   ]
 }

@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { and, asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, isNull, lt, or, sql } from "drizzle-orm";
 import { ensureMigrated, getDb, getSqlite } from "./db/client";
 import { dispatch } from "./notifications";
 import {
@@ -449,6 +449,73 @@ export function completeCorrectiveAction(
   });
   tx();
   return getReport(reportId);
+}
+
+/**
+ * One overdue action joined with its parent report — what the cron
+ * needs to dispatch a notification.
+ */
+export interface OverdueAction {
+  reportId: string;
+  reference: string;
+  action: CorrectiveAction;
+  report: NearMissReport;
+}
+
+/**
+ * Find open corrective actions whose due date has passed and that
+ * haven't been nudged within `cooldownMs` (default 20h, leaves slack
+ * for an hourly cron without re-pinging the same row each hour).
+ */
+export function findOverdueActions(
+  nowMs: number = Date.now(),
+  cooldownMs: number = 20 * 60 * 60 * 1000,
+): OverdueAction[] {
+  ensureMigrated();
+  const cutoffNotify = new Date(nowMs - cooldownMs).toISOString();
+  const nowIsoStr = new Date(nowMs).toISOString();
+
+  const rows = getDb()
+    .select()
+    .from(correctiveActions)
+    .where(
+      and(
+        eq(correctiveActions.status, "open"),
+        lt(correctiveActions.dueAt, nowIsoStr),
+        or(
+          isNull(correctiveActions.lastOverdueNotifiedAt),
+          lt(correctiveActions.lastOverdueNotifiedAt, cutoffNotify),
+        ),
+      ),
+    )
+    .orderBy(asc(correctiveActions.dueAt))
+    .all();
+
+  const out: OverdueAction[] = [];
+  for (const row of rows) {
+    const report = getReport(row.reportId);
+    if (!report) continue;
+    out.push({
+      reportId: row.reportId,
+      reference: report.reference,
+      action: rowToAction(row),
+      report,
+    });
+  }
+  return out;
+}
+
+/** Stamp the notified timestamp so the next cron run honors the cooldown. */
+export function markOverdueNotified(
+  actionId: string,
+  nowMs: number = Date.now(),
+): void {
+  ensureMigrated();
+  getDb()
+    .update(correctiveActions)
+    .set({ lastOverdueNotifiedAt: new Date(nowMs).toISOString() })
+    .where(eq(correctiveActions.id, actionId))
+    .run();
 }
 
 export interface AddAttachmentInput {

@@ -53,8 +53,17 @@ export const correctiveActions = sqliteTable(
     status: text("status").notNull(),
     completedAt: text("completed_at"),
     createdAt: text("created_at").notNull(),
+    /**
+     * Idempotency for the overdue-nudge cron — set every time we fire
+     * an `action_overdue` notification for this row. The cron skips
+     * actions notified within OVERDUE_REMINDER_COOLDOWN_HOURS.
+     */
+    lastOverdueNotifiedAt: text("last_overdue_notified_at"),
   },
-  (t) => ({ byReport: index("idx_ca_report").on(t.reportId) }),
+  (t) => ({
+    byReport: index("idx_ca_report").on(t.reportId),
+    byDue: index("idx_ca_due").on(t.status, t.dueAt),
+  }),
 );
 
 export const reportEvents = sqliteTable(
