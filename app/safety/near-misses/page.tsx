@@ -36,13 +36,20 @@ export default function NearMissListPage({
 
   return (
     <div>
-      <div className="mb-6 flex items-end justify-between">
+      <div className="mb-6 flex items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Near miss reports</h1>
           <p className="mt-1 text-sm text-bone/60">
             {all.length} total · {counts.new ?? 0} awaiting triage
           </p>
         </div>
+        <a
+          href="/api/near-miss/reports/export"
+          download
+          className="rounded-md border border-bone/20 px-3 py-1.5 text-xs uppercase tracking-[0.14em] text-bone/85 hover:border-bone/40"
+        >
+          Export CSV
+        </a>
       </div>
 
       <div className="mb-6 flex flex-wrap gap-2">

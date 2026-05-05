@@ -35,6 +35,39 @@ _Nothing yet._
 
 ---
 
+## 2026-05-05 — Tier 2: CSV export of triage queue
+
+### Added
+
+- **`GET /api/near-miss/reports/export`** — auth-gated (cookie or
+  bearer). Streams an RFC 4180 CSV of all reports with one row per
+  report and pre-aggregated child rollups so the spreadsheet is
+  usable without joins. Columns: `reference, reported_at,
+  occurred_at, site_id, status, severity_potential, hazard_category,
+  location_text, anonymous, reporter_name, description,
+  contributing_factors, open_actions, done_actions, overdue_actions,
+  attachments, comments, last_updated`.
+- **"Export CSV" button** on `/safety/near-misses` (top-right, next to
+  the title).
+- **`lib/near-miss/csv.ts`** — pure RFC 4180 escaper (`toCsv`,
+  `toCsvRow`). 6 unit tests cover comma/quote/newline escaping,
+  null/undefined handling, and CRLF line endings.
+
+### Notes
+
+- `reporter_name` is empty for anonymous rows (anonymity preserved
+  even in compliance exports).
+- Severity and hazard come out as the human label, not the id —
+  spreadsheets will be used by people, not joined back to the
+  reference data.
+- Filename is `near-misses-YYYY-MM-DD.csv` (UTC date). `cache-control:
+  no-store` so a stale download isn't served from any intermediate.
+- Auth is required even though the existing `GET /api/attachments/[id]`
+  permits anonymous access via `?code=` — bulk exports are a
+  triage-only operation.
+
+---
+
 ## 2026-05-05 — Tier 2: triage comment thread
 
 ### Added
