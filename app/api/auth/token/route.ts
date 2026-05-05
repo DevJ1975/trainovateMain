@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { issueToken } from "@/lib/auth/session";
+import { assertDevAuthAllowed } from "@/lib/auth/dev-stub";
 import { findUserByEmail } from "@/lib/auth/users";
 import { badRequest, json, unauthorized } from "@/lib/api/responses";
 
@@ -18,6 +19,8 @@ interface Body {
  * production must validate against an IdP / hashed password.
  */
 export async function POST(req: NextRequest) {
+  assertDevAuthAllowed();
+
   let body: Body;
   try {
     body = await req.json();

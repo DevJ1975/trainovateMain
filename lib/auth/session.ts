@@ -5,12 +5,35 @@ import { findUserById, User } from "./users";
 
 export { SESSION_COOKIE };
 
-const SECRET =
-  process.env.SESSION_SECRET ?? "dev-only-session-secret-change-in-prod";
+const DEV_FALLBACK_SECRET = "dev-only-session-secret-change-in-prod";
 const MAX_AGE_SEC = 60 * 60 * 24 * 7;
 
+let cachedSecret: string | null = null;
+
+function getSecret(): string {
+  if (cachedSecret !== null) return cachedSecret;
+  const env = process.env.SESSION_SECRET;
+  if (env && env.length >= 32) {
+    cachedSecret = env;
+    return cachedSecret;
+  }
+  // `next build` collects page data with NODE_ENV=production; we don't want
+  // to crash the build there, only actual request handling at runtime.
+  const isBuildPhase =
+    process.env.NEXT_PHASE === "phase-production-build" ||
+    process.env.NEXT_PHASE === "phase-export";
+  if (process.env.NODE_ENV === "production" && !isBuildPhase) {
+    throw new Error(
+      "SESSION_SECRET is required in production and must be at least 32 chars. " +
+        "Generate one with `openssl rand -hex 32` and set it in your deploy env.",
+    );
+  }
+  cachedSecret = env && env.length > 0 ? env : DEV_FALLBACK_SECRET;
+  return cachedSecret;
+}
+
 function sign(payload: string): string {
-  return crypto.createHmac("sha256", SECRET).update(payload).digest("hex");
+  return crypto.createHmac("sha256", getSecret()).update(payload).digest("hex");
 }
 
 function encode(userId: string): string {
