@@ -115,8 +115,10 @@ or `components/` instead. The Next.js web app re-exports these from
 | `GET /api/near-miss/reports/[id]` | bearer | Triage detail |
 | `GET /api/near-miss/reports/by-reference/[ref]` | none | Post-submit confirmation |
 | `GET /api/near-miss/reports/by-code/[code]` | none | Anonymous status lookup |
-| `POST /api/near-miss/reports/[id]/attachments` | bearer or `?code=` | Upload a photo |
-| `GET /api/attachments/[id]` | cookie/bearer or `?code=` | Stream a stored photo |
+| `POST /api/near-miss/reports/[id]/attachments` | bearer or `?code=` | Upload a photo (multipart, proxied) |
+| `POST /api/near-miss/reports/[id]/attachments/sign` | bearer or `?code=` | Get presigned PUT URL (S3 only) |
+| `POST /api/near-miss/reports/[id]/attachments/confirm` | bearer or `?code=` | Record the attachment after a signed upload |
+| `GET /api/attachments/[id]` | cookie/bearer or `?code=` | Stream a stored photo (302→S3 in S3 mode) |
 | `POST /api/auth/token` | none | Exchange email+password for bearer token |
 | `GET /api/auth/me` | bearer | Whoami for the held token |
 

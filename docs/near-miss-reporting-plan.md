@@ -226,8 +226,10 @@ triage.
   drain on tab open. Needs device testing to validate.
 - **Notification channels** — Slack webhook, SES email, Twilio SMS
   adapters. Per-org routing tables and quiet-hours config.
-- **Attachment hardening** — face/plate auto-blur, virus scanning, signed
-  URLs from S3 instead of streaming bytes through the app server.
+- **Attachment hardening** — face/plate auto-blur, virus scanning. (S3
+  signed-URL flow now shipped via `NEAR_MISS_STORAGE=s3` plus the
+  `/attachments/sign` + `/attachments/confirm` routes; bytes no longer
+  proxy through the app server in S3 mode.)
 - **Training-engine tie-in** — pattern detection (§7) lands with Phase 2
   insights.
 

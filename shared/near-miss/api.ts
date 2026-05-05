@@ -225,6 +225,70 @@ export function createNearMissApi(opts: NearMissApiOptions) {
       const qs = opts.code ? `?code=${encodeURIComponent(opts.code)}` : "";
       return `${base}/api/attachments/${encodeURIComponent(attachmentId)}${qs}`;
     },
+
+    /**
+     * Two-step S3 upload (recommended for production). Step 1 asks the
+     * server for a presigned PUT URL, step 2 the client uploads directly
+     * to S3, step 3 confirms with the server which records the row.
+     *
+     * Returns null when the server is on local-FS storage — caller should
+     * fall back to `uploadPhoto()` (the multipart proxy path).
+     */
+    async signedUploadPhoto(
+      reportId: string,
+      file: { contentType: string; sizeBytes: number; bytes: Blob | ArrayBuffer },
+      opts: { code?: string } = {},
+    ): Promise<{ attachment: Attachment } | null> {
+      const qs = opts.code ? `?code=${encodeURIComponent(opts.code)}` : "";
+      const idEnc = encodeURIComponent(reportId);
+
+      let signed: {
+        storageKey: string;
+        uploadUrl: string;
+        method: "PUT";
+        headers: Record<string, string>;
+      };
+      try {
+        signed = await call<typeof signed>(
+          `/api/near-miss/reports/${idEnc}/attachments/sign${qs}`,
+          {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              contentType: file.contentType,
+              sizeBytes: file.sizeBytes,
+            }),
+          },
+          !opts.code,
+        );
+      } catch (e) {
+        if (e instanceof NearMissApiError && e.status === 501) return null;
+        throw e;
+      }
+
+      // Direct PUT to S3 — bytes don't go through the app server.
+      const putRes = await fetchImpl(signed.uploadUrl, {
+        method: "PUT",
+        headers: signed.headers,
+        body: file.bytes,
+      });
+      if (!putRes.ok) {
+        throw new NearMissApiError(
+          putRes.status,
+          `Direct upload failed: HTTP ${putRes.status}`,
+        );
+      }
+
+      return call<{ attachment: Attachment }>(
+        `/api/near-miss/reports/${idEnc}/attachments/confirm${qs}`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ storageKey: signed.storageKey }),
+        },
+        !opts.code,
+      );
+    },
   };
 }
 
