@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getReport, listAttachments } from "@/lib/near-miss/store";
+import { features } from "@/lib/features";
 import {
   CONTRIBUTING_FACTOR_TYPES,
   hazardLabel,
@@ -227,29 +228,31 @@ export default function ReportDetailPage({
           </form>
         </Section>
 
-        <Section title="Comments">
-          <CommentsThread events={report.events} />
-          <form
-            action={addCommentAction.bind(null, report.id)}
-            className="mt-4 flex flex-col gap-2"
-          >
-            <textarea
-              name="text"
-              required
-              minLength={1}
-              maxLength={5000}
-              rows={3}
-              placeholder="Add a comment for the safety team…"
-              className="w-full resize-y rounded-md border border-bone/15 bg-ink/40 px-3 py-2 text-sm placeholder:text-bone/30 focus:border-cobalt focus:outline-none focus:ring-1 focus:ring-cobalt"
-            />
-            <button
-              type="submit"
-              className="self-end rounded-md bg-cobalt px-3 py-1.5 text-sm text-bone hover:bg-cobalt/90"
+        {features().comments && (
+          <Section title="Comments">
+            <CommentsThread events={report.events} />
+            <form
+              action={addCommentAction.bind(null, report.id)}
+              className="mt-4 flex flex-col gap-2"
             >
-              Post comment
-            </button>
-          </form>
-        </Section>
+              <textarea
+                name="text"
+                required
+                minLength={1}
+                maxLength={5000}
+                rows={3}
+                placeholder="Add a comment for the safety team…"
+                className="w-full resize-y rounded-md border border-bone/15 bg-ink/40 px-3 py-2 text-sm placeholder:text-bone/30 focus:border-cobalt focus:outline-none focus:ring-1 focus:ring-cobalt"
+              />
+              <button
+                type="submit"
+                className="self-end rounded-md bg-cobalt px-3 py-1.5 text-sm text-bone hover:bg-cobalt/90"
+              >
+                Post comment
+              </button>
+            </form>
+          </Section>
+        )}
       </div>
 
       <aside className="space-y-6">

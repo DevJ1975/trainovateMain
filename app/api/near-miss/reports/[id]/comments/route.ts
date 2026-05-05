@@ -1,7 +1,8 @@
 import { NextRequest } from "next/server";
 import { getUserFromRequest } from "@/lib/auth/session";
 import { addReportComment } from "@/lib/near-miss/use-cases";
-import { badRequest, error, json, unauthorized } from "@/lib/api/responses";
+import { badRequest, error, json, notFound, unauthorized } from "@/lib/api/responses";
+import { features } from "@/lib/features";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,7 @@ export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } },
 ) {
+  if (!features().comments) return notFound("Comments are disabled on this deploy");
   const user = await getUserFromRequest(req);
   if (!user) return unauthorized();
 

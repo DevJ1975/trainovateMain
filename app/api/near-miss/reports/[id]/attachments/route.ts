@@ -16,6 +16,7 @@ import {
   json,
   notFound,
 } from "@/lib/api/responses";
+import { features } from "@/lib/features";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,7 @@ export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } },
 ) {
+  if (!features().photoAttachments) return notFound("Photo attachments are disabled on this deploy");
   const report = getReport(params.id);
   if (!report) return notFound("Report not found");
 

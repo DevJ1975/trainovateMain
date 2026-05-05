@@ -11,6 +11,7 @@ import {
   type Actor,
   type UseCaseResult,
 } from "@/lib/near-miss/use-cases";
+import { features } from "@/lib/features";
 
 function getString(fd: FormData, key: string): string {
   const v = fd.get(key);
@@ -86,6 +87,9 @@ export async function completeAction(id: string, formData: FormData) {
 }
 
 export async function addCommentAction(id: string, formData: FormData) {
+  if (!features().comments) {
+    throw new Error("Comments are disabled on this deploy");
+  }
   unwrap(
     addReportComment({
       reportId: id,

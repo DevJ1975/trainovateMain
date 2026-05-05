@@ -1,12 +1,17 @@
 import Link from "next/link";
 import { RegisterSW } from "@/components/RegisterSW";
+import { features } from "@/lib/features";
 import { SubmissionForm } from "./SubmissionForm";
 
 export const metadata = {
   title: "Report a near miss · Trainovate",
 };
 
+// Server-rendered so feature flags are fresh per request.
+export const dynamic = "force-dynamic";
+
 export default function ReportPage() {
+  const f = features();
   return (
     <main className="min-h-screen bg-ink text-bone">
       <RegisterSW />
@@ -25,7 +30,10 @@ export default function ReportPage() {
         </p>
 
         <div className="mt-10">
-          <SubmissionForm />
+          <SubmissionForm
+            offlineQueueEnabled={f.webOfflineQueue}
+            photoAttachmentsEnabled={f.photoAttachments}
+          />
         </div>
 
         <p className="mt-10 text-xs text-bone/45">

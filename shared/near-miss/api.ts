@@ -141,6 +141,23 @@ export function createNearMissApi(opts: NearMissApiOptions) {
       return r.user;
     },
 
+    /**
+     * Read the deploy's public feature flags. Mobile callers should
+     * cache this on startup; web callers can SSR it via the server
+     * `features()` helper for zero-latency access.
+     */
+    async getFeatures() {
+      return call<{
+        features: {
+          comments: boolean;
+          csvExport: boolean;
+          webOfflineQueue: boolean;
+          mobileOfflineQueue: boolean;
+          photoAttachments: boolean;
+        };
+      }>("/api/features");
+    },
+
     /** Categories, severity levels, statuses, validation limits. */
     async getCategories() {
       return call<{

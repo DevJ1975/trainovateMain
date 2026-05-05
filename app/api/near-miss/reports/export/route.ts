@@ -7,7 +7,8 @@ import {
 } from "@/lib/near-miss/store";
 import { hazardLabel, severityLabel } from "@/shared/near-miss/constants";
 import { toCsv } from "@/lib/near-miss/csv";
-import { unauthorized } from "@/lib/api/responses";
+import { notFound, unauthorized } from "@/lib/api/responses";
+import { features } from "@/lib/features";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +41,7 @@ const HEADERS = [
  * usable without joins.
  */
 export async function GET(req: NextRequest) {
+  if (!features().csvExport) return notFound("CSV export is disabled on this deploy");
   const user = await getUserFromRequest(req);
   if (!user) return unauthorized();
 

@@ -44,7 +44,17 @@ type FormStatus =
       delivered: { reference: string; receiptCode: string | null };
     };
 
-export function SubmissionForm() {
+interface SubmissionFormProps {
+  /** When false, submit failures don't queue locally — they surface as a hard error. */
+  offlineQueueEnabled?: boolean;
+  /** When false, the photo upload field is hidden and not sent. */
+  photoAttachmentsEnabled?: boolean;
+}
+
+export function SubmissionForm({
+  offlineQueueEnabled = true,
+  photoAttachmentsEnabled = true,
+}: SubmissionFormProps) {
   const router = useRouter();
   const [anonymous, setAnonymous] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<FieldKey, string>>>({});
@@ -54,14 +64,16 @@ export function SubmissionForm() {
   const [draining, setDraining] = useState(false);
 
   const refreshPending = useCallback(async () => {
+    if (!offlineQueueEnabled) return;
     try {
       setQueueCount(await pendingCount());
     } catch {
       // IndexedDB may be unavailable (private mode in some browsers); fail silent.
     }
-  }, []);
+  }, [offlineQueueEnabled]);
 
   const tryDrain = useCallback(async () => {
+    if (!offlineQueueEnabled) return;
     setDraining(true);
     try {
       const summary = await drainQueue();
@@ -77,16 +89,18 @@ export function SubmissionForm() {
       setDraining(false);
       await refreshPending();
     }
-  }, [refreshPending]);
+  }, [refreshPending, offlineQueueEnabled]);
 
-  // Drain on mount + on every "online" event.
+  // Drain on mount + on every "online" event. No-op when the queue
+  // feature is disabled.
   useEffect(() => {
+    if (!offlineQueueEnabled) return;
     refreshPending();
     void tryDrain();
     const onOnline = () => void tryDrain();
     window.addEventListener("online", onOnline);
     return () => window.removeEventListener("online", onOnline);
-  }, [refreshPending, tryDrain]);
+  }, [refreshPending, tryDrain, offlineQueueEnabled]);
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -141,10 +155,16 @@ export function SubmissionForm() {
         return;
       }
 
-      // Network failure or 5xx — save locally. Server-side
-      // Idempotency-Key dedupe makes the inevitable retry safe even
-      // if the original POST actually succeeded server-side and the
-      // response was lost.
+      // Network failure or 5xx. With the offline queue: save locally
+      // and let the drain pass deliver. Without it: surface as a hard
+      // error so the user knows their submission didn't land.
+      if (!offlineQueueEnabled) {
+        setFormError(
+          `Submission failed: ${(err as Error).message}. Try again when you're back online.`,
+        );
+        setStatus({ kind: "idle" });
+        return;
+      }
       try {
         await enqueueDraft(input, {
           idempotencyKey,
@@ -304,6 +324,7 @@ export function SubmissionForm() {
           />
         </Field>
 
+        {photoAttachmentsEnabled && (
         <Field
           id="photos"
           label="Photos (optional)"
@@ -323,6 +344,7 @@ export function SubmissionForm() {
             }
           />
         </Field>
+        )}
 
         <button
           type="submit"

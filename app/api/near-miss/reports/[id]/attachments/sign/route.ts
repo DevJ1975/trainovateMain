@@ -4,6 +4,7 @@ import { getReport, listAttachments } from "@/lib/near-miss/store";
 import { getStorage } from "@/lib/near-miss/storage";
 import { ALLOWED_PHOTO_TYPES, LIMITS } from "@/shared/near-miss/validation";
 import { badRequest, error, forbidden, json, notFound } from "@/lib/api/responses";
+import { features } from "@/lib/features";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,7 @@ export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } },
 ) {
+  if (!features().photoAttachments) return notFound("Photo attachments are disabled on this deploy");
   const report = getReport(params.id);
   if (!report) return notFound("Report not found");
 

@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { notifyOverdue } from "@/lib/near-miss/cron/notify-overdue";
 import { error, json, unauthorized } from "@/lib/api/responses";
+import { features } from "@/lib/features";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,13 @@ export const dynamic = "force-dynamic";
  */
 export async function GET(req: NextRequest) {
   if (!isAuthorized(req)) return unauthorized();
+
+  if (!features().overdueCron) {
+    // 200 with an "off" payload so a Vercel-Cron schedule keeps green
+    // (the platform retries on non-2xx). Disabling the feature shouldn't
+    // generate alerts.
+    return json({ ok: true, scanned: 0, notified: 0, notifiedIds: [], disabled: true });
+  }
 
   try {
     const result = notifyOverdue();

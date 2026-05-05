@@ -35,6 +35,100 @@ _Nothing yet._
 
 ---
 
+## 2026-05-05 — Feature flags for soak / sandbox testing
+
+> Lets you flip new modules on and off in a deploy without code
+> changes. Useful for staging soaks, gradual rollouts, and pulling
+> a misbehaving feature without redeploying.
+
+### Added
+
+- **`lib/features.ts`** — typed `features()` and `publicFeatures()`
+  helpers. Every flag defaults to ON; setting the matching env var
+  to `false` / `0` / `off` / `no` disables that module. Cached at
+  startup; flipping requires a restart.
+- **`GET /api/features`** — public endpoint returning the
+  client-safe subset of flags. Mobile reads it on startup so its UI
+  stays in sync with the server.
+- **`api.getFeatures()`** in `shared/near-miss/api.ts`.
+
+### Flags
+
+| Env var | Gates |
+|---------|-------|
+| `NM_FEATURE_COMMENTS` | Triage comment thread (UI + server action + HTTP route) |
+| `NM_FEATURE_CSV_EXPORT` | CSV download (UI button + HTTP route) |
+| `NM_FEATURE_IDEMPOTENCY` | `Idempotency-Key` cache on `POST /reports` |
+| `NM_FEATURE_OVERDUE_CRON` | `/api/cron/overdue` scan (returns `disabled:true` 200) |
+| `NM_FEATURE_WEB_OFFLINE_QUEUE` | Web `/report` queue + drain; submit becomes online-only |
+| `NM_FEATURE_MOBILE_OFFLINE_QUEUE` | Advisory — mobile reads from `/api/features` |
+| `NM_FEATURE_PHOTO_ATTACHMENTS` | Upload + display + photo input on web & mobile |
+
+### Already implicitly toggled (no separate flag)
+
+- **Slack notifications** — `NEAR_MISS_SLACK_WEBHOOK_URL`
+- **Magic-link login** — `RESEND_API_KEY` + `AUTH_RESEND_FROM`
+- **Dev-credentials login** — `NM_ALLOW_DEV_AUTH=true` in production
+- **S3 storage / signed uploads** — `NEAR_MISS_STORAGE=s3`
+- **Real OAuth providers** — set `AUTH_<PROVIDER>_*` env vars and add
+  the provider to `auth.ts`
+
+### Changed
+
+- **`/report`** is now `force-dynamic` so feature flags are fresh
+  per request. The submission form receives `offlineQueueEnabled`
+  and `photoAttachmentsEnabled` props. With offline queue off,
+  submit failures surface as a hard error instead of silently
+  queuing.
+- **Triage detail page** hides the Comments section when comments
+  are disabled.
+- **Triage queue page** hides the Export CSV button when export is
+  disabled.
+- **Mobile** fetches `/api/features` on app start with optimistic
+  defaults (everything on). UI is usable on first paint, then swaps
+  in real flag values when the request returns.
+- **Cron route** returns `200 { ok: true, disabled: true }` when
+  overdue notifications are off, so a Vercel-Cron schedule stays
+  green — feature disablement shouldn't look like an outage.
+
+### Behavior notes
+
+- **Default ON.** A new deploy with no flag env vars set behaves
+  exactly like the deploy did before this commit. Backward
+  compatible by construction.
+- **Disabled features 404.** Routes return 404 (not 503) so clients
+  that don't know about feature flags treat them the same as a
+  never-built route. Mobile uses the flag values to avoid even
+  rendering the UI.
+- **Toggling requires restart.** Runtime toggling needs a config
+  table + admin UI + cache invalidation. For now, flip the env var
+  and redeploy.
+
+### Tested
+
+- 6 new unit tests in `lib/features.test.ts` cover defaults, falsy
+  spellings, truthy spellings, unknown values, and the
+  public/private flag split. 78 tests passing across 8 suites.
+- End-to-end smoke with `NM_FEATURE_COMMENTS=false
+  NM_FEATURE_CSV_EXPORT=false`:
+  - `/api/features` reflects state
+  - `POST /comments` → 404
+  - `GET /export` → 404
+  - Untouched features (status update) still work
+
+### Pattern for adding a new feature flag
+
+1. Add to `FeatureFlags` interface in `lib/features.ts`
+2. Add the env-var line in `features()` with a sensible default
+3. Decide if public — add to `publicFeatures()` if so
+4. Gate the route / server action / UI:
+   - `if (!features().myFlag) return notFound("...");`
+   - `{features().myFlag && <Component />}` in JSX
+5. Add to `.env.example` with a one-line description
+6. Add a row to the flags table in this CHANGELOG entry
+
+---
+
 ## 2026-05-05 — NextAuth (Auth.js v5) wiring + DB-backed users
 
 > Replaces the hardcoded user list with an Auth.js-managed users

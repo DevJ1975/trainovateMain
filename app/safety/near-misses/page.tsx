@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { listReports, seedDemoData, statusCounts } from "@/lib/near-miss/store";
+import { features } from "@/lib/features";
 import {
   hazardLabel,
   REPORT_STATUSES,
@@ -43,13 +44,15 @@ export default function NearMissListPage({
             {all.length} total · {counts.new ?? 0} awaiting triage
           </p>
         </div>
-        <a
-          href="/api/near-miss/reports/export"
-          download
-          className="rounded-md border border-bone/20 px-3 py-1.5 text-xs uppercase tracking-[0.14em] text-bone/85 hover:border-bone/40"
-        >
-          Export CSV
-        </a>
+        {features().csvExport && (
+          <a
+            href="/api/near-miss/reports/export"
+            download
+            className="rounded-md border border-bone/20 px-3 py-1.5 text-xs uppercase tracking-[0.14em] text-bone/85 hover:border-bone/40"
+          >
+            Export CSV
+          </a>
+        )}
       </div>
 
       <div className="mb-6 flex flex-wrap gap-2">

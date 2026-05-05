@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import { and, eq, lt } from "drizzle-orm";
 import { ensureMigrated, getDb } from "@/lib/near-miss/db/client";
 import { idempotencyKeys } from "@/lib/near-miss/db/schema";
+import { features } from "@/lib/features";
 
 const TTL_MS = 48 * 60 * 60 * 1000;
 const KEY_MAX_LEN = 200;
@@ -51,7 +52,11 @@ export async function withIdempotency<T>(
   rawBody: string,
   handler: () => Promise<{ status: number; body: T }>,
 ): Promise<DedupeOutcome<T>> {
-  if (!key) {
+  // Feature-flagged: when off, skip the cache entirely and just run
+  // the handler. Clients keep sending Idempotency-Key headers; they
+  // just won't dedupe. Useful for debugging or when the cache table
+  // is misbehaving.
+  if (!features().idempotency || !key) {
     const fresh = await handler();
     return { kind: "fresh", ...fresh };
   }
