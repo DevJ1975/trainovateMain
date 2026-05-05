@@ -35,6 +35,60 @@ _Nothing yet._
 
 ---
 
+## 2026-05-05 — Mobile triage screen
+
+> Lives in the sibling Expo project at `../mobile`, not in this
+> repository's git tree. Documented here because the near-miss
+> module's surface includes it.
+
+### Added
+
+- **Tappable triage list.** Rows on `mobile/App.tsx → TriageScreen`
+  open a new detail screen for the report.
+- **`TriageDetailScreen`** — full read view (reference, status,
+  severity, hazard, location, reporter or "Anonymous", description,
+  photos, contributing factors, open + done corrective actions,
+  comment thread). Uses the typed `api.getReport(id)` so the shape is
+  the same as the web detail page.
+- **Status chips** — tap to call `api.setStatus(id, status)`. The
+  selected chip reflects the live status; mutation reloads the
+  detail.
+- **Mark done** button on each open corrective action calls
+  `api.completeCorrectiveAction(id, actionId)`. Done actions render
+  struck-through and dimmed below the open list.
+- **Comment composer** at the bottom of the detail calls
+  `api.addComment(id, text)`. Existing comments render newest-first
+  with author + relative time.
+- **`AuthedImage`** wrapper reads the bearer token from
+  `expo-secure-store` and passes it as a header to
+  `/api/attachments/[id]`. When the server flips to S3 (302 → presigned
+  URL) the RN `<Image>` follows the redirect transparently — no
+  changes needed here.
+
+### Behavior notes
+
+- **Adding factors / actions deliberately not on mobile** — assigning
+  an owner + due date is faster at a desk. Web triage console handles
+  those. The detail screen displays them read-only.
+- **Optimistic UI not yet wired** — every mutation is followed by
+  `api.getReport(id)` to refetch. Slow on a flaky network. Add
+  optimistic state updates with rollback on error when the queue
+  feature lands.
+- **Screen state is now a discriminated union** so `triage-detail`
+  can carry `reportId`. If you add more parameterized screens, follow
+  the same pattern instead of falling back to a flat string enum.
+
+### Tested
+
+- `npx tsc --noEmit` passes against the mobile project including the
+  shared imports from `../trainovateMain/shared/near-miss/`.
+- Runtime path: open the app → sign in → tap a queue row → status chip
+  changes status / mark-done closes an action / comment posts and
+  appears in the thread. Verify on device against a `npm run dev`
+  Next.js server reachable at `EXPO_PUBLIC_API_URL`.
+
+---
+
 ## 2026-05-05 — Tier 3: triage write endpoints over HTTP
 
 > Unblocks mobile triage. Web triage console still uses server actions
