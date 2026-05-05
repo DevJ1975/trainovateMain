@@ -35,6 +35,87 @@ _Nothing yet._
 
 ---
 
+## 2026-05-05 — Mobile offline submit queue
+
+> Lives in `../mobile`, not in this repository's git tree. Pairs with
+> the server-side `Idempotency-Key` work shipped immediately above.
+
+### Added
+
+- **`mobile/src/queue.ts`** — AsyncStorage-backed draft queue. One
+  storage key (`nm_offline_queue/v1`) holds a JSON array of
+  `QueuedDraft`s. Each draft carries a UUID `idempotencyKey` set at
+  enqueue time and reused on every retry.
+- **Submit-screen offline path** (`mobile/App.tsx → SubmitScreen`):
+  - **Validation 400** → field errors, no queue (the same body will
+    never succeed).
+  - **Network failure / 5xx** → `enqueueDraft(input, photo)`,
+    confirmation screen says "Saved. We'll send it when you're back
+    online."
+  - **Online success** → still uses an `idempotencyKey` so an
+    immediate manual retry (double-tap on flaky signal) can't
+    duplicate.
+- **Home-screen drain + indicator**:
+  - Pending count banner ("3 drafts waiting to send · sending…")
+  - "Retry now" pill triggers a manual drain
+  - Last 5 deliveries shown as `Sent · NM-26-0001 · receipt ABCDEF12`
+    confirmation banners
+  - `drainQueue()` runs on Home mount and on every `AppState` "active"
+    transition (app foregrounded after backgrounding)
+- **`@react-native-async-storage/async-storage`** added to
+  `mobile/package.json`.
+
+### Drain behavior
+
+For each queued draft:
+- POST `/api/near-miss/reports` with the draft's stored
+  `Idempotency-Key`
+- On 2xx: report delivered, photo upload best-effort (failures don't
+  requeue — the report is created), draft removed from storage
+- On 4xx (excluding 408 / 429): permanent — the same body will never
+  succeed; draft removed with `permanentFailures` tally
+- On network error / 5xx / 408 / 429: stays queued, attempts++,
+  `lastError` recorded for debugging
+
+### Why server-side dedupe matters
+
+A POST that succeeded server-side but lost its response on the way
+back would otherwise be a duplicate-generator on retry. With
+`Idempotency-Key` (48h TTL on the server, see the entry above), the
+second call returns the cached receipt code and produces no second
+DB row. **The mobile queue would be unsafe to ship without it.**
+
+### Behavior notes
+
+- **Photos persist by URI**, not bytes. The local file
+  (`expo-image-picker` cache or media library URI) needs to still
+  exist on disk when drain runs. iOS media library URIs survive
+  reboots; cache-dir URIs may not — for long-pending drafts, copy the
+  asset into the app's persistent FileSystem first (follow-up).
+- **No NetInfo dependency.** We avoided pulling in
+  `@react-native-community/netinfo` — instead we drain on Home mount,
+  on app foreground, after a successful submit, and when the user
+  taps "Retry now". Good enough for the empirical pattern of
+  reporters opening the app once they re-enter signal range.
+- **Storage cap.** The queue is unbounded — a reporter who files 500
+  drafts in a basement will fill local storage. Add a cap if this
+  ever becomes plausible.
+- **Anonymous receipt codes for queued drafts** are surfaced once on
+  the home-screen "Sent" banner after delivery (kept for the last 5).
+  Reporters who close the app before that need to use the original
+  `Check report status` flow if they kept the code from the original
+  attempt — but in the offline case they never got one. Saving an
+  on-device "draft submission log" is the obvious follow-up.
+
+### Verified
+
+- `npx tsc --noEmit` clean against the mobile project including the
+  cross-repo `@nm-shared/*` imports.
+- Runtime path requires a real device + a Next.js server (set
+  `EXPO_PUBLIC_API_URL`); written to be production-shaped.
+
+---
+
 ## 2026-05-05 — Idempotency-Key on POST /reports (foundation for offline)
 
 ### Added
