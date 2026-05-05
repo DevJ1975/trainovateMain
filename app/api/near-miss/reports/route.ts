@@ -8,6 +8,7 @@ import {
   json,
   unauthorized,
 } from "@/lib/api/responses";
+import { enforce } from "@/lib/api/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,12 @@ interface CreateBody {
 }
 
 export async function POST(req: NextRequest) {
+  // 10 anonymous submissions per minute per IP. Real production should
+  // run an additional bot-protection layer (Cloudflare Turnstile, hCaptcha)
+  // since IP rate limiting alone won't stop a determined botnet.
+  const limited = enforce(req, "submit", 10, 60_000);
+  if (limited) return limited;
+
   let body: CreateBody;
   try {
     body = await req.json();

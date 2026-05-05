@@ -3,6 +3,7 @@ import { issueToken } from "@/lib/auth/session";
 import { assertDevAuthAllowed } from "@/lib/auth/dev-stub";
 import { findUserByEmail } from "@/lib/auth/users";
 import { badRequest, json, unauthorized } from "@/lib/api/responses";
+import { enforce } from "@/lib/api/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,11 @@ interface Body {
  */
 export async function POST(req: NextRequest) {
   assertDevAuthAllowed();
+
+  // 5 sign-in attempts per minute per IP. Tight because this is an
+  // unauthenticated endpoint touching credential validation.
+  const limited = enforce(req, "auth-token", 5, 60_000);
+  if (limited) return limited;
 
   let body: Body;
   try {
