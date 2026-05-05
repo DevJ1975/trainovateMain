@@ -35,6 +35,78 @@ _Nothing yet._
 
 ---
 
+## 2026-05-05 — Server-action ↔ HTTP-API consolidation (use-case layer)
+
+### Added
+
+- **`lib/near-miss/use-cases/`** — single source of truth for every
+  triage mutation. Each file exports one function returning a typed
+  `UseCaseResult<NearMissReport>`:
+  - `change-status.ts → changeReportStatus`
+  - `add-factor.ts → addReportFactor`
+  - `add-action.ts → addReportCorrectiveAction`
+  - `complete-action.ts → completeReportCorrectiveAction`
+  - `add-comment.ts → addReportComment`
+  Plus `result.ts` with the `ok` / `fail` helpers and the `Actor`
+  interface (just `{ name }`).
+
+### Changed
+
+- **All 5 server actions** in `app/safety/near-misses/[id]/actions.ts`
+  rewritten as thin adapters: resolve `getCurrentUser()` →
+  `actor`, call the use-case, throw on `!ok` (the safety route's
+  `error.tsx` boundary catches), `revalidatePath` on success.
+- **All 5 HTTP routes** under `app/api/near-miss/reports/[id]/...`
+  (status, factors, actions, actions/[id]/complete, comments)
+  rewritten as thin adapters: resolve `getUserFromRequest(req)` →
+  `actor`, call the use-case, return JSON or `error(r.status,
+  r.error, ...)` based on the result.
+
+The two adapter layers no longer carry validation logic — that's
+all in the use-case file. **The same code now runs on every
+mutation regardless of whether it came from the web console (server
+action) or from mobile / a future external integration (HTTP).**
+
+### Why
+
+Before: `addCommentAction` (server action) and the
+`POST /comments` HTTP route both had their own length-bounds check
+and `addComment(...)` call. If someone tightened the limit in one
+place, the other path would silently allow bigger comments. The
+audit log would also show different `actorName` resolution chains.
+
+After: both call `addReportComment({ reportId, text, actor })`. One
+file to edit. One file to test.
+
+### Tested
+
+- 15 new use-case tests in `lib/near-miss/use-cases/use-cases.test.ts`
+  cover validation paths (bad type, length bounds, missing owner,
+  malformed dueAt, empty actionId), 404s (unknown report, cross-
+  report action mismatch), and happy paths (audit-log actor name,
+  auto-transition rule preserved).
+- 72 tests passing across 7 suites (was 57).
+- End-to-end smoke walked the full triage flow through the HTTP
+  routes and re-rendered the web console — both paths produce
+  identical results, validation 400/401/404 responses unchanged.
+
+### Pattern for future mutations
+
+When you add the next write op:
+
+1. Drop a use-case file in `lib/near-miss/use-cases/` returning
+   `UseCaseResult<T>`.
+2. Add a unit test alongside.
+3. Both the action and route get a 5-line adapter that calls the
+   use-case and translates the result into their layer's response
+   shape.
+
+`shared/near-miss/api.ts` (the typed fetch client) gains a method
+that points at the new HTTP route. Mobile and any other client
+consume that — never the server action directly.
+
+---
+
 ## 2026-05-05 — Web PWA offline submit queue
 
 > Closes the last field-reporter gap. Pairs with the server-side

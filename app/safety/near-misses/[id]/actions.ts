@@ -3,36 +3,24 @@
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/auth/session";
 import {
-  addComment,
-  addContributingFactor,
-  addCorrectiveAction,
-  completeCorrectiveAction,
-  setStatus,
-} from "@/lib/near-miss/store";
-import {
-  CONTRIBUTING_FACTOR_TYPES,
-  ContributingFactorType,
-  REPORT_STATUSES,
-  ReportStatus,
-} from "@/lib/near-miss/types";
-import { LIMITS } from "@/shared/near-miss/validation";
-
-const FACTOR_TYPES = new Set(CONTRIBUTING_FACTOR_TYPES.map((t) => t.id));
-const STATUSES = new Set<string>(REPORT_STATUSES);
-
-function actorName(): string {
-  const u = getCurrentUser();
-  if (!u) throw new Error("Not authenticated");
-  return u.name;
-}
-
-const MAX_NOTE = 1_000;
-const MAX_ACTION_DESCRIPTION = 1_000;
-const MAX_OWNER_NAME = 120;
+  addReportComment,
+  addReportCorrectiveAction,
+  addReportFactor,
+  changeReportStatus,
+  completeReportCorrectiveAction,
+  type Actor,
+  type UseCaseResult,
+} from "@/lib/near-miss/use-cases";
 
 function getString(fd: FormData, key: string): string {
   const v = fd.get(key);
   return typeof v === "string" ? v.trim() : "";
+}
+
+function actor(): Actor {
+  const u = getCurrentUser();
+  if (!u) throw new Error("Not authenticated");
+  return { name: u.name };
 }
 
 function refreshFor(id: string) {
@@ -40,61 +28,70 @@ function refreshFor(id: string) {
   revalidatePath(`/safety/near-misses/${id}`);
 }
 
+/**
+ * Translate a use-case failure into an Error the safety route's
+ * error.tsx boundary can render. Actions don't have a JSON envelope
+ * to return field errors into — for that, use the HTTP routes.
+ */
+function unwrap<T>(r: UseCaseResult<T>): T {
+  if (r.ok) return r.value;
+  throw new Error(r.error);
+}
+
 export async function changeStatus(id: string, formData: FormData) {
-  const status = getString(formData, "status");
-  if (!STATUSES.has(status)) throw new Error("Invalid status");
-  setStatus(id, status as ReportStatus, actorName());
+  unwrap(
+    changeReportStatus({
+      reportId: id,
+      status: getString(formData, "status"),
+      actor: actor(),
+    }),
+  );
   refreshFor(id);
 }
 
 export async function addFactor(id: string, formData: FormData) {
-  const type = getString(formData, "type");
-  const note = getString(formData, "note");
-  if (!FACTOR_TYPES.has(type as ContributingFactorType)) {
-    throw new Error("Invalid factor type");
-  }
-  if (note.length < 3 || note.length > MAX_NOTE) {
-    throw new Error(`Note must be 3-${MAX_NOTE} characters`);
-  }
-  addContributingFactor(id, type as ContributingFactorType, note, actorName());
+  unwrap(
+    addReportFactor({
+      reportId: id,
+      type: getString(formData, "type"),
+      note: getString(formData, "note"),
+      actor: actor(),
+    }),
+  );
   refreshFor(id);
 }
 
 export async function addAction(id: string, formData: FormData) {
-  const description = getString(formData, "description");
-  const ownerName = getString(formData, "ownerName").slice(0, MAX_OWNER_NAME);
-  const dueAtRaw = getString(formData, "dueAt");
-
-  if (description.length < 3 || description.length > MAX_ACTION_DESCRIPTION) {
-    throw new Error(`Description must be 3-${MAX_ACTION_DESCRIPTION} characters`);
-  }
-  if (ownerName.length < 1) throw new Error("Owner required");
-
-  let dueAt: string | null = null;
-  if (dueAtRaw) {
-    const t = new Date(dueAtRaw).getTime();
-    if (!Number.isFinite(t)) throw new Error("Invalid due date");
-    dueAt = new Date(t).toISOString();
-  }
-
-  addCorrectiveAction(id, { description, ownerName, dueAt }, actorName());
+  unwrap(
+    addReportCorrectiveAction({
+      reportId: id,
+      description: getString(formData, "description"),
+      ownerName: getString(formData, "ownerName"),
+      dueAt: getString(formData, "dueAt") || null,
+      actor: actor(),
+    }),
+  );
   refreshFor(id);
 }
 
 export async function completeAction(id: string, formData: FormData) {
-  const actionId = getString(formData, "actionId");
-  if (!actionId) throw new Error("actionId required");
-  completeCorrectiveAction(id, actionId, actorName());
+  unwrap(
+    completeReportCorrectiveAction({
+      reportId: id,
+      actionId: getString(formData, "actionId"),
+      actor: actor(),
+    }),
+  );
   refreshFor(id);
 }
 
 export async function addCommentAction(id: string, formData: FormData) {
-  const text = getString(formData, "text");
-  if (text.length < LIMITS.comment.min || text.length > LIMITS.comment.max) {
-    throw new Error(
-      `Comment must be ${LIMITS.comment.min}-${LIMITS.comment.max} characters`,
-    );
-  }
-  addComment(id, text, actorName());
+  unwrap(
+    addReportComment({
+      reportId: id,
+      text: getString(formData, "text"),
+      actor: actor(),
+    }),
+  );
   refreshFor(id);
 }
