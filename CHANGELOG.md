@@ -35,6 +35,47 @@ _Nothing yet._
 
 ---
 
+## 2026-05-05 — Tier 2: mobile camera capture
+
+> Lives in the sibling Expo project at `../mobile`, not in this
+> repository's git tree. Documented here because the near-miss module's
+> surface includes it.
+
+### Added
+
+- **Camera capture** in the Expo submit screen
+  (`mobile/App.tsx → SubmitScreen`). Reporters tap "Take photo or pick
+  from library" → an `Alert.alert` choice → `expo-image-picker`'s
+  `launchCameraAsync` or `launchImageLibraryAsync`. Camera permission
+  is requested only when needed (not at app start).
+- **Staged-photo preview** before submission — the picked/captured
+  asset shows as a 64×64 thumbnail with a "Remove" link. Upload
+  happens after `api.createReport` succeeds (no orphan uploads if
+  validation rejects the report).
+- **iOS / Android permission strings** in `mobile/app.json`:
+  - `NSCameraUsageDescription`, `NSPhotoLibraryUsageDescription` (iOS)
+  - `android.permission.CAMERA`, `android.permission.READ_MEDIA_IMAGES`
+  - `expo-image-picker` plugin block with the same human-readable
+    permission rationale.
+- App display name updated to "Trainovate Near Miss" and slug to
+  `trainovate-near-miss` so production builds are identifiable.
+
+### Behavior notes
+
+- Choice is presented via `Alert.alert` (native iOS/Android action
+  sheet on iOS, AlertDialog on Android). For a richer custom sheet,
+  swap in `@gorhom/bottom-sheet` later.
+- Photo state lives in the form (not async-storage) — refreshing /
+  navigating away discards it. Persisting drafts is the offline-queue
+  work.
+- Web export still ships through the existing `app.api.uploadPhoto`
+  multipart proxy. When the server flips to `NEAR_MISS_STORAGE=s3`,
+  `app.api.signedUploadPhoto` (already in the shared API client) is
+  the swap target — no mobile code changes needed beyond preferring
+  it when available.
+
+---
+
 ## 2026-05-05 — Tier 2: CSV export of triage queue
 
 ### Added
