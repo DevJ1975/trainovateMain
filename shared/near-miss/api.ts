@@ -19,9 +19,11 @@
 
 import {
   Attachment,
+  ContributingFactorType,
   HazardCategoryId,
   NearMissReport,
   NearMissReportSummary,
+  ReportStatus,
   Severity,
 } from "./types";
 import { CreateReportFieldKey } from "./validation";
@@ -175,6 +177,66 @@ export function createNearMissApi(opts: NearMissApiOptions) {
       return call<{ report: NearMissReport; attachments: Attachment[] }>(
         `/api/near-miss/reports/${encodeURIComponent(id)}`,
         {},
+        true,
+      );
+    },
+
+    /** Change a report's status. Bearer-auth. Idempotent. */
+    async setStatus(reportId: string, status: ReportStatus): Promise<{ report: NearMissReport }> {
+      return call<{ report: NearMissReport }>(
+        `/api/near-miss/reports/${encodeURIComponent(reportId)}/status`,
+        {
+          method: "PATCH",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ status }),
+        },
+        true,
+      );
+    },
+
+    /** Add a contributing factor. Bearer-auth. Triage-internal. */
+    async addFactor(
+      reportId: string,
+      input: { type: ContributingFactorType; note: string },
+    ): Promise<{ report: NearMissReport }> {
+      return call<{ report: NearMissReport }>(
+        `/api/near-miss/reports/${encodeURIComponent(reportId)}/factors`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(input),
+        },
+        true,
+      );
+    },
+
+    /**
+     * Add a corrective action. Bearer-auth. Auto-transitions the
+     * report status to "actioned" when previously "new" or "triaged".
+     */
+    async addCorrectiveAction(
+      reportId: string,
+      input: { description: string; ownerName: string; dueAt?: string | null },
+    ): Promise<{ report: NearMissReport }> {
+      return call<{ report: NearMissReport }>(
+        `/api/near-miss/reports/${encodeURIComponent(reportId)}/actions`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(input),
+        },
+        true,
+      );
+    },
+
+    /** Mark a corrective action done. Bearer-auth. Idempotent. */
+    async completeCorrectiveAction(
+      reportId: string,
+      actionId: string,
+    ): Promise<{ report: NearMissReport }> {
+      return call<{ report: NearMissReport }>(
+        `/api/near-miss/reports/${encodeURIComponent(reportId)}/actions/${encodeURIComponent(actionId)}/complete`,
+        { method: "POST" },
         true,
       );
     },

@@ -35,6 +35,74 @@ _Nothing yet._
 
 ---
 
+## 2026-05-05 — Tier 3: triage write endpoints over HTTP
+
+> Unblocks mobile triage. Web triage console still uses server actions
+> — the duplication is intentional for now (no behavior drift since
+> both call into the same store helpers); consolidating onto a single
+> use-case layer is tracked separately.
+
+### Added
+
+Four new bearer-auth routes under `app/api/near-miss/reports/[id]/`,
+each calls the existing store helper and returns `{ report }`:
+
+- **`PATCH /api/near-miss/reports/[id]/status`** — body `{ status }`.
+  Idempotent — `setStatus` is a no-op when the requested status equals
+  the current one. 400 on unknown status.
+- **`POST /api/near-miss/reports/[id]/factors`** — body
+  `{ type, note }`. Triage-internal — never exposed via the
+  receipt-code path. 400 on invalid factor type or note length outside
+  `LIMITS.factorNote`.
+- **`POST /api/near-miss/reports/[id]/actions`** — body
+  `{ description, ownerName, dueAt? }`. Auto-transitions the report
+  status to `actioned` when previously `new` or `triaged` (driven by
+  the existing store rule, not the route). 400 on too-short
+  description, missing owner, or invalid `dueAt`.
+- **`POST /api/near-miss/reports/[id]/actions/[actionId]/complete`** —
+  no body. Idempotent (second call doesn't append a duplicate
+  `action_completed` event). 404 when `actionId` belongs to a
+  different report.
+
+All four return 401 without auth and accept either the cookie session
+or `Authorization: Bearer …`. Audit-log `actorName` comes from
+`getUserFromRequest(req).name` — same source the web server actions
+use, so a mobile user's name appears identically in the activity log.
+
+### Added (shared client)
+
+- `api.setStatus(reportId, status)`
+- `api.addFactor(reportId, { type, note })`
+- `api.addCorrectiveAction(reportId, { description, ownerName, dueAt? })`
+- `api.completeCorrectiveAction(reportId, actionId)`
+
+All four typed against the shared types and throw `NearMissApiError`
+on non-2xx.
+
+### Verified end-to-end
+
+Smoke test against a running server walked the full triage flow:
+- New report → PATCH status to triaged (actor recorded as Priya Shah)
+- Add factor (rejected on bad type, accepted on equipment + note)
+- Add action with `dueAt` → auto-transition `triaged → actioned`
+  (actor Marcus Webb)
+- Complete action (`status: done`, `completedAt` set)
+- Re-complete → still 1 `action_completed` event in the log
+- Cross-report `actionId` → 404
+
+### Not yet exposed
+
+- **Idempotency-Key on POST `/actions`** — a client retrying after a
+  flaky network can produce duplicate actions. Add the header +
+  dedupe table when you wire mobile triage UI.
+- **Bulk transitions** — no batch endpoint. If triage starts moving
+  10+ reports at a time, add `PATCH /api/near-miss/reports/bulk-status`.
+- **Comment edits / deletions** — comments are append-only by design.
+  If you need redaction, add a soft-delete column rather than mutating
+  the events log.
+
+---
+
 ## 2026-05-05 — Tier 2: mobile camera capture
 
 > Lives in the sibling Expo project at `../mobile`, not in this
