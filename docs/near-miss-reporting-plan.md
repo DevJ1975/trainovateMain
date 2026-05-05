@@ -175,12 +175,15 @@ Verified by `next build` (typecheck passes; routes generate).
   "offline" banner when `navigator.onLine` flips. **Not yet:** offline
   submit queue replay (queue in IndexedDB, replay on reconnect) — fragile
   to ship without device testing.
-- **Notification dispatcher (🟡).** `lib/near-miss/notifications.ts`
+- **Notification dispatcher (✅).** `lib/near-miss/notifications.ts`
   defines a pluggable `NotificationChannel` interface and dispatches
-  `report_created` (high/critical only), `status_changed`, and
-  `action_assigned` events. Default `consoleChannel` logs to stdout — real
-  Slack/email/SMS adapters plug in via `registerChannel()`. Per-channel
-  rate limits, quiet hours, and org-level opt-outs go in `shouldHandle()`.
+  `report_created`, `status_changed`, and `action_assigned` events.
+  Default `consoleChannel` logs to stdout. **Slack channel shipped**:
+  set `NEAR_MISS_SLACK_WEBHOOK_URL` and the adapter auto-registers with
+  Block Kit messages for high/critical creations (configurable severity
+  floor) and every status transition. Email/SMS adapters plug in the
+  same way; per-channel rate limits, quiet hours, and org-level opt-outs
+  go in `shouldHandle()`.
 
 ### Stack and ops notes
 
@@ -224,8 +227,9 @@ triage.
 - **Offline submit queue** — IndexedDB-backed draft queue with replay on
   reconnect via Background Sync where supported, falling back to in-page
   drain on tab open. Needs device testing to validate.
-- **Notification channels** — Slack webhook, SES email, Twilio SMS
-  adapters. Per-org routing tables and quiet-hours config.
+- **Notification channels** — Slack shipped (env-configured webhook).
+  SES email + Twilio SMS adapters next; per-org routing tables and
+  quiet-hours config when multi-tenant lands.
 - **Attachment hardening** — face/plate auto-blur, virus scanning. (S3
   signed-URL flow now shipped via `NEAR_MISS_STORAGE=s3` plus the
   `/attachments/sign` + `/attachments/confirm` routes; bytes no longer

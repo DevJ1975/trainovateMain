@@ -1,4 +1,5 @@
 import { NearMissReport, ReportStatus, Severity } from "./types";
+import { slackChannel } from "./notification-channels/slack";
 
 /**
  * Notification dispatcher. Channels are pluggable — the dev build wires up a
@@ -86,14 +87,31 @@ export const consoleChannel: NotificationChannel = {
 
 registerChannel(consoleChannel);
 
+// Auto-register Slack when the webhook URL is set. Skipped under
+// vitest so unit tests don't accidentally hit a real Slack workspace.
+if (
+  process.env.NEAR_MISS_SLACK_WEBHOOK_URL &&
+  process.env.VITEST !== "true" &&
+  process.env.NODE_ENV !== "test"
+) {
+  const minSeverity = process.env.NEAR_MISS_SLACK_MIN_SEVERITY as
+    | "low" | "medium" | "high" | "critical" | undefined;
+  registerChannel(
+    slackChannel({
+      webhookUrl: process.env.NEAR_MISS_SLACK_WEBHOOK_URL,
+      baseUrl: process.env.NEAR_MISS_PUBLIC_BASE_URL ?? process.env.NEXT_PUBLIC_SITE_URL,
+      minSeverity,
+    }),
+  );
+}
+
 /**
- * Channel adapters to add for production:
+ * Future channel adapters:
  *
- *   slackChannel({ webhookUrl, routeByOrg })       — high/critical reports
- *   emailChannel({ ses, defaultFrom })             — daily digest + owner pings
- *   smsChannel({ twilio, escalationRoster })       — critical only, business hrs
+ *   emailChannel({ ses, defaultFrom })   — daily digest + owner pings
+ *   smsChannel({ twilio, escalationRoster })   — critical only, business hrs
  *
- * Each implements NotificationChannel and is registered with registerChannel().
- * Per-channel rate limits, quiet hours, and org-level opt-outs belong in
- * shouldHandle().
+ * Each implements NotificationChannel and is registered with
+ * registerChannel(). Per-channel rate limits, quiet hours, and
+ * org-level opt-outs belong in shouldHandle().
  */
