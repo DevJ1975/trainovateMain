@@ -5,6 +5,7 @@ import {
   CONTRIBUTING_FACTOR_TYPES,
   hazardLabel,
   REPORT_STATUSES,
+  ReportEvent,
   severityLabel,
 } from "@/lib/near-miss/types";
 import {
@@ -14,6 +15,7 @@ import {
 } from "@/lib/near-miss/format";
 import {
   addAction,
+  addCommentAction,
   addFactor,
   changeStatus,
   completeAction,
@@ -224,6 +226,30 @@ export default function ReportDetailPage({
             </button>
           </form>
         </Section>
+
+        <Section title="Comments">
+          <CommentsThread events={report.events} />
+          <form
+            action={addCommentAction.bind(null, report.id)}
+            className="mt-4 flex flex-col gap-2"
+          >
+            <textarea
+              name="text"
+              required
+              minLength={1}
+              maxLength={5000}
+              rows={3}
+              placeholder="Add a comment for the safety team…"
+              className="w-full resize-y rounded-md border border-bone/15 bg-ink/40 px-3 py-2 text-sm placeholder:text-bone/30 focus:border-cobalt focus:outline-none focus:ring-1 focus:ring-cobalt"
+            />
+            <button
+              type="submit"
+              className="self-end rounded-md bg-cobalt px-3 py-1.5 text-sm text-bone hover:bg-cobalt/90"
+            >
+              Post comment
+            </button>
+          </form>
+        </Section>
       </div>
 
       <aside className="space-y-6">
@@ -284,5 +310,31 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       <h2 className="mb-3 text-xs uppercase tracking-[0.18em] text-bone/55">{title}</h2>
       {children}
     </section>
+  );
+}
+
+function CommentsThread({ events }: { events: ReportEvent[] }) {
+  const comments = events.filter((e) => e.kind === "commented");
+  if (comments.length === 0) {
+    return <p className="text-sm text-bone/50">No comments yet.</p>;
+  }
+  return (
+    <ul className="space-y-3">
+      {comments.map((c) => {
+        const text = String((c.payload as { text?: unknown } | undefined)?.text ?? "");
+        return (
+          <li
+            key={c.id}
+            className="rounded-md border border-bone/10 bg-ink/40 px-3 py-2 text-sm"
+          >
+            <div className="mb-1 flex items-baseline justify-between gap-2 text-xs text-bone/55">
+              <span className="text-bone/85">{c.actorName}</span>
+              <span>{relativeTime(c.at)}</span>
+            </div>
+            <div className="whitespace-pre-wrap text-bone/90">{text}</div>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

@@ -14,6 +14,7 @@ export const LIMITS = {
   factorNote: { min: 3, max: 1_000 },
   actionDescription: { min: 3, max: 1_000 },
   ownerName: { min: 1, max: 120 },
+  comment: { min: 1, max: 5_000 },
   occurredAtFutureSkewMs: 5 * 60_000,
   attachmentsPerReport: 5,
   attachmentBytes: 10 * 1024 * 1024,

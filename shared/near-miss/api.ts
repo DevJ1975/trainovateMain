@@ -179,6 +179,19 @@ export function createNearMissApi(opts: NearMissApiOptions) {
       );
     },
 
+    /** Append a triage comment. Bearer-auth required. */
+    async addComment(reportId: string, text: string): Promise<{ report: NearMissReport }> {
+      return call<{ report: NearMissReport }>(
+        `/api/near-miss/reports/${encodeURIComponent(reportId)}/comments`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ text }),
+        },
+        true,
+      );
+    },
+
     /** Anonymous status lookup — public. */
     async getByReceiptCode(code: string): Promise<{ report: NearMissReport; attachments: Attachment[] }> {
       return call<{ report: NearMissReport; attachments: Attachment[] }>(

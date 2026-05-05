@@ -505,6 +505,28 @@ export function findOverdueActions(
   return out;
 }
 
+/**
+ * Append a free-text triage comment. Comments live in the events log
+ * (kind="commented", payload.text) — no separate table. Returns the
+ * refreshed report or undefined when the report is missing.
+ */
+export function addComment(
+  reportId: string,
+  text: string,
+  actorName: string,
+): NearMissReport | undefined {
+  ensureMigrated();
+  const exists = getDb()
+    .select({ id: nearMissReports.id })
+    .from(nearMissReports)
+    .where(eq(nearMissReports.id, reportId))
+    .get();
+  if (!exists) return undefined;
+
+  appendEvent(reportId, "commented", actorName, { text });
+  return getReport(reportId);
+}
+
 /** Stamp the notified timestamp so the next cron run honors the cooldown. */
 export function markOverdueNotified(
   actionId: string,

@@ -24,10 +24,11 @@ export default function ReporterStatusPage({
 
   const photos = listAttachments(report.id);
 
-  // Anonymity guard: hide internal triage notes (contributing factors are
-  // safety-team working assumptions and may name people).
+  // Anonymity guard: hide triage-internal events (contributing factors
+  // and free-text comments may name people or contain working
+  // assumptions). Reporters see only verb-style status events.
   const visibleEvents = report.events.filter(
-    (e) => e.kind !== "factor_added",
+    (e) => e.kind !== "factor_added" && e.kind !== "commented",
   );
 
   return (

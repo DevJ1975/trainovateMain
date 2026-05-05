@@ -35,6 +35,47 @@ _Nothing yet._
 
 ---
 
+## 2026-05-05 — Tier 2: triage comment thread
+
+### Added
+
+- **Free-text triage comments.** Safety team can post comments on a
+  report from `/safety/near-misses/[id]` ("Comments" section between
+  "Corrective actions" and the activity log). Comments are stored as
+  `report_events` with `kind="commented"` and `payload.text` — no new
+  table, audit-log invariants preserved.
+- **Server action**: `addCommentAction(id, formData)` in
+  `app/safety/near-misses/[id]/actions.ts`. Threads `actorName()` from
+  the session, so the comment author is the signed-in user.
+- **HTTP API**: `POST /api/near-miss/reports/[id]/comments` (bearer
+  auth). Body: `{ text: string }`. Returns the refreshed report.
+  Mobile triage will use this once the rest of the write surface
+  lands.
+- **Shared API client**: `api.addComment(reportId, text)` in
+  `shared/near-miss/api.ts`.
+- New limit in `shared/near-miss/validation.ts`: `LIMITS.comment` =
+  `{ min: 1, max: 5000 }`.
+
+### Changed
+
+- **Anonymity guard tightened.** `commented` events join `factor_added`
+  on the deny-list for the receipt-code anonymous lookup, in both
+  `app/report/status/[code]/page.tsx` and the
+  `GET /api/near-miss/reports/by-code/[code]` API route. Triage chatter
+  may name people or contain working assumptions — reporters never see
+  it.
+
+### Tested
+
+- 3 new store tests (`addComment` appends event; rejects unknown
+  report id; preserves multi-comment ordering). 45 tests across 4
+  suites passing.
+- End-to-end smoke: 401 without auth; 400 on empty body; 201 + text +
+  actor surface on triage detail; zero comments visible to code
+  holders, no text leak.
+
+---
+
 ## 2026-05-05 — Tier 2: overdue-action nudges
 
 ### Added

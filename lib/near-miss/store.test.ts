@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
+  addComment,
   addContributingFactor,
   addCorrectiveAction,
   completeCorrectiveAction,
@@ -216,6 +217,36 @@ describe("listReports + statusCounts", () => {
     expect(counts.triaged).toBe(1);
     expect(counts.closed ?? 0).toBe(0);
     expect(getReport(a.id)!.status).toBe("new");
+  });
+});
+
+describe("addComment", () => {
+  it("appends a commented event with the text in payload", () => {
+    const r = createReport(baseInput);
+    addComment(r.id, "Reviewed footage; oil came from line 4 forklift", "Priya Shah");
+    const fresh = getReport(r.id)!;
+    const c = fresh.events.find((e) => e.kind === "commented");
+    expect(c).toBeDefined();
+    expect(c!.actorName).toBe("Priya Shah");
+    expect((c!.payload as { text: string }).text).toContain("oil came from line 4");
+  });
+
+  it("returns undefined for unknown report ids", () => {
+    expect(addComment("missing-id", "hi", "x")).toBeUndefined();
+  });
+
+  it("supports multiple comments preserving order", () => {
+    const r = createReport(baseInput);
+    addComment(r.id, "first", "Priya");
+    addComment(r.id, "second", "Marcus");
+    addComment(r.id, "third", "Priya");
+    const comments = getReport(r.id)!.events.filter((e) => e.kind === "commented");
+    expect(comments).toHaveLength(3);
+    expect(comments.map((c) => (c.payload as { text: string }).text)).toEqual([
+      "first",
+      "second",
+      "third",
+    ]);
   });
 });
 

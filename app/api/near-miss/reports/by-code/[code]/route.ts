@@ -19,12 +19,15 @@ export async function GET(
   const report = getReportByReceiptCode(code);
   if (!report) return notFound("Code not recognized");
 
-  // Anonymity guard: hide triage-internal contributing factors. Mobile and
-  // web reporters get the same sanitized view.
+  // Anonymity guard: hide triage-internal events (contributing factors
+  // and free-text comments may name people or contain working
+  // assumptions). Mobile and web reporters get the same sanitized view.
   const safeReport = {
     ...report,
     contributingFactors: [],
-    events: report.events.filter((e) => e.kind !== "factor_added"),
+    events: report.events.filter(
+      (e) => e.kind !== "factor_added" && e.kind !== "commented",
+    ),
   };
   return json({
     report: safeReport,

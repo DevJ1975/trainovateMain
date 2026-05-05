@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/auth/session";
 import {
+  addComment,
   addContributingFactor,
   addCorrectiveAction,
   completeCorrectiveAction,
@@ -14,6 +15,7 @@ import {
   REPORT_STATUSES,
   ReportStatus,
 } from "@/lib/near-miss/types";
+import { LIMITS } from "@/shared/near-miss/validation";
 
 const FACTOR_TYPES = new Set(CONTRIBUTING_FACTOR_TYPES.map((t) => t.id));
 const STATUSES = new Set<string>(REPORT_STATUSES);
@@ -83,5 +85,16 @@ export async function completeAction(id: string, formData: FormData) {
   const actionId = getString(formData, "actionId");
   if (!actionId) throw new Error("actionId required");
   completeCorrectiveAction(id, actionId, actorName());
+  refreshFor(id);
+}
+
+export async function addCommentAction(id: string, formData: FormData) {
+  const text = getString(formData, "text");
+  if (text.length < LIMITS.comment.min || text.length > LIMITS.comment.max) {
+    throw new Error(
+      `Comment must be ${LIMITS.comment.min}-${LIMITS.comment.max} characters`,
+    );
+  }
+  addComment(id, text, actorName());
   refreshFor(id);
 }
