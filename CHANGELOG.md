@@ -35,6 +35,69 @@ _Nothing yet._
 
 ---
 
+## 2026-05-05 — Idempotency-Key on POST /reports (foundation for offline)
+
+### Added
+
+- **`Idempotency-Key` request header** support on
+  `POST /api/near-miss/reports`. Stripe-shaped behavior: identical
+  `(key, body)` within 48 hours returns the **cached response** (same
+  receipt code, no second DB row). Same key + different body → **409**.
+  Missing header → no caching, current behavior preserved.
+- **Replay header** — `x-idempotent-replay: true` on cached responses
+  so clients (and observability) can tell a fresh write from a replay.
+- **Validation 400s are also cached.** A retry against the same key +
+  body replays the same fieldErrors. Prevents a client from accidentally
+  fixing the typo, retrying with the same key, and getting two
+  different responses.
+- **`lib/api/idempotency.ts`** — `withIdempotency(scope, key, rawBody,
+  handler)` wraps any handler. Returns
+  `{kind: "fresh" | "replay" | "conflict"}`. Janitor pass on each
+  fresh write drops rows older than the 48h TTL.
+- **New table** `idempotency_keys` (`drizzle/0003_slow_cerebro.sql`):
+  `key TEXT PK, scope TEXT, request_hash TEXT (sha256 of body),
+  response_status INT, response_body TEXT, created_at TEXT` plus an
+  index on `created_at` for the janitor.
+- **Shared API client**: `api.createReport(input, { idempotencyKey })`.
+  Pass a UUID per logical submission and re-use it through retries.
+
+### Why this lands before the offline submit queue
+
+A retried POST that lost its response on the wire can otherwise create
+a duplicate report. Without dedupe, the queue is a duplicate-generator;
+with it, retries are safe. **Mobile/web offline queues should always
+generate one UUID per draft and persist it across retries.**
+
+### Behavior notes
+
+- Scope-isolated. `submit-report` keys can collide with other future
+  scopes (e.g. comments) without interfering. Re-use `withIdempotency`
+  there too.
+- Hash is over the raw body string before parsing. Two semantically
+  equivalent JSONs with different whitespace/key ordering will
+  conflict — clients should serialize consistently.
+- **Thrown handler errors are NOT cached.** A genuine 500 from the
+  store is retryable.
+- **TTL is 48h.** Tune in `lib/api/idempotency.ts → TTL_MS` if your
+  retry window needs to be longer (e.g. queued mobile drafts left for
+  weeks). Beyond ~7d, switch the table to a partitioned/TTL'd store.
+- **Single-DB only.** Same caveat as `lib/api/rate-limit.ts` — when
+  scaling out across multiple instances, the `idempotency_keys` table
+  needs to be on shared infra (Postgres). The repository abstraction
+  already swaps cleanly via Drizzle's dialect change.
+
+### Tested
+
+- 7 new unit tests in `lib/api/idempotency.test.ts`: handler runs once
+  per `(scope, key, hash)` triple; status code preserved (incl. 400);
+  conflict on body change; scope isolation; missing/malformed key =
+  no-op; thrown errors not cached.
+- End-to-end smoke verified: 201 fresh / 201+`x-idempotent-replay:true`
+  on retry / 409 on body change / no extra DB rows / no-key path
+  unchanged / 400s cached and replayed.
+
+---
+
 ## 2026-05-05 — Mobile triage screen
 
 > Lives in the sibling Expo project at `../mobile`, not in this

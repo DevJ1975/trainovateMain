@@ -103,3 +103,22 @@ export const meta = sqliteTable("near_miss_meta", {
   key: text("key").primaryKey(),
   value: integer("value").notNull(),
 });
+
+/**
+ * Per-key dedupe cache for retried POSTs (Stripe-style Idempotency-Key).
+ * Same key + same body within TTL → cached response is replayed. Same
+ * key + different body → 409 (clients must change keys when content
+ * changes). Janitor pass on each write drops rows older than TTL.
+ */
+export const idempotencyKeys = sqliteTable(
+  "idempotency_keys",
+  {
+    key: text("key").primaryKey(),
+    scope: text("scope").notNull(),
+    requestHash: text("request_hash").notNull(),
+    responseStatus: integer("response_status").notNull(),
+    responseBody: text("response_body").notNull(),
+    createdAt: text("created_at").notNull(),
+  },
+  (t) => ({ byCreatedAt: index("idx_idemp_created_at").on(t.createdAt) }),
+);

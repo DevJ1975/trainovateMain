@@ -153,11 +153,24 @@ export function createNearMissApi(opts: NearMissApiOptions) {
       }>("/api/near-miss/categories");
     },
 
-    /** Submit a new report. Public — anonymous flag is honored. */
-    async createReport(input: CreateReportInput): Promise<CreateReportResponse> {
+    /**
+     * Submit a new report. Public — anonymous flag is honored.
+     *
+     * Pass `idempotencyKey` to make the call retry-safe: identical
+     * `(key, body)` within 48h returns the cached response (the first
+     * response's receipt code, no duplicate row created). Different
+     * body with the same key → 409. Use a fresh UUID per logical
+     * submission, persist it through retries.
+     */
+    async createReport(
+      input: CreateReportInput,
+      opts: { idempotencyKey?: string } = {},
+    ): Promise<CreateReportResponse> {
+      const headers: HeadersInit = { "content-type": "application/json" };
+      if (opts.idempotencyKey) headers["idempotency-key"] = opts.idempotencyKey;
       return call<CreateReportResponse>("/api/near-miss/reports", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers,
         body: JSON.stringify(input),
       });
     },
