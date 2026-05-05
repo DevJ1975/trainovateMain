@@ -1,0 +1,41 @@
+{
+  "name": "Trainovate Near Miss",
+  "short_name": "Near Miss",
+  "description": "Report a near miss in under a minute.",
+  "start_url": "/report",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0A0A0A",
+  "theme_color": "#0A0A0A",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Report a near miss",
+      "url": "/report",
+      "description": "File a new near miss report."
+    },
+    {
+      "name": "Check status",
+      "url": "/report/status",
+      "description": "Look up an anonymous report by code."
+    }
+  ]
+}
