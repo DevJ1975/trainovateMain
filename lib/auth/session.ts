@@ -66,7 +66,28 @@ export function clearSessionCookie() {
   cookies().delete(SESSION_COOKIE);
 }
 
-export function getCurrentUser(): User | null {
+/**
+ * Resolve the current web user. Prefers the NextAuth (Auth.js) session
+ * (canonical path post-cutover) and falls back to the legacy HMAC
+ * cookie so mid-cutover deploys don't sign everyone out.
+ *
+ * Async because NextAuth's `auth()` is async. Server components and
+ * server actions handle this fine; route handlers were already async.
+ */
+export async function getCurrentUser(): Promise<User | null> {
+  // Lazy import to avoid pulling the auth.ts graph (Drizzle adapter +
+  // Resend provider) into edge bundles or test runs that don't need it.
+  try {
+    const mod = await import("@/auth");
+    const session = await mod.auth();
+    if (session?.user?.id) {
+      const u = findUserById(session.user.id);
+      if (u) return u;
+    }
+  } catch {
+    // NextAuth not available (rare — startup misconfig). Fall through.
+  }
+
   const token = cookies().get(SESSION_COOKIE)?.value;
   if (!token) return null;
   const decoded = decode(token);
@@ -75,14 +96,17 @@ export function getCurrentUser(): User | null {
 }
 
 /**
- * Resolve the current user from either the session cookie (web) or an
- * Authorization: Bearer <token> header (mobile / Expo). The token format
- * is the same HMAC string returned by `issueToken()`.
+ * Resolve the current user from one of three sources in order:
+ *   1. `Authorization: Bearer <hmac-token>` header (mobile / Expo)
+ *   2. NextAuth session cookie (web after cutover)
+ *   3. Legacy HMAC session cookie (web pre-cutover)
+ *
+ * The HMAC bearer token format is the string returned by `issueToken()`.
  */
-export function getUserFromRequest(req: Request): User | null {
-  const auth = req.headers.get("authorization");
-  if (auth?.toLowerCase().startsWith("bearer ")) {
-    const token = auth.slice(7).trim();
+export async function getUserFromRequest(req: Request): Promise<User | null> {
+  const authHeader = req.headers.get("authorization");
+  if (authHeader?.toLowerCase().startsWith("bearer ")) {
+    const token = authHeader.slice(7).trim();
     const decoded = decode(token);
     if (decoded) {
       const u = findUserById(decoded.userId);

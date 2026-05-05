@@ -5,12 +5,12 @@ import { logout } from "../login/actions";
 
 export const dynamic = "force-dynamic";
 
-export default function SafetyLayout({
+export default async function SafetyLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const user = getCurrentUser();
+  const user = await getCurrentUser();
   if (!user) redirect("/login?next=/safety/near-misses");
 
   return (

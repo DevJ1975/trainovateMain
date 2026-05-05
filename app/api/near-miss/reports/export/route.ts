@@ -40,7 +40,7 @@ const HEADERS = [
  * usable without joins.
  */
 export async function GET(req: NextRequest) {
-  const user = getUserFromRequest(req);
+  const user = await getUserFromRequest(req);
   if (!user) return unauthorized();
 
   const summaries = listReports();

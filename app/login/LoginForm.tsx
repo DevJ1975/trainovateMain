@@ -38,12 +38,14 @@ export function LoginForm({ next }: { next: string }) {
       <div>
         <label htmlFor="password" className="block text-xs uppercase tracking-[0.18em] text-bone/60">
           Password
+          <span className="ml-2 normal-case tracking-normal text-bone/40">
+            optional — leave blank for a magic-link email
+          </span>
         </label>
         <input
           id="password"
           name="password"
           type="password"
-          required
           className="mt-1 w-full rounded-md border border-bone/15 bg-ink/40 px-3 py-2 text-bone placeholder:text-bone/30 focus:border-cobalt focus:outline-none focus:ring-1 focus:ring-cobalt"
         />
       </div>

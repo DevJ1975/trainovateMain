@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, index, primaryKey } from "drizzle-orm/sqlite-core";
 
 export const nearMissReports = sqliteTable(
   "near_miss_reports",
@@ -103,6 +103,64 @@ export const meta = sqliteTable("near_miss_meta", {
   key: text("key").primaryKey(),
   value: integer("value").notNull(),
 });
+
+/**
+ * NextAuth (Auth.js) standard tables — column names match what
+ * @auth/drizzle-adapter expects. The `role` column on `users` is our
+ * extension; everything else is canonical.
+ *
+ * The schema is intentionally not in a separate file because the
+ * Drizzle migration generator wants every table in one schema graph
+ * to keep the snapshot consistent.
+ */
+
+export const users = sqliteTable("user", {
+  id: text("id").primaryKey().notNull(),
+  name: text("name"),
+  email: text("email").notNull().unique(),
+  emailVerified: integer("emailVerified", { mode: "timestamp_ms" }),
+  image: text("image"),
+  /** Trainovate-specific role — defaults to "safety_lead" on first sign-in. */
+  role: text("role").notNull().default("safety_lead"),
+});
+
+export const accounts = sqliteTable(
+  "account",
+  {
+    userId: text("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    type: text("type").notNull(),
+    provider: text("provider").notNull(),
+    providerAccountId: text("providerAccountId").notNull(),
+    refresh_token: text("refresh_token"),
+    access_token: text("access_token"),
+    expires_at: integer("expires_at"),
+    token_type: text("token_type"),
+    scope: text("scope"),
+    id_token: text("id_token"),
+    session_state: text("session_state"),
+  },
+  (a) => ({ pk: primaryKey({ columns: [a.provider, a.providerAccountId] }) }),
+);
+
+export const sessions = sqliteTable("session", {
+  sessionToken: text("sessionToken").primaryKey().notNull(),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  expires: integer("expires", { mode: "timestamp_ms" }).notNull(),
+});
+
+export const verificationTokens = sqliteTable(
+  "verificationToken",
+  {
+    identifier: text("identifier").notNull(),
+    token: text("token").notNull(),
+    expires: integer("expires", { mode: "timestamp_ms" }).notNull(),
+  },
+  (vt) => ({ pk: primaryKey({ columns: [vt.identifier, vt.token] }) }),
+);
 
 /**
  * Per-key dedupe cache for retried POSTs (Stripe-style Idempotency-Key).

@@ -35,6 +35,117 @@ _Nothing yet._
 
 ---
 
+## 2026-05-05 — NextAuth (Auth.js v5) wiring + DB-backed users
+
+> Replaces the hardcoded user list with an Auth.js-managed users
+> table. Web sign-in goes through Auth.js; mobile bearer auth still
+> works (validates against the same DB). Real OAuth providers
+> (Google / Okta / Azure) are now a 5-line drop-in.
+
+### Added
+
+- **`auth.ts`** at the repo root — Auth.js v5 config exporting
+  `{ handlers, signIn, signOut, auth }`.
+  - **Resend provider** for email magic-link. Active when both
+    `RESEND_API_KEY` and `AUTH_RESEND_FROM` are set. Uses the same
+    Resend account the marketing `/api/contact` form uses.
+  - **Credentials provider** ("dev-credentials") for the existing
+    dev-stub flow. `authorize()` calls `assertDevAuthAllowed()` so
+    the path is hard-gated in production unless
+    `NM_ALLOW_DEV_AUTH=true`.
+- **`@auth/drizzle-adapter`** + four NextAuth-standard tables
+  (`user`, `account`, `session`, `verificationToken`) plus a `role`
+  column on `user` for the `safety_lead` / `safety_admin`
+  distinction. Migration: `drizzle/0004_salty_jocasta.sql`.
+- **`/api/auth/[...nextauth]/route.ts`** catch-all handler. Exposes
+  `/api/auth/{signin,callback/<provider>,signout,session,csrf,
+  verify-request,error,providers}`.
+- **`lib/auth/seed.ts`** — `ensureDevUsersSeeded()` writes the
+  Priya/Marcus dev users to the DB on first sign-in. Idempotent;
+  no-ops in production unless `NM_ALLOW_DEV_AUTH=true`.
+
+### Changed
+
+- **`lib/auth/users.ts`** is now a DB-backed lookup
+  (`findUserByEmail`, `findUserById`) — no more hardcoded array.
+  Both NextAuth's Credentials provider and the mobile
+  `/api/auth/token` endpoint resolve users through this single layer.
+- **`lib/auth/session.ts → getCurrentUser()`** is now `async`. It
+  prefers Auth.js's session (`auth()`) and falls back to the legacy
+  HMAC cookie so mid-cutover deploys don't sign everyone out.
+  `getUserFromRequest(req)` is also async. Mobile bearer-token path
+  unchanged (still HMAC-signed via `issueToken()`).
+- All 15 callers of `getUserFromRequest` / `getCurrentUser` updated
+  to `await` — server actions, HTTP routes, safety layout. Mostly
+  mechanical.
+- **`/login`** — password field is now optional. Empty password
+  triggers the magic-link path (when configured); a non-empty
+  password goes through the Credentials provider. Page banner
+  reflects which providers are actually wired so the dev hint isn't
+  shown in a real production deploy.
+- **`middleware.ts`** accepts either the NextAuth session cookie
+  (`authjs.session-token` or `__Secure-authjs.session-token`) or the
+  legacy HMAC cookie.
+- **JWT session strategy.** Required by Auth.js v5 when using the
+  Credentials provider. Drizzle adapter still owns
+  users/accounts/verificationTokens; the `session` table just goes
+  unused. `jwt`/`session` callbacks embed `id` and `role` so the
+  triage actors-name in the audit log lights up correctly.
+
+### New env vars (see `.env.example`)
+
+- `AUTH_SECRET` — signs Auth.js JWT session cookies. Falls back to
+  `SESSION_SECRET` if unset; one of the two must be 32+ chars in
+  production.
+- `AUTH_RESEND_FROM` — `From:` address for magic-link emails. Pairs
+  with the existing `RESEND_API_KEY`.
+- `AUTH_URL` (optional) — explicit URL for self-hosted callbacks.
+  Vercel auto-detects this.
+- `trustHost: true` is set in `auth.ts` so non-Vercel deploys (Docker,
+  bare metal) work without `AUTH_URL` — the host header isn't an
+  authentication boundary because cookies are HMAC-signed.
+
+### Adding a real OAuth provider
+
+```ts
+// auth.ts — add to buildProviders()
+import Google from "next-auth/providers/google";
+
+list.push(Google({
+  clientId: process.env.AUTH_GOOGLE_ID!,
+  clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+}));
+```
+
+Set the two env vars in the deploy. The Drizzle adapter
+auto-creates `account` rows on first sign-in. Repeat for Azure AD,
+Okta, etc. — Auth.js docs cover ~80 providers.
+
+### Tested
+
+- 72 tests still passing across 7 suites — no test changes needed
+  because the use-case layer takes a pre-resolved `actor` and
+  doesn't care which auth path produced it.
+- End-to-end smoke verified:
+  - `/api/auth/providers` returns `{ "dev-credentials": {...} }`
+  - `/api/auth/csrf` issues a token
+  - Sign-in via Credentials sets the JWT cookie
+  - `/api/auth/session` returns the user with `id` and `role` populated
+  - `/safety/near-misses` accepts the NextAuth cookie (200, not 307)
+  - Mobile bearer endpoint still works (validates against DB users)
+  - Triage write through bearer threads `actorName` from the DB row
+    into the audit log
+
+### Migration path for existing deploys
+
+Existing HMAC sessions keep working — `getCurrentUser()` falls back
+to them. Once everyone has signed in fresh through Auth.js, the
+fallback can be deleted from `lib/auth/session.ts` and the legacy
+HMAC cookie + `/login`'s password path can be retired entirely.
+Mobile bearer endpoint stays — it's the canonical mobile auth.
+
+---
+
 ## 2026-05-05 — Server-action ↔ HTTP-API consolidation (use-case layer)
 
 ### Added

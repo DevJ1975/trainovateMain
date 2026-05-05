@@ -22,7 +22,7 @@ export async function GET(
   const att = getAttachment(params.id);
   if (!att) return new NextResponse("Not found", { status: 404 });
 
-  const user = getUserFromRequest(req);
+  const user = await getUserFromRequest(req);
   if (!user) {
     const code = req.nextUrl.searchParams.get("code")?.trim().toUpperCase();
     if (!code) return new NextResponse("Forbidden", { status: 403 });

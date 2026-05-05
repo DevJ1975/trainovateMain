@@ -17,8 +17,8 @@ function getString(fd: FormData, key: string): string {
   return typeof v === "string" ? v.trim() : "";
 }
 
-function actor(): Actor {
-  const u = getCurrentUser();
+async function actor(): Promise<Actor> {
+  const u = await getCurrentUser();
   if (!u) throw new Error("Not authenticated");
   return { name: u.name };
 }
@@ -43,7 +43,7 @@ export async function changeStatus(id: string, formData: FormData) {
     changeReportStatus({
       reportId: id,
       status: getString(formData, "status"),
-      actor: actor(),
+      actor: await actor(),
     }),
   );
   refreshFor(id);
@@ -55,7 +55,7 @@ export async function addFactor(id: string, formData: FormData) {
       reportId: id,
       type: getString(formData, "type"),
       note: getString(formData, "note"),
-      actor: actor(),
+      actor: await actor(),
     }),
   );
   refreshFor(id);
@@ -68,7 +68,7 @@ export async function addAction(id: string, formData: FormData) {
       description: getString(formData, "description"),
       ownerName: getString(formData, "ownerName"),
       dueAt: getString(formData, "dueAt") || null,
-      actor: actor(),
+      actor: await actor(),
     }),
   );
   refreshFor(id);
@@ -79,7 +79,7 @@ export async function completeAction(id: string, formData: FormData) {
     completeReportCorrectiveAction({
       reportId: id,
       actionId: getString(formData, "actionId"),
-      actor: actor(),
+      actor: await actor(),
     }),
   );
   refreshFor(id);
@@ -90,7 +90,7 @@ export async function addCommentAction(id: string, formData: FormData) {
     addReportComment({
       reportId: id,
       text: getString(formData, "text"),
-      actor: actor(),
+      actor: await actor(),
     }),
   );
   refreshFor(id);

@@ -1,3 +1,8 @@
+import { eq } from "drizzle-orm";
+import { ensureMigrated, getDb } from "@/lib/near-miss/db/client";
+import { users } from "@/lib/near-miss/db/schema";
+import { ensureDevUsersSeeded } from "./seed";
+
 export type Role = "safety_lead" | "safety_admin";
 
 export interface User {
@@ -7,31 +12,28 @@ export interface User {
   role: Role;
 }
 
-/**
- * Dev-only user list. Real production needs SSO (NextAuth/Auth.js, Workos,
- * or similar) backed by your customer's IdP. This stub is good enough for
- * dogfooding the safety surface without standing up an auth provider.
- */
-export const USERS: User[] = [
-  {
-    id: "u_lead",
-    email: "lead@trainovate.demo",
-    name: "Priya Shah",
-    role: "safety_lead",
-  },
-  {
-    id: "u_admin",
-    email: "admin@trainovate.demo",
-    name: "Marcus Webb",
-    role: "safety_admin",
-  },
-];
+function rowToUser(row: typeof users.$inferSelect): User {
+  return {
+    id: row.id,
+    email: row.email,
+    name: row.name ?? row.email,
+    role: (row.role as Role) ?? "safety_lead",
+  };
+}
 
 export function findUserByEmail(email: string): User | undefined {
   const e = email.trim().toLowerCase();
-  return USERS.find((u) => u.email.toLowerCase() === e);
+  if (!e) return undefined;
+  ensureMigrated();
+  ensureDevUsersSeeded();
+  const row = getDb().select().from(users).where(eq(users.email, e)).get();
+  return row ? rowToUser(row) : undefined;
 }
 
 export function findUserById(id: string): User | undefined {
-  return USERS.find((u) => u.id === id);
+  if (!id) return undefined;
+  ensureMigrated();
+  ensureDevUsersSeeded();
+  const row = getDb().select().from(users).where(eq(users.id, id)).get();
+  return row ? rowToUser(row) : undefined;
 }

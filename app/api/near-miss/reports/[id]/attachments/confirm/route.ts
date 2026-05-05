@@ -26,7 +26,7 @@ export async function POST(
   const report = getReport(params.id);
   if (!report) return notFound("Report not found");
 
-  const user = getUserFromRequest(req);
+  const user = await getUserFromRequest(req);
   if (!user) {
     const code = req.nextUrl.searchParams.get("code")?.trim().toUpperCase();
     if (!code || !report.anonymous || report.receiptCode !== code) {
