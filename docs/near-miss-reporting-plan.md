@@ -197,6 +197,25 @@ Verified by `next build` (typecheck passes; routes generate).
 - Icons are SVG; ship rasterized PNG (192/512) before launch for full
   Android Chrome install support.
 
+### Mobile / Expo readiness
+
+The platform-agnostic core lives in `shared/near-miss/` (types, constants,
+validation, format, fetch client). The web app re-exports from
+`lib/near-miss/types.ts` so existing imports keep working.
+
+A public HTTP API mirrors the parts of the server-action surface that
+mobile needs: submit, list, detail, by-reference, by-code, photo upload,
+plus `/api/auth/token` for bearer-token login and `/api/auth/me` for
+whoami. `lib/auth/session.ts` accepts the same HMAC token from either the
+session cookie (web) or `Authorization: Bearer …` (mobile). See
+`shared/near-miss/README.md` for Expo `tsconfig.json` + Metro setup and
+example screens.
+
+Triage write endpoints (status change, factor add, action add, complete)
+are not yet exposed over HTTP — the web triage console uses server actions.
+Add them under `/api/near-miss/reports/[id]/...` when you wire mobile
+triage.
+
 ### Still outstanding for Phase 1
 
 - **Real SSO** — replace the hardcoded user list with NextAuth/Auth.js

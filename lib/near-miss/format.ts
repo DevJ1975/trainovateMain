@@ -1,4 +1,11 @@
-import { ReportStatus, Severity } from "./types";
+import { ReportStatus, Severity } from "@/shared/near-miss/types";
+
+export { relativeTime } from "@/shared/near-miss/format";
+
+/**
+ * Tailwind badge class helpers — web-only. Mobile clients should compute
+ * their own colors against the theme palette.
+ */
 
 export function statusBadgeClass(status: ReportStatus): string {
   switch (status) {
@@ -26,32 +33,4 @@ export function severityBadgeClass(severity: Severity): string {
     case "critical":
       return "border-flare/60 bg-flare/15 text-flare";
   }
-}
-
-export function relativeTime(iso: string): string {
-  const t = new Date(iso).getTime();
-  if (!Number.isFinite(t)) return "—";
-
-  const ms = Date.now() - t;
-  if (ms < 0) {
-    // Future — clock skew or scheduled item.
-    const future = -ms;
-    if (future < 60_000) return "in <1m";
-    const min = Math.round(future / 60_000);
-    if (min < 60) return `in ${min}m`;
-    const hr = Math.round(min / 60);
-    if (hr < 24) return `in ${hr}h`;
-    return new Date(iso).toLocaleDateString();
-  }
-
-  const sec = Math.round(ms / 1000);
-  if (sec < 5) return "just now";
-  if (sec < 60) return `${sec}s ago`;
-  const min = Math.round(sec / 60);
-  if (min < 60) return `${min}m ago`;
-  const hr = Math.round(min / 60);
-  if (hr < 24) return `${hr}h ago`;
-  const d = Math.round(hr / 24);
-  if (d < 30) return `${d}d ago`;
-  return new Date(iso).toLocaleDateString();
 }

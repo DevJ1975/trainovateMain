@@ -50,3 +50,33 @@ export function getCurrentUser(): User | null {
   if (!decoded) return null;
   return findUserById(decoded.userId) ?? null;
 }
+
+/**
+ * Resolve the current user from either the session cookie (web) or an
+ * Authorization: Bearer <token> header (mobile / Expo). The token format
+ * is the same HMAC string returned by `issueToken()`.
+ */
+export function getUserFromRequest(req: Request): User | null {
+  const auth = req.headers.get("authorization");
+  if (auth?.toLowerCase().startsWith("bearer ")) {
+    const token = auth.slice(7).trim();
+    const decoded = decode(token);
+    if (decoded) {
+      const u = findUserById(decoded.userId);
+      if (u) return u;
+    }
+  }
+  return getCurrentUser();
+}
+
+/**
+ * Issue a bearer token for the given user. Same encoding as the cookie
+ * session — clients can persist this and send it as Authorization: Bearer.
+ */
+export function issueToken(userId: string): { token: string; expiresAt: string } {
+  const token = encode(userId);
+  return {
+    token,
+    expiresAt: new Date((Math.floor(Date.now() / 1000) + MAX_AGE_SEC) * 1000).toISOString(),
+  };
+}

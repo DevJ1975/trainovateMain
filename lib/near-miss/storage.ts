@@ -1,6 +1,10 @@
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
+import {
+  ALLOWED_PHOTO_TYPES as SHARED_ALLOWED,
+  LIMITS,
+} from "@/shared/near-miss/validation";
 
 /**
  * Local-filesystem storage. Phase 1 dev only — Vercel/Lambda filesystems are
@@ -11,14 +15,9 @@ import path from "node:path";
 const UPLOAD_DIR =
   process.env.NEAR_MISS_UPLOAD_DIR ?? path.join(process.cwd(), "uploads");
 
-export const MAX_FILE_BYTES = 10 * 1024 * 1024;
-export const MAX_FILES_PER_REPORT = 5;
-export const ALLOWED_PHOTO_TYPES = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/gif",
-]);
+export const MAX_FILE_BYTES = LIMITS.attachmentBytes;
+export const MAX_FILES_PER_REPORT = LIMITS.attachmentsPerReport;
+export const ALLOWED_PHOTO_TYPES = new Set<string>(SHARED_ALLOWED);
 
 export interface StoredFile {
   storageKey: string;
