@@ -35,6 +35,110 @@ _Nothing yet._
 
 ---
 
+## 2026-05-05 — Web PWA offline submit queue
+
+> Closes the last field-reporter gap. Pairs with the server-side
+> `Idempotency-Key` work and mirrors the mobile queue (see entries
+> below).
+
+### Added
+
+- **`lib/near-miss/web-queue.ts`** — IndexedDB-backed draft queue.
+  Database `nm_offline_queue`, store `drafts` (autoincrement keypath,
+  `createdAt` index). Each draft persists `{ idempotencyKey,
+  createdAt, input, photo, attempts, lastError }`. Photos round-trip
+  as native `File`/`Blob` via structured-clone — survive tab close,
+  browser restart, and device reboot.
+- **Pending-count banner** at the top of the submit page. When ≥1
+  draft exists: "{n} draft(s) waiting to send · sending…" + "Retry
+  now" button (when not actively draining).
+- **Queued-confirmation screen** replaces the form when a submit
+  fails offline: "Saved. We'll send it when you're back online." +
+  pending count + Retry button. Anonymous reporters told their
+  receipt code shows on the standard thanks page once delivery
+  completes.
+- **Drain triggers**: form mount (`useEffect`), `window.online`
+  event, post-submit success, manual "Retry now" tap.
+
+### Changed
+
+- **`app/report/SubmissionForm.tsx`** rewritten from a `useFormState`
+  + server-action POST to a fetch-based POST to
+  `/api/near-miss/reports`. Necessary because Next.js server actions
+  encode an opaque action ID per build — replaying them from a
+  long-lived IndexedDB queue would break across deploys. The HTTP
+  API is the stable interface.
+- Multi-photo upload still works on the online path (sequential POSTs
+  to `/attachments`), but **only the first photo is queued** when
+  offline. Multi-photo queuing is the obvious follow-up if reporters
+  ask for it; for now we trade fidelity for simpler IndexedDB
+  records.
+- Field-level error rendering preserved — the API returns
+  `400 { fieldErrors }` and the form maps directly onto the same
+  `FieldKey` set.
+
+### Removed
+
+- **`app/report/actions.ts`** (the old `submitReport` server action).
+  No callers remain; the file would have been dead code that rotted.
+
+### Drain behavior
+
+For each queued draft (`drainQueue()` in `lib/near-miss/web-queue.ts`):
+- POST `/api/near-miss/reports` with the stored `Idempotency-Key`
+- 2xx → photo upload best-effort, draft removed, reference + receipt
+  added to `summary.delivered`
+- 4xx (excluding 408 / 429) → permanent, draft removed
+- Network / 5xx / 408 / 429 → stays queued, `attempts++`,
+  `lastError` recorded
+
+When a queued draft delivers, the form auto-routes to
+`/report/thanks/[reference]` so the reporter sees the same
+confirmation page as the online path (receipt code in its usual
+place for anonymous reports).
+
+### Why server-side dedupe matters (recap)
+
+A POST that succeeded server-side but lost its response on the wire
+would otherwise create a duplicate report on retry. With
+`Idempotency-Key` (48h TTL on the server, see the entry above), the
+queue is safe to ship.
+
+### Browser support
+
+- IndexedDB: every browser that runs the PWA. We catch open errors
+  silently — private-browsing modes that block IndexedDB just see no
+  pending banner (online submission still works directly).
+- `window.online` event: ubiquitous. Doesn't fire reliably on iOS
+  Safari when network state changes via Lock Screen, so we *also*
+  drain on every page load — same pattern as mobile.
+
+### Verified
+
+- 57 unit tests passing across 6 suites (no new test file — the queue
+  is browser-only and Vitest can't reasonably simulate
+  IndexedDB + offline events without polyfills that diverge from
+  real browser behavior).
+- Build clean. `/report` bundle: 5.58 kB route + shared chunks (still
+  under 100 kB First Load JS).
+- End-to-end smoke against running server: form HTML renders all
+  inputs; matching `POST /api/near-miss/reports` with Idempotency-Key
+  returns 201 (the same path the form executes).
+
+### Not yet (deferred follow-ups)
+
+- **Multi-photo queuing.** First photo only on the offline path.
+- **Service-worker Background Sync API** — Chromium-only, would let
+  drafts replay even when the tab is closed. iOS Safari doesn't
+  support it; on-page-load drain covers the common case.
+- **Last-deliveries banner.** Mobile shows a "Sent · NM-26-XXXX" toast
+  for the last 5 drains. Web routes straight to the thanks page on
+  the next visit, which is fine for single drafts but loses
+  visibility when many drafts deliver in one drain. Add a small
+  "recently sent" list if this becomes friction.
+
+---
+
 ## 2026-05-05 — Mobile offline submit queue
 
 > Lives in `../mobile`, not in this repository's git tree. Pairs with
