@@ -21,14 +21,10 @@ export function FinalCTA() {
 
         <div className="mt-12 flex flex-wrap gap-3">
           <Link href="/contact" className="tnv-btn-signal">
-            Request a Demo <ArrowRight size={14} />
+            Request a demo <ArrowRight size={14} />
           </Link>
-          <Link
-            href="/contact"
-            className="tnv-btn-signal"
-            style={{ background: "var(--tnv-flare)", borderColor: "var(--tnv-flare)" }}
-          >
-            Start Your Training Transformation
+          <Link href="/report" className="tnv-btn-ghost">
+            Try near-miss reporting — free
           </Link>
         </div>
 

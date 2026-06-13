@@ -34,9 +34,8 @@ describe("withIdempotency", () => {
     const b = await withIdempotency("submit", "k1", '{"x":1}', handler);
 
     expect(handler).toHaveBeenCalledTimes(1);
-    expect(a.status).toBe(400);
-    expect(b.status).toBe(400);
-    expect(b.kind).toBe("replay");
+    expect(a).toMatchObject({ kind: "fresh", status: 400 });
+    expect(b).toMatchObject({ kind: "replay", status: 400 });
   });
 
   it("returns conflict when same key sees a different body hash", async () => {
