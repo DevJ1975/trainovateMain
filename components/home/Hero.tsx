@@ -51,17 +51,10 @@ export function Hero() {
           style={{ animationDelay: "560ms" }}
         >
           <Link href="/contact" className="tnv-btn-signal">
-            Request a Demo <ArrowRight size={14} />
+            Request a demo <ArrowRight size={14} />
           </Link>
           <Link href="/platform" className="tnv-btn-ghost">
-            Explore Solutions
-          </Link>
-          <Link
-            href="/contact"
-            className="tnv-btn-signal"
-            style={{ background: "var(--tnv-flare)", borderColor: "var(--tnv-flare)" }}
-          >
-            Build Your Training System
+            Explore the platform
           </Link>
         </div>
       </div>

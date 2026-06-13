@@ -6,6 +6,7 @@ import { WhatIsTrainovate } from "@/components/home/WhatIsTrainovate";
 import { CoreCapabilities } from "@/components/home/CoreCapabilities";
 import { CinematicBanner } from "@/components/home/CinematicBanner";
 import { HowItWorks } from "@/components/home/HowItWorks";
+import { LiveProductCallout } from "@/components/home/LiveProductCallout";
 import { IndustriesSnapshot } from "@/components/home/IndustriesSnapshot";
 import { WhyTrainovate } from "@/components/home/WhyTrainovate";
 import { Mission } from "@/components/home/Mission";
@@ -27,6 +28,7 @@ export default function HomePage() {
       <CoreCapabilities />
       <CinematicBanner />
       <HowItWorks />
+      <LiveProductCallout />
       <IndustriesSnapshot />
       <WhyTrainovate />
       <Mission />
